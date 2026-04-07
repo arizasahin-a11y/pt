@@ -6,8 +6,8 @@
     <title>Proje Faaliyeti Raporlama Sistemi | PFDS</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome (v6+) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -186,8 +186,8 @@
         </div>
     </div>
 
-    <!-- HIDDEN PRINT AREA (Invisible to user, but fully rendered for PDF engine) -->
-    <div id="print-wrapper" style="opacity: 0; position: fixed; z-index: -1000; top: 0; left: 0; pointer-events: none;">
+    <!-- HIDDEN PRINT AREA -->
+    <div id="print-wrapper" class="print-only" style="opacity: 0; position: fixed; z-index: -1000; top: 0; left: 0; pointer-events: none;">
         <div id="print-content" style="padding: 40px; font-family: 'Times New Roman', serif; color: black; background: white; width: 210mm; min-height: 297mm; box-sizing: border-box;">
             <style>
                 .print-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }

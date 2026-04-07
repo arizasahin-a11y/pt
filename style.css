@@ -270,6 +270,29 @@ input:checked ~ .other-input {
     display: block;
 }
 
+/* Print Media Queries */
+@media print {
+    body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .no-print, .container, .btn-group, header, #saved-reports {
+        display: none !important;
+    }
+    #print-wrapper {
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: static !important;
+        display: block !important;
+    }
+    #print-content {
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important; /* System print dialog adds its own margins */
+    }
+}
+
 /* Responsive adjustment */
 @media (max-width: 600px) {
     body { padding: 1rem; }

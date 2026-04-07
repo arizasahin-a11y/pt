@@ -114,39 +114,22 @@ saveBtn.addEventListener('click', () => {
     };
 });
 
-// PDF Generation Logic
-async function generatePDF(data, openMode = 'blob') {
+// PDF Generation Logic (Preview in new tab)
+async function generatePDF(data) {
     const printArea = document.getElementById('print-content');
     const printWrapper = document.getElementById('print-wrapper');
     
     try {
-        // Populate new content
-        document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
-        document.getElementById('p-edu-year').textContent = data.eduYear;
-        
-        // Single project type name
-        document.getElementById('p-type-area').textContent = data.projectType || 'BELİRTİLMEDİ';
-
-        document.getElementById('p-name').textContent = data.activityName || '';
-        document.getElementById('p-type').textContent = data.activityType || '';
-        document.getElementById('p-teacher').textContent = data.teacher || '';
-        document.getElementById('p-profile').textContent = data.participantProfile || '';
-        document.getElementById('p-count').textContent = data.totalParticipants || '';
-        document.getElementById('p-location').textContent = data.location || '';
-        document.getElementById('p-dates').textContent = formatDateRange(data.startDate, data.endDate);
-        document.getElementById('p-duration').textContent = data.duration || '';
-        document.getElementById('p-purpose').textContent = data.purpose || '';
-        document.getElementById('p-difficulties').textContent = data.difficulties || '';
-        document.getElementById('p-suggestions').textContent = data.suggestions || '';
-        document.getElementById('p-collaborations').textContent = data.collaborations || '';
-        document.getElementById('p-evaluation').textContent = data.evaluation || '';
-        document.getElementById('p-docs').textContent = data.docs || '';
-        
-        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
-        document.getElementById('p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+        // Populate content
+        fillPrintTemplate(data);
 
         // Wait for styles/content
         await new Promise(r => setTimeout(r, 200));
+
+        // CRITICAL FIX: Make it visible JUST during capture
+        printWrapper.style.opacity = '1';
+        printWrapper.style.position = 'static';
+        printWrapper.style.zIndex = '1';
 
         const opt = {
             margin: [10, 10, 10, 10],
@@ -156,21 +139,58 @@ async function generatePDF(data, openMode = 'blob') {
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        if (openMode === 'blob') {
-            const pdf = await html2pdf().set(opt).from(printArea).output('bloburl');
-            window.open(pdf, '_blank');
-        } else {
-            // Direct build and save/print (fallback)
-            await html2pdf().set(opt).from(printArea).save();
-        }
+        const pdf = await html2pdf().set(opt).from(printArea).output('bloburl');
+        window.open(pdf, '_blank');
+        
+        // Hide it back
+        printWrapper.style.opacity = '0';
+        printWrapper.style.position = 'fixed';
+        printWrapper.style.zIndex = '-1000';
         
     } catch (err) {
         console.error('PDF Error:', err);
-        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+        alert('PDF oluşturulurken bir hata oluştu.');
     }
 }
 
-// Function to collect form data for immediate action
+// Helper: Fill the hidden template with data
+function fillPrintTemplate(data) {
+    document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
+    document.getElementById('p-edu-year').textContent = data.eduYear;
+    document.getElementById('p-type-area').textContent = data.projectType;
+    document.getElementById('p-name').textContent = data.activityName || '';
+    document.getElementById('p-type').textContent = data.activityType || '';
+    document.getElementById('p-teacher').textContent = data.teacher || '';
+    document.getElementById('p-profile').textContent = data.participantProfile || '';
+    document.getElementById('p-count').textContent = data.totalParticipants || '';
+    document.getElementById('p-location').textContent = data.location || '';
+    document.getElementById('p-dates').textContent = formatDateRange(data.startDate, data.endDate);
+    document.getElementById('p-duration').textContent = data.duration || '';
+    document.getElementById('p-purpose').textContent = data.purpose || '';
+    document.getElementById('p-difficulties').textContent = data.difficulties || '';
+    document.getElementById('p-suggestions').textContent = data.suggestions || '';
+    document.getElementById('p-collaborations').textContent = data.collaborations || '';
+    document.getElementById('p-evaluation').textContent = data.evaluation || '';
+    document.getElementById('p-docs').textContent = data.docs || '';
+    const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+    document.getElementById('p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+}
+
+// PDF Preview Button
+printBtn.addEventListener('click', () => generatePDF(getFormData()));
+
+// Direct Print Button (The most reliable method)
+directPrintBtn.addEventListener('click', () => {
+    const data = getFormData();
+    fillPrintTemplate(data);
+    
+    // Very short delay to ensure DOM update
+    setTimeout(() => {
+        window.print(); // This will trigger the CSS @media print rules
+    }, 100);
+});
+
+// Helper: Get current form data
 function getFormData() {
     return {
         eduYear: document.getElementById('edu-year').value,
@@ -195,19 +215,6 @@ function getFormData() {
         fillerDate: document.getElementById('filler-date').value
     };
 }
-
-// PDF Button (New Tab)
-printBtn.addEventListener('click', () => generatePDF(getFormData(), 'blob'));
-
-// Direct Print Icon Button
-directPrintBtn.addEventListener('click', () => {
-    // For direct printing, we use browser's window.print() but it's better to render to PDF first for A4 layout consistency OR specialized CSS.
-    // However, the cleanest "Direct Print" to most users is triggering the browser's PDF internal print.
-    // We will generate the PDF and open it; most user browsers (Chrome/Edge) will handle the rest.
-    // But if he wants a system print dialog directly, we can do this:
-    const data = getFormData();
-    generatePDF(data, 'blob'); // Standardizing on Blob as it is best for preview/print
-});
 
 // View History
 historyBtn.addEventListener('click', () => {
