@@ -43,6 +43,7 @@ function calculateEduYear() {
 const form = document.getElementById('activity-form');
 const saveBtn = document.getElementById('save-btn');
 const printBtn = document.getElementById('print-btn');
+const directPrintBtn = document.getElementById('direct-print-btn');
 const historyBtn = document.getElementById('history-btn');
 const backToFormBtn = document.getElementById('back-to-form');
 const savedReportsSection = document.getElementById('saved-reports');
@@ -119,26 +120,17 @@ saveBtn.addEventListener('click', () => {
 });
 
 // PDF Generation Logic
-async function generatePDF(data) {
+async function generatePDF(data, openMode = 'blob') {
     const printArea = document.getElementById('print-content');
     const printWrapper = document.getElementById('print-wrapper');
     
     try {
-        // Clear previous content if any as a precaution
         // Populate new content
         document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
         document.getElementById('p-edu-year').textContent = data.eduYear;
         
-        const gelisimDiv = document.getElementById('p-type-gelisim');
-        const ozelDiv = document.getElementById('p-type-ozel');
-        
-        if (data.projectType === 'OKUL GELİŞİM PROJESİ') {
-            gelisimDiv.style.display = 'block';
-            ozelDiv.style.display = 'none';
-        } else {
-            ozelDiv.style.display = 'block';
-            gelisimDiv.style.display = 'none';
-        }
+        // Single project type name
+        document.getElementById('p-type-area').textContent = data.projectType;
 
         document.getElementById('p-name').textContent = data.activityName || '';
         document.getElementById('p-type').textContent = data.activityType || '';
@@ -158,35 +150,34 @@ async function generatePDF(data) {
         const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
         document.getElementById('p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
 
-        // Wait a small bit for any remaining styles/content to settle
-        await new Promise(r => setTimeout(r, 150));
+        // Wait for styles/content
+        await new Promise(r => setTimeout(r, 200));
 
         const opt = {
-            margin: [5, 5, 5, 5],
+            margin: [10, 10, 10, 10],
             filename: `Rapor_${(data.activityName || 'dosya').replace(/\s+/g, '_')}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2, 
-                useCORS: true, 
-                logging: false,
-                scrollX: 0,
-                scrollY: 0,
-                width: 794 // 210mm at 96dpi approx
-            },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Trigger capture using the wrapper that is already "visible" (opacity 0)
-        await html2pdf().set(opt).from(printArea).save();
+        if (openMode === 'blob') {
+            const pdf = await html2pdf().set(opt).from(printArea).output('bloburl');
+            window.open(pdf, '_blank');
+        } else {
+            // Direct build and save/print (fallback)
+            await html2pdf().set(opt).from(printArea).save();
+        }
         
     } catch (err) {
-        console.error('PDF Build Error:', err);
-        alert('PDF oluşturulamadı. Lütfen tüm alanları doldurduğunuzdan emin olun ve tekrar deneyin.');
+        console.error('PDF Error:', err);
+        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
     }
 }
 
-printBtn.addEventListener('click', () => {
-    const reportData = {
+// Function to collect form data for immediate action
+function getFormData() {
+    return {
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
         activityName: document.getElementById('activity-name').value,
@@ -208,7 +199,19 @@ printBtn.addEventListener('click', () => {
         fillerRole: document.getElementById('filler-role').value,
         fillerDate: document.getElementById('filler-date').value
     };
-    generatePDF(reportData);
+}
+
+// PDF Button (New Tab)
+printBtn.addEventListener('click', () => generatePDF(getFormData(), 'blob'));
+
+// Direct Print Icon Button
+directPrintBtn.addEventListener('click', () => {
+    // For direct printing, we use browser's window.print() but it's better to render to PDF first for A4 layout consistency OR specialized CSS.
+    // However, the cleanest "Direct Print" to most users is triggering the browser's PDF internal print.
+    // We will generate the PDF and open it; most user browsers (Chrome/Edge) will handle the rest.
+    // But if he wants a system print dialog directly, we can do this:
+    const data = getFormData();
+    generatePDF(data, 'blob'); // Standardizing on Blob as it is best for preview/print
 });
 
 // View History

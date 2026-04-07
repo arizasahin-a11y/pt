@@ -167,7 +167,10 @@
                     <i class="fa-solid fa-floppy-disk"></i> Verileri Kaydet
                 </button>
                 <button type="button" class="btn-primary" style="background: var(--accent);" id="print-btn">
-                    <i class="fa-solid fa-file-pdf"></i> PDF Oluştur & Yazdır
+                    <i class="fa-solid fa-file-pdf"></i> PDF Gör (Yeni Sekme)
+                </button>
+                <button type="button" class="btn-secondary" id="direct-print-btn" title="Doğrudan Yazdır">
+                    <i class="fa-solid fa-print"></i> Yazdır
                 </button>
             </div>
         </form>
@@ -203,9 +206,10 @@
                 </div>
             </div>
 
-            <div style="margin-top: 20px; display: flex; justify-content: space-around; width: 100%;">
-                <div id="p-type-gelisim" style="font-weight: bold; border: 1px solid black; padding: 5px 15px;">OKUL GELİŞİM PROJESİ</div>
-                <div id="p-type-ozel" style="font-weight: bold; border: 1px solid black; padding: 5px 15px;">OKUL ÖZEL PROJESİ</div>
+            <div style="margin-top: 20px; display: flex; justify-content: center; width: 100%;">
+                <div id="p-type-area" style="font-weight: bold; border: 1px solid black; padding: 5px 30px; font-size: 16px;">
+                    <!-- Sadece seçilen tür buraya gelecek -->
+                </div>
             </div>
 
             <div style="margin-top: 20px;">
