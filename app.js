@@ -115,58 +115,68 @@ saveBtn.addEventListener('click', () => {
 
 // NEW TAB PREVIEW AND PRINT
 function printReport(data) {
-    // Collect the content
-    const printContent = document.getElementById('print-content').cloneNode(true);
-    
-    // Fill the cloned content with data
-    printContent.querySelector('#p-edu-year').textContent = data.eduYear;
-    printContent.querySelector('#p-type-area').textContent = data.projectType;
-    printContent.querySelector('#p-name').textContent = data.activityName || '';
-    printContent.querySelector('#p-type').textContent = data.activityType || '';
-    printContent.querySelector('#p-teacher').textContent = data.teacher || '';
-    printContent.querySelector('#p-profile').textContent = data.participantProfile || '';
-    printContent.querySelector('#p-count').textContent = data.totalParticipants || '';
-    printContent.querySelector('#p-location').textContent = data.location || '';
-    printContent.querySelector('#p-dates').textContent = formatDateRange(data.startDate, data.endDate);
-    printContent.querySelector('#p-duration').textContent = data.duration || '';
-    printContent.querySelector('#p-purpose').textContent = data.purpose || '';
-    printContent.querySelector('#p-difficulties').textContent = data.difficulties || '';
-    printContent.querySelector('#p-suggestions').textContent = data.suggestions || '';
-    printContent.querySelector('#p-collaborations').textContent = data.collaborations || '';
-    printContent.querySelector('#p-evaluation').textContent = data.evaluation || '';
-    printContent.querySelector('#p-docs').textContent = data.docs || '';
-    const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
-    printContent.querySelector('#p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+    try {
+        // Collect the content
+        const printContent = document.getElementById('print-content').cloneNode(true);
+        
+        // Fill the cloned content with data
+        printContent.querySelector('#p-edu-year').textContent = data.eduYear;
+        printContent.querySelector('#p-type-area').textContent = data.projectType;
+        printContent.querySelector('#p-name').textContent = data.activityName || '';
+        printContent.querySelector('#p-type').textContent = data.activityType || '';
+        printContent.querySelector('#p-teacher').textContent = data.teacher || '';
+        printContent.querySelector('#p-profile').textContent = data.participantProfile || '';
+        printContent.querySelector('#p-count').textContent = data.totalParticipants || '';
+        printContent.querySelector('#p-location').textContent = data.location || '';
+        printContent.querySelector('#p-dates').textContent = formatDateRange(data.startDate, data.endDate);
+        printContent.querySelector('#p-duration').textContent = data.duration || '';
+        printContent.querySelector('#p-purpose').textContent = data.purpose || '';
+        printContent.querySelector('#p-difficulties').textContent = data.difficulties || '';
+        printContent.querySelector('#p-suggestions').textContent = data.suggestions || '';
+        printContent.querySelector('#p-collaborations').textContent = data.collaborations || '';
+        printContent.querySelector('#p-evaluation').textContent = data.evaluation || '';
+        printContent.querySelector('#p-docs').textContent = data.docs || '';
+        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+        printContent.querySelector('#p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
 
-    // Open new window
-    const win = window.open('', '_blank');
-    
-    // Styles for the new window
-    const styles = `
-        <style>
-            body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
-            #preview-container { max-width: 210mm; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
-            .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; }
-            .btn-print { background: #ff7e5f; color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
-            .btn-print:hover { transform: translateY(-2px); }
-            @media print {
-                body { background: white; padding: 0; }
-                .action-bar { display: none; }
-                #preview-container { box-shadow: none; border-radius: 0; padding: 0; margin: 0; }
-            }
-        </style>
-    `;
+        // Open new window
+        const win = window.open('', '_blank');
+        
+        if (!win || win.closed || typeof win.closed == 'undefined') {
+            alert('Lütfen tarayıcınızın pop-up (açılır pencere) engelleyicisini kapatın ve tekrar deneyin.');
+            return;
+        }
 
-    // Icons
-    const printIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
+        // Styles for the new window
+        const styles = `
+            <style>
+                body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
+                #preview-container { max-width: 210mm; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
+                .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; }
+                .btn-print { background: #ff7e5f; color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
+                .btn-print:hover { transform: translateY(-2px); }
+                img { max-width: 100px; height: auto; }
+                @media print {
+                    body { background: white !important; padding: 0 !important; }
+                    .action-bar { display: none !important; }
+                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+                }
+            </style>
+        `;
 
-    // Write content
-    win.document.write('<html><head><title>Rapor Önizleme</title>' + styles + '</head><body>');
-    win.document.write('<div class="action-bar"><button class="btn-print" onclick="window.print()">' + printIcon + ' Raporu Hemen Yazdır</button></div>');
-    win.document.write('<div id="preview-container">');
-    win.document.write(printContent.innerHTML);
-    win.document.write('</div></body></html>');
-    win.document.close();
+        const printIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
+
+        win.document.write('<!DOCTYPE html><html><head><title>Rapor Önizleme</title>' + styles + '</head><body>');
+        win.document.write('<div class="action-bar"><button class="btn-print" onclick="window.print()">' + printIcon + ' Raporu Hemen Yazdır</button></div>');
+        win.document.write('<div id="preview-container">');
+        win.document.write(printContent.innerHTML);
+        win.document.write('</div></body></html>');
+        win.document.close();
+        
+    } catch (error) {
+        console.error('Print Error:', error);
+        alert('İşlem sırasında bir hata oluştu: ' + error.message);
+    }
 }
 
 // Function to collect form data for immediate action
