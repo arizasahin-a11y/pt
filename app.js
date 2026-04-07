@@ -119,7 +119,6 @@ function printReport(data) {
     const printContent = document.getElementById('print-content').cloneNode(true);
     
     // Fill the cloned content with data
-    printContent.querySelector('#p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
     printContent.querySelector('#p-edu-year').textContent = data.eduYear;
     printContent.querySelector('#p-type-area').textContent = data.projectType;
     printContent.querySelector('#p-name').textContent = data.activityName || '';

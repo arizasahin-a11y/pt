@@ -180,22 +180,32 @@
         </div>
     </div>
 
-    <!-- PRINT SECTION (Visible only to browser print engine) -->
+    <!-- PRINT SECTION -->
     <div id="print-section">
         <div id="print-content" style="padding: 40px; font-family: 'Times New Roman', serif; background: white; width: 210mm; min-height: 297mm; margin: 0 auto; color: black;">
-            <!-- Header -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                <div style="width: 80px; height: 80px; border: 2px solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-align: center;">İAL<br>1937</div>
+            <!-- Header with Logos -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 15px;">
+                <!-- Left: IAL Logo -->
+                <div style="width: 100px; text-align: left;">
+                    <img src="logo_ial.png" alt="İAL Logo" style="width: 80px; height: auto;">
+                </div>
+                
+                <!-- Center: Title Text -->
                 <div style="text-align: center; flex-grow: 1;">
-                    <h3 style="margin: 0; font-size: 16px;">İSTANBUL ATATÜRK ANADOLU LİSESİ <span id="p-date-top" style="float: right;">.... / ....</span></h3>
-                    <h4 style="margin: 5px 0; font-size: 14px;"><span id="p-edu-year">....</span> EĞİTİM ÖĞRETİM YILI PROJE</h4>
-                    <h4 style="margin: 0; font-size: 14px;">FAALİYETİ DEĞERLENDİRME VE RAPORU</h4>
+                    <h3 style="margin: 0; font-size: 16px;">İSTANBUL ATATÜRK ANADOLU LİSESİ</h3>
+                    <h4 style="margin: 5px 0; font-size: 14px;"><span id="p-edu-year">....</span> EĞİTİM ÖĞRETİM YILI</h4>
+                    <h4 style="margin: 0; font-size: 15px; font-weight: bold;">PROJE FAALİYETİ DEĞERLENDİRME RAPORU</h4>
+                </div>
+
+                <!-- Right: MEB Logo -->
+                <div style="width: 100px; text-align: right;">
+                    <img src="logo_meb.png" alt="MEB Logo" style="width: 80px; height: auto;">
                 </div>
             </div>
 
-            <!-- Project Type -->
-            <div style="margin-top: 20px; display: flex; justify-content: center;">
-                <div id="p-type-area" style="font-weight: bold; border: 1px solid black; padding: 5px 30px; font-size: 16px;"></div>
+            <!-- Project Type Area -->
+            <div style="margin-top: 15px; display: flex; justify-content: center;">
+                <div id="p-type-area" style="font-weight: bold; border: 2px solid black; padding: 5px 40px; font-size: 16px; text-transform: uppercase; background: #f9f9f9;"></div>
             </div>
 
             <!-- Rows -->
