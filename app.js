@@ -121,60 +121,71 @@ saveBtn.addEventListener('click', () => {
 // PDF Generation Logic
 async function generatePDF(data) {
     const printArea = document.getElementById('print-content');
+    const printWrapper = document.getElementById('print-wrapper');
     
-    // Fill the content
-    document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
-    document.getElementById('p-edu-year').textContent = data.eduYear;
-    
-    // Highlight Project Type
-    const gelisimDiv = document.getElementById('p-type-gelisim');
-    const ozelDiv = document.getElementById('p-type-ozel');
-    
-    if (data.projectType === 'OKUL GELİŞİM PROJESİ') {
-        gelisimDiv.style.backgroundColor = '#e2e8f0';
-        gelisimDiv.style.borderWidth = '2px';
-        ozelDiv.style.backgroundColor = 'transparent';
-        ozelDiv.style.borderWidth = '1px';
-    } else {
-        ozelDiv.style.backgroundColor = '#e2e8f0';
-        ozelDiv.style.borderWidth = '2px';
-        gelisimDiv.style.backgroundColor = 'transparent';
-        gelisimDiv.style.borderWidth = '1px';
-    }
-
-    document.getElementById('p-name').textContent = data.activityName;
-    document.getElementById('p-type').textContent = data.activityType;
-    document.getElementById('p-teacher').textContent = data.teacher;
-    document.getElementById('p-profile').textContent = data.participantProfile;
-    document.getElementById('p-count').textContent = data.totalParticipants;
-    document.getElementById('p-location').textContent = data.location;
-    document.getElementById('p-dates').textContent = formatDateRange(data.startDate, data.endDate);
-    document.getElementById('p-duration').textContent = data.duration;
-    document.getElementById('p-purpose').textContent = data.purpose;
-    document.getElementById('p-difficulties').textContent = data.difficulties;
-    document.getElementById('p-suggestions').textContent = data.suggestions;
-    document.getElementById('p-collaborations').textContent = data.collaborations;
-    document.getElementById('p-evaluation').textContent = data.evaluation;
-    document.getElementById('p-docs').textContent = data.docs;
-    const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
-    document.getElementById('p-filler').textContent = `${data.fillerName}\n${data.fillerRole}\n${fDate}`;
-
-    // Small delay to ensure browser rendering is complete
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const opt = {
-        margin: 10,
-        filename: `Rapor_${data.activityName.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
     try {
+        // Clear previous content if any as a precaution
+        // Populate new content
+        document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
+        document.getElementById('p-edu-year').textContent = data.eduYear;
+        
+        const gelisimDiv = document.getElementById('p-type-gelisim');
+        const ozelDiv = document.getElementById('p-type-ozel');
+        
+        if (data.projectType === 'OKUL GELİŞİM PROJESİ') {
+            gelisimDiv.style.backgroundColor = '#f1f5f9';
+            gelisimDiv.style.borderColor = '#000';
+            ozelDiv.style.backgroundColor = 'transparent';
+            ozelDiv.style.borderColor = '#ccc';
+        } else {
+            ozelDiv.style.backgroundColor = '#f1f5f9';
+            ozelDiv.style.borderColor = '#000';
+            gelisimDiv.style.backgroundColor = 'transparent';
+            gelisimDiv.style.borderColor = '#ccc';
+        }
+
+        document.getElementById('p-name').textContent = data.activityName || '';
+        document.getElementById('p-type').textContent = data.activityType || '';
+        document.getElementById('p-teacher').textContent = data.teacher || '';
+        document.getElementById('p-profile').textContent = data.participantProfile || '';
+        document.getElementById('p-count').textContent = data.totalParticipants || '';
+        document.getElementById('p-location').textContent = data.location || '';
+        document.getElementById('p-dates').textContent = formatDateRange(data.startDate, data.endDate);
+        document.getElementById('p-duration').textContent = data.duration || '';
+        document.getElementById('p-purpose').textContent = data.purpose || '';
+        document.getElementById('p-difficulties').textContent = data.difficulties || '';
+        document.getElementById('p-suggestions').textContent = data.suggestions || '';
+        document.getElementById('p-collaborations').textContent = data.collaborations || '';
+        document.getElementById('p-evaluation').textContent = data.evaluation || '';
+        document.getElementById('p-docs').textContent = data.docs || '';
+        
+        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+        document.getElementById('p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+
+        // Wait a small bit for any remaining styles/content to settle
+        await new Promise(r => setTimeout(r, 150));
+
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `Rapor_${(data.activityName || 'dosya').replace(/\s+/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+                width: 794 // 210mm at 96dpi approx
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Trigger capture using the wrapper that is already "visible" (opacity 0)
         await html2pdf().set(opt).from(printArea).save();
+        
     } catch (err) {
-        console.error('PDF Error:', err);
-        alert('PDF oluşturulurken bir hata oluştu.');
+        console.error('PDF Build Error:', err);
+        alert('PDF oluşturulamadı. Lütfen tüm alanları doldurduğunuzdan emin olun ve tekrar deneyin.');
     }
 }
 
