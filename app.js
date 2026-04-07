@@ -79,11 +79,6 @@ function formatDateRange(start, end) {
 
 // Save Report
 saveBtn.addEventListener('click', () => {
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
     const reportData = {
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
