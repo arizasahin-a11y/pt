@@ -125,7 +125,7 @@ async function generatePDF(data, openMode = 'blob') {
         document.getElementById('p-edu-year').textContent = data.eduYear;
         
         // Single project type name
-        document.getElementById('p-type-area').textContent = data.projectType;
+        document.getElementById('p-type-area').textContent = data.projectType || 'BELİRTİLMEDİ';
 
         document.getElementById('p-name').textContent = data.activityName || '';
         document.getElementById('p-type').textContent = data.activityType || '';
