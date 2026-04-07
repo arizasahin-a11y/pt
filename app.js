@@ -24,6 +24,21 @@ request.onerror = (event) => {
     console.error('Database error:', event.target.error);
 };
 
+// Automatic Academic Year Calculation
+function calculateEduYear() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0 is January
+    
+    let eduYear = "";
+    if (month < 1) { // Before/In January
+        eduYear = `${year} - ${year + 1}`;
+    } else { // After January
+        eduYear = `${year - 1} - ${year}`;
+    }
+    document.getElementById('edu-year').value = eduYear;
+}
+
 // Selectors
 const form = document.getElementById('activity-form');
 const saveBtn = document.getElementById('save-btn');
@@ -32,6 +47,11 @@ const historyBtn = document.getElementById('history-btn');
 const backToFormBtn = document.getElementById('back-to-form');
 const savedReportsSection = document.getElementById('saved-reports');
 const reportsList = document.getElementById('reports-list');
+
+// Initialize
+window.addEventListener('DOMContentLoaded', () => {
+    calculateEduYear();
+});
 
 // Helper: Get checkbox values (including 'Other')
 function getCheckboxValues(name, otherCheckId, otherTextId) {
@@ -42,11 +62,18 @@ function getCheckboxValues(name, otherCheckId, otherTextId) {
     const otherText = document.getElementById(otherTextId);
     
     if (otherCheck && otherCheck.checked && otherText.value.trim() !== '') {
-        // Remove the generic 'Diğer' string and replace with actual input
         values = values.filter(v => v !== 'Diğer');
         values.push(otherText.value.trim());
     }
     return values.join(', ');
+}
+
+// Helper: Format date for report
+function formatDateRange(start, end) {
+    if (!start && !end) return '....';
+    const s = start ? new Date(start).toLocaleDateString('tr-TR') : '...';
+    const e = end ? new Date(end).toLocaleDateString('tr-TR') : '...';
+    return `${s} - ${e}`;
 }
 
 // Save Report
@@ -57,7 +84,6 @@ saveBtn.addEventListener('click', () => {
     }
 
     const reportData = {
-        dateHeader: `${document.getElementById('header-date-1').value} / ${document.getElementById('header-date-2').value}`,
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
         activityName: document.getElementById('activity-name').value,
@@ -66,7 +92,8 @@ saveBtn.addEventListener('click', () => {
         participantProfile: getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text'),
         totalParticipants: document.getElementById('total-participants').value,
         location: document.getElementById('activity-location').value,
-        activityDates: document.getElementById('activity-dates').value,
+        startDate: document.getElementById('activity-start').value,
+        endDate: document.getElementById('activity-end').value,
         duration: document.getElementById('total-duration').value,
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
@@ -75,7 +102,8 @@ saveBtn.addEventListener('click', () => {
         evaluation: document.getElementById('evaluation').value,
         docs: getCheckboxValues('docs', 'docs-other-check', 'docs-other-text'),
         fillerName: document.getElementById('filler-name').value,
-        fillerRoleDate: document.getElementById('filler-role-date').value,
+        fillerRole: document.getElementById('filler-role').value,
+        fillerDate: document.getElementById('filler-date').value,
         timestamp: new Date().getTime()
     };
 
@@ -86,6 +114,7 @@ saveBtn.addEventListener('click', () => {
     addRequest.onsuccess = () => {
         alert('Rapor başarıyla kaydedildi!');
         form.reset();
+        calculateEduYear();
     };
 });
 
@@ -93,17 +122,33 @@ saveBtn.addEventListener('click', () => {
 async function generatePDF(data) {
     const printArea = document.getElementById('print-content');
     
-    // Fill the hidden print template with data
-    document.getElementById('p-date-top').textContent = data.dateHeader || '.... / ....';
+    // Fill the content
+    document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
     document.getElementById('p-edu-year').textContent = data.eduYear;
-    document.getElementById('p-project-type').textContent = data.projectType;
+    
+    // Highlight Project Type
+    const gelisimDiv = document.getElementById('p-type-gelisim');
+    const ozelDiv = document.getElementById('p-type-ozel');
+    
+    if (data.projectType === 'OKUL GELİŞİM PROJESİ') {
+        gelisimDiv.style.backgroundColor = '#e2e8f0';
+        gelisimDiv.style.borderWidth = '2px';
+        ozelDiv.style.backgroundColor = 'transparent';
+        ozelDiv.style.borderWidth = '1px';
+    } else {
+        ozelDiv.style.backgroundColor = '#e2e8f0';
+        ozelDiv.style.borderWidth = '2px';
+        gelisimDiv.style.backgroundColor = 'transparent';
+        gelisimDiv.style.borderWidth = '1px';
+    }
+
     document.getElementById('p-name').textContent = data.activityName;
     document.getElementById('p-type').textContent = data.activityType;
     document.getElementById('p-teacher').textContent = data.teacher;
     document.getElementById('p-profile').textContent = data.participantProfile;
     document.getElementById('p-count').textContent = data.totalParticipants;
     document.getElementById('p-location').textContent = data.location;
-    document.getElementById('p-dates').textContent = data.activityDates;
+    document.getElementById('p-dates').textContent = formatDateRange(data.startDate, data.endDate);
     document.getElementById('p-duration').textContent = data.duration;
     document.getElementById('p-purpose').textContent = data.purpose;
     document.getElementById('p-difficulties').textContent = data.difficulties;
@@ -111,28 +156,30 @@ async function generatePDF(data) {
     document.getElementById('p-collaborations').textContent = data.collaborations;
     document.getElementById('p-evaluation').textContent = data.evaluation;
     document.getElementById('p-docs').textContent = data.docs;
-    document.getElementById('p-filler').textContent = `${data.fillerName}\n${data.fillerRoleDate}`;
+    const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+    document.getElementById('p-filler').textContent = `${data.fillerName}\n${data.fillerRole}\n${fDate}`;
 
-    printArea.style.display = 'block';
+    // Small delay to ensure browser rendering is complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const opt = {
         margin: 10,
         filename: `Rapor_${data.activityName.replace(/\s+/g, '_')}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     try {
         await html2pdf().set(opt).from(printArea).save();
-    } finally {
-        printArea.style.display = 'none';
+    } catch (err) {
+        console.error('PDF Error:', err);
+        alert('PDF oluşturulurken bir hata oluştu.');
     }
 }
 
 printBtn.addEventListener('click', () => {
     const reportData = {
-        dateHeader: `${document.getElementById('header-date-1').value} / ${document.getElementById('header-date-2').value}`,
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
         activityName: document.getElementById('activity-name').value,
@@ -141,7 +188,8 @@ printBtn.addEventListener('click', () => {
         participantProfile: getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text'),
         totalParticipants: document.getElementById('total-participants').value,
         location: document.getElementById('activity-location').value,
-        activityDates: document.getElementById('activity-dates').value,
+        startDate: document.getElementById('activity-start').value,
+        endDate: document.getElementById('activity-end').value,
         duration: document.getElementById('total-duration').value,
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
@@ -150,7 +198,8 @@ printBtn.addEventListener('click', () => {
         evaluation: document.getElementById('evaluation').value,
         docs: getCheckboxValues('docs', 'docs-other-check', 'docs-other-text'),
         fillerName: document.getElementById('filler-name').value,
-        fillerRoleDate: document.getElementById('filler-role-date').value
+        fillerRole: document.getElementById('filler-role').value,
+        fillerDate: document.getElementById('filler-date').value
     };
     generatePDF(reportData);
 });
@@ -186,7 +235,7 @@ function loadReports() {
             card.innerHTML = `
                 <div>
                     <h3 style="margin-bottom: 0.3rem;">${report.activityName}</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">${report.eduYear} - ${report.activityDates || 'Tarih Belirtilmemiş'}</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">${report.eduYear} - ${formatDateRange(report.startDate, report.endDate)}</p>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button class="btn-secondary" style="padding: 0.5rem 1rem;" onclick='printRecord(${JSON.stringify(report).replace(/'/g, "&apos;")})'>

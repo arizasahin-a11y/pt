@@ -19,33 +19,29 @@
                 <h1>Proje Faaliyeti Raporu</h1>
                 <p>İstanbul Atatürk Anadolu Lisesi | Veri Giriş Portalı</p>
             </div>
-            <div class="form-date">
-                <label>Tarih</label><br>
-                <input type="text" id="header-date-1" placeholder="...."> / <input type="text" id="header-date-2" placeholder="....">
-            </div>
         </header>
 
         <form id="activity-form">
             <div class="grid">
                 <div class="field-group">
                     <label>Eğitim Öğretim Yılı</label>
-                    <input type="text" id="edu-year" placeholder="Örn: 2025-2026" required>
+                    <input type="text" id="edu-year" placeholder="Otomatik hesaplanıyor..." readonly>
                 </div>
                 <div class="field-group">
-                    <label>Dosya No / Proje Türü</label>
+                    <label>Proje Türü</label>
                     <div class="checkbox-grid">
                         <label class="checkbox-item">
-                            <input type="radio" name="project-type" value="Okul Gelişim Projesi" checked> Okul Gelişim
+                            <input type="radio" name="project-type" value="OKUL GELİŞİM PROJESİ" checked> Okul Gelişim
                         </label>
                         <label class="checkbox-item">
-                            <input type="radio" name="project-type" value="Okul Özel Projesi"> Okul Özel
+                            <input type="radio" name="project-type" value="OKUL ÖZEL PROJESİ"> Okul Özel
                         </label>
                     </div>
                 </div>
             </div>
-
+            
             <div class="field-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Faaliyetin Adı</label>
+                <label>Faaliyet Adı</label>
                 <input type="text" id="activity-name" placeholder="Faaliyet adını giriniz..." required>
             </div>
 
@@ -93,8 +89,12 @@
                     <input type="text" id="activity-location" placeholder="Örn: Konferans Salonu">
                 </div>
                 <div class="field-group">
-                    <label>Başlangıç - Bitiş Tarihi</label>
-                    <input type="text" id="activity-dates" placeholder="Örn: 12.05.2024 - 15.05.2024">
+                    <label>Başlangıç Tarihi</label>
+                    <input type="date" id="activity-start">
+                </div>
+                <div class="field-group">
+                    <label>Bitiş Tarihi</label>
+                    <input type="date" id="activity-end">
                 </div>
                 <div class="field-group">
                     <label>Toplam Süre (Saat)</label>
@@ -150,8 +150,12 @@
                     <input type="text" id="filler-name" placeholder="...">
                 </div>
                 <div class="field-group">
-                    <label>Görevi / Tarih</label>
-                    <input type="text" id="filler-role-date" placeholder="Örn: Öğretmen / 20.05.2024">
+                    <label>Görevi</label>
+                    <input type="text" id="filler-role" placeholder="Örn: Öğretmen">
+                </div>
+                <div class="field-group full-width">
+                    <label>Doldurulma Tarihi</label>
+                    <input type="date" id="filler-date">
                 </div>
             </div>
 
@@ -179,100 +183,98 @@
         </div>
     </div>
 
-    <!-- HIDDEN PRINT AREA -->
-    <div id="print-content" style="display: none; padding: 40px; font-family: 'Times New Roman', serif; color: black; background: white; width: 210mm; min-height: 297mm; position: relative;">
-        <!-- This content mirrors the original PDF exactly -->
-        <style>
-            .print-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            .print-table td { border: 1px solid black; padding: 8px; vertical-align: top; }
-            .print-header { display: flex; align-items: center; justify-content: space-between; position: relative; }
-            .print-logo { width: 80px; height: 80px; }
-            .dot-line { border-bottom: 1px dotted black; display: inline-block; min-width: 150px; }
-        </style>
-        
-        <div class="print-header">
-            <!-- Simulated Logo with Initials -->
-            <div style="width: 80px; height: 80px; border: 2px solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-align: center;">
-                İAL<br>1937
-            </div>
-            <div style="text-align: center; flex-grow: 1;">
-                <h3 style="margin: 0; font-size: 16px;">İSTANBUL ATATÜRK ANADOLU LİSESİ <span id="p-date-top">.... / ....</span></h3>
-                <h4 style="margin: 5px 0; font-size: 14px;"><span id="p-edu-year">....</span> EĞİTİM ÖĞRETİM YILI PROJE</h4>
-                <h4 style="margin: 0; font-size: 14px;">FAALİYETİ DEĞERLENDİRME VE RAPORU</h4>
-            </div>
-        </div>
-
-        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
-            <div><strong>Dosya no:</strong> <span id="p-project-type">................</span></div>
-            <div><strong>Okul Özel Projesi</strong></div>
-        </div>
-
-        <div style="margin-top: 15px;">
-            <strong>Faaliyetin Adı :</strong> <span class="dot-line" id="p-name" style="width: 80%;"></span>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <strong>Faaliyetin Türü :</strong> <span id="p-type">................................................</span>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <strong>Sorumlu Öğretmen:</strong> <span class="dot-line" id="p-teacher" style="width: 75%;"></span>
-        </div>
-
-        <div style="margin-top: 10px; display: flex; justify-content: space-between;">
-            <div><strong>Katılımcı Profili :</strong> <span id="p-profile">................</span></div>
-            <div><strong>Toplam Kişi Sayısı :</strong> <span id="p-count">....</span></div>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <strong>Faaliyet Yeri :</strong> <span class="dot-line" id="p-location" style="width: 80%;"></span>
-        </div>
-
-        <div style="margin-top: 10px; display: flex; justify-content: space-between;">
-            <div><strong>Başlangıç Bitiş Tarihi :</strong> <span id="p-dates">................</span></div>
-            <div><strong>Toplam Süre(saat) :</strong> <span id="p-duration">....</span></div>
-        </div>
-
-        <div style="margin-top: 15px; border: 1px solid black; padding: 10px;">
-            <strong>Faaliyetin Amaç ve Kapsamı :</strong><br>
-            <p id="p-purpose" style="min-height: 60px; margin-top: 5px;"></p>
-        </div>
-
-        <div class="print-table">
-            <div style="display: flex;">
-                <div style="width: 50%; border: 1px solid black; padding: 10px;">
-                    <strong>Karşılaşılan Güçlükler:</strong>
-                    <p id="p-difficulties" style="min-height: 40px;"></p>
+    <!-- HIDDEN PRINT AREA (Hidden from view but accessible for PDF engine) -->
+    <div style="position: absolute; left: -9999px; top: 0;">
+        <div id="print-content" style="padding: 40px; font-family: 'Times New Roman', serif; color: black; background: white; width: 210mm; min-height: 297mm;">
+            <style>
+                .print-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+                .dot-line { border-bottom: 1px dotted black; display: inline-block; min-width: 150px; }
+                .print-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            </style>
+            
+            <div class="print-header">
+                <div style="width: 80px; height: 80px; border: 2px solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-align: center;">
+                    İAL<br>1937
                 </div>
-                <div style="width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
-                    <strong>İyileştirme Önerileri:</strong>
-                    <p id="p-suggestions" style="min-height: 40px;"></p>
+                <div style="text-align: center; flex-grow: 1;">
+                    <h3 style="margin: 0; font-size: 16px;">İSTANBUL ATATÜRK ANADOLU LİSESİ <span id="p-date-top" style="float: right;">.... / ....</span></h3>
+                    <h4 style="margin: 5px 0; font-size: 14px;"><span id="p-edu-year">....</span> EĞİTİM ÖĞRETİM YILI PROJE</h4>
+                    <h4 style="margin: 0; font-size: 14px;">FAALİYETİ DEĞERLENDİRME VE RAPORU</h4>
                 </div>
             </div>
-            <div style="display: flex;">
-                <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none;">
-                    <strong>İşbirlikleri:</strong>
-                    <p id="p-collaborations" style="min-height: 40px;"></p>
+
+            <div style="margin-top: 20px; display: flex; justify-content: space-around; width: 100%;">
+                <div id="p-type-gelisim" style="font-weight: bold; border: 1px solid black; padding: 5px 15px;">OKUL GELİŞİM PROJESİ</div>
+                <div id="p-type-ozel" style="font-weight: bold; border: 1px solid black; padding: 5px 15px;">OKUL ÖZEL PROJESİ</div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <strong>Faaliyetin Adı :</strong> <span class="dot-line" id="p-name" style="width: 80%; display: inline-block;"></span>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <strong>Faaliyetin Türü :</strong> <span id="p-type" style="border-bottom: 1px dotted black; display: inline-block; min-width: 300px;"></span>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <strong>Sorumlu Öğretmen:</strong> <span class="dot-line" id="p-teacher" style="width: 75%; display: inline-block;"></span>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: space-between;">
+                <div><strong>Katılımcı Profili :</strong> <span id="p-profile" style="border-bottom: 1px dotted black; min-width: 150px; display: inline-block;"></span></div>
+                <div><strong>Toplam Kişi Sayısı :</strong> <span id="p-count" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <strong>Faaliyet Yeri :</strong> <span class="dot-line" id="p-location" style="width: 80%; display: inline-block;"></span>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <strong>Faaliyet Tarihi :</strong> <span id="p-dates" style="border-bottom: 1px dotted black; min-width: 200px; display: inline-block;"></span>
+                <span style="margin-left: 20px;"><strong>Toplam Süre(saat) :</strong> <span id="p-duration" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></span>
+            </div>
+
+            <div style="margin-top: 15px; border: 1px solid black; padding: 10px;">
+                <strong>Faaliyetin Amaç ve Kapsamı :</strong><br>
+                <p id="p-purpose" style="min-height: 80px; margin-top: 5px; white-space: pre-wrap;"></p>
+            </div>
+
+            <div class="print-table">
+                <div style="display: flex;">
+                    <div style="width: 50%; border: 1px solid black; padding: 10px;">
+                        <strong>Karşılaşılan Güçlükler:</strong>
+                        <p id="p-difficulties" style="min-height: 50px; white-space: pre-wrap;"></p>
+                    </div>
+                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
+                        <strong>İyileştirme Önerileri:</strong>
+                        <p id="p-suggestions" style="min-height: 50px; white-space: pre-wrap;"></p>
+                    </div>
                 </div>
-                <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none; border-left: none;">
-                    <strong>Değerlendirme:</strong>
-                    <p id="p-evaluation" style="min-height: 40px;"></p>
+                <div style="display: flex;">
+                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none;">
+                        <strong>İşbirlikleri:</strong>
+                        <p id="p-collaborations" style="min-height: 50px; white-space: pre-wrap;"></p>
+                    </div>
+                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none; border-left: none;">
+                        <strong>Değerlendirme:</strong>
+                        <p id="p-evaluation" style="min-height: 50px; white-space: pre-wrap;"></p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div style="margin-top: 15px;">
-            <strong>Teslim Edilen Belgeler :</strong> <span id="p-docs">................................................</span>
-        </div>
-
-        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
-            <div style="text-align: center;">
-                <strong>Formu Dolduran</strong><br><br>
-                <div id="p-filler">.................</div>
+            <div style="margin-top: 15px;">
+                <strong>Teslim Edilen Belgeler :</strong> <span id="p-docs" style="border-bottom: 1px dotted black; display: inline-block; min-width: 400px;"></span>
             </div>
-            <div style="text-align: center;">
-                <strong>Onaylayan</strong><br><br>
-                <div style="margin-top: 20px;">...................</div>
+
+            <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                <div style="text-align: center; width: 200px;">
+                    <strong>Formu Dolduran</strong><br><br>
+                    <div id="p-filler" style="white-space: pre-wrap; margin-top: 10px;">.................</div>
+                </div>
+                <div style="text-align: center; width: 200px;">
+                    <strong>Onaylayan</strong><br><br>
+                    <div style="margin-top: 30px;">...................</div>
+                </div>
             </div>
         </div>
     </div>
