@@ -133,15 +133,11 @@ async function generatePDF(data) {
         const ozelDiv = document.getElementById('p-type-ozel');
         
         if (data.projectType === 'OKUL GELİŞİM PROJESİ') {
-            gelisimDiv.style.backgroundColor = '#f1f5f9';
-            gelisimDiv.style.borderColor = '#000';
-            ozelDiv.style.backgroundColor = 'transparent';
-            ozelDiv.style.borderColor = '#ccc';
+            gelisimDiv.style.display = 'block';
+            ozelDiv.style.display = 'none';
         } else {
-            ozelDiv.style.backgroundColor = '#f1f5f9';
-            ozelDiv.style.borderColor = '#000';
-            gelisimDiv.style.backgroundColor = 'transparent';
-            gelisimDiv.style.borderColor = '#ccc';
+            ozelDiv.style.display = 'block';
+            gelisimDiv.style.display = 'none';
         }
 
         document.getElementById('p-name').textContent = data.activityName || '';
