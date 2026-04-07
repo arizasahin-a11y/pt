@@ -270,26 +270,31 @@ input:checked ~ .other-input {
     display: block;
 }
 
+/* Hide print section on screen */
+#print-section {
+    display: none;
+}
+
 /* Print Media Queries */
 @media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
     body {
         background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
-    .no-print, .container, .btn-group, header, #saved-reports {
+    .no-print, .container, .btn-group, header, #saved-reports, form {
         display: none !important;
     }
-    #print-wrapper {
-        opacity: 1 !important;
-        visibility: visible !important;
-        position: static !important;
+    #print-section {
         display: block !important;
     }
     #print-content {
-        box-shadow: none !important;
+        width: 100% !important;
+        padding: 0 !important;
         margin: 0 !important;
-        padding: 0 !important; /* System print dialog adds its own margins */
+        box-shadow: none !important;
     }
 }
 

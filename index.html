@@ -161,44 +161,31 @@
 
             <div class="btn-group">
                 <button type="button" class="btn-secondary" id="history-btn">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Geçmiş Kayıtlar
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Geçmiş Kayıtlar
                 </button>
                 <button type="button" class="btn-primary" id="save-btn">
-                    <i class="fa-solid fa-floppy-disk"></i> Verileri Kaydet
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Verileri Kaydet
                 </button>
-                <button type="button" class="btn-primary" style="background: var(--accent);" id="print-btn">
-                    <i class="fa-solid fa-file-pdf"></i> PDF Gör (Yeni Sekme)
-                </button>
-                <button type="button" class="btn-secondary" id="direct-print-btn" title="Doğrudan Yazdır">
-                    <i class="fa-solid fa-print"></i> Yazdır
+                <button type="button" class="btn-primary" style="background: var(--accent);" id="direct-print-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> 
+                    Raporu Yazdır / PDF Yap
                 </button>
             </div>
         </form>
 
         <div id="saved-reports">
             <h2 style="margin-bottom: 1.5rem;">Kayıtlı Raporlar</h2>
-            <div id="reports-list">
-                <!-- Records will be injected here -->
-            </div>
-            <button class="btn-secondary" style="margin-top: 1rem;" id="back-to-form">
-                <i class="fa-solid fa-arrow-left"></i> Formu Geri Dön
-            </button>
+            <div id="reports-list"></div>
+            <button class="btn-secondary" id="back-to-form">Geri Dön</button>
         </div>
     </div>
 
-    <!-- HIDDEN PRINT AREA -->
-    <div id="print-wrapper" class="print-only" style="opacity: 0; position: fixed; z-index: -1000; top: 0; left: 0; pointer-events: none;">
-        <div id="print-content" style="padding: 40px; font-family: 'Times New Roman', serif; color: black; background: white; width: 210mm; min-height: 297mm; box-sizing: border-box;">
-            <style>
-                .print-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-                .dot-line { border-bottom: 1px dotted black; display: inline-block; min-width: 150px; }
-                .print-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            </style>
-            
-            <div class="print-header">
-                <div style="width: 80px; height: 80px; border: 2px solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-align: center;">
-                    İAL<br>1937
-                </div>
+    <!-- PRINT SECTION (Visible only to browser print engine) -->
+    <div id="print-section">
+        <div id="print-content" style="padding: 40px; font-family: 'Times New Roman', serif; background: white; width: 210mm; min-height: 297mm; margin: 0 auto; color: black;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div style="width: 80px; height: 80px; border: 2px solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-align: center;">İAL<br>1937</div>
                 <div style="text-align: center; flex-grow: 1;">
                     <h3 style="margin: 0; font-size: 16px;">İSTANBUL ATATÜRK ANADOLU LİSESİ <span id="p-date-top" style="float: right;">.... / ....</span></h3>
                     <h4 style="margin: 5px 0; font-size: 14px;"><span id="p-edu-year">....</span> EĞİTİM ÖĞRETİM YILI PROJE</h4>
@@ -206,78 +193,66 @@
                 </div>
             </div>
 
-            <div style="margin-top: 20px; display: flex; justify-content: center; width: 100%;">
-                <div id="p-type-area" style="font-weight: bold; border: 1px solid black; padding: 5px 30px; font-size: 16px;">
-                    <!-- Sadece seçilen tür buraya gelecek -->
-                </div>
+            <!-- Project Type -->
+            <div style="margin-top: 20px; display: flex; justify-content: center;">
+                <div id="p-type-area" style="font-weight: bold; border: 1px solid black; padding: 5px 30px; font-size: 16px;"></div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <strong>Faaliyetin Adı :</strong> <span class="dot-line" id="p-name" style="width: 80%; display: inline-block;"></span>
-            </div>
-
-            <div style="margin-top: 10px;">
-                <strong>Faaliyetin Türü :</strong> <span id="p-type" style="border-bottom: 1px dotted black; display: inline-block; min-width: 300px;"></span>
-            </div>
-
-            <div style="margin-top: 10px;">
-                <strong>Sorumlu Öğretmen:</strong> <span class="dot-line" id="p-teacher" style="width: 75%; display: inline-block;"></span>
-            </div>
-
+            <!-- Rows -->
+            <div style="margin-top: 20px;"><strong>Faaliyetin Adı :</strong> <span id="p-name" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
+            <div style="margin-top: 10px;"><strong>Faaliyetin Türü :</strong> <span id="p-type" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
+            <div style="margin-top: 10px;"><strong>Sorumlu Öğretmen:</strong> <span id="p-teacher" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px; display: flex; justify-content: space-between;">
                 <div><strong>Katılımcı Profili :</strong> <span id="p-profile" style="border-bottom: 1px dotted black; min-width: 150px; display: inline-block;"></span></div>
                 <div><strong>Toplam Kişi Sayısı :</strong> <span id="p-count" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></div>
             </div>
-
+            <div style="margin-top: 10px;"><strong>Faaliyet Yeri :</strong> <span id="p-location" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px;">
-                <strong>Faaliyet Yeri :</strong> <span class="dot-line" id="p-location" style="width: 80%; display: inline-block;"></span>
-            </div>
-
-            <div style="margin-top: 10px;">
-                <strong>Faaliyet Tarihi :</strong> <span id="p-dates" style="border-bottom: 1px dotted black; min-width: 200px; display: inline-block;"></span>
+                <strong>Faaliyet Tarihi :</strong> <span id="p-dates" style="border-bottom: 1px dotted black; min-width: 150px; display: inline-block;"></span>
                 <span style="margin-left: 20px;"><strong>Toplam Süre(saat) :</strong> <span id="p-duration" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></span>
             </div>
 
+            <!-- Full width boxes -->
             <div style="margin-top: 15px; border: 1px solid black; padding: 10px;">
                 <strong>Faaliyetin Amaç ve Kapsamı :</strong><br>
-                <p id="p-purpose" style="min-height: 80px; margin-top: 5px; white-space: pre-wrap;"></p>
+                <p id="p-purpose" style="min-height: 80px; margin-top: 5px; white-space: pre-wrap; font-size: 13px;"></p>
             </div>
 
-            <div class="print-table">
-                <div style="display: flex;">
-                    <div style="width: 50%; border: 1px solid black; padding: 10px;">
+            <!-- Grid Boxes -->
+            <div style="width: 100%; border-collapse: collapse; margin-top: 15px; display: table;">
+                <div style="display: table-row;">
+                    <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px;">
                         <strong>Karşılaşılan Güçlükler:</strong>
-                        <p id="p-difficulties" style="min-height: 50px; white-space: pre-wrap;"></p>
+                        <p id="p-difficulties" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
-                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
+                    <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
                         <strong>İyileştirme Önerileri:</strong>
-                        <p id="p-suggestions" style="min-height: 50px; white-space: pre-wrap;"></p>
+                        <p id="p-suggestions" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                 </div>
-                <div style="display: flex;">
-                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none;">
+                <div style="display: table-row;">
+                    <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px; border-top: none;">
                         <strong>İşbirlikleri:</strong>
-                        <p id="p-collaborations" style="min-height: 50px; white-space: pre-wrap;"></p>
+                        <p id="p-collaborations" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
-                    <div style="width: 50%; border: 1px solid black; padding: 10px; border-top: none; border-left: none;">
+                    <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px; border-top: none; border-left: none;">
                         <strong>Değerlendirme:</strong>
-                        <p id="p-evaluation" style="min-height: 50px; white-space: pre-wrap;"></p>
+                        <p id="p-evaluation" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 15px;">
-                <strong>Teslim Edilen Belgeler :</strong> <span id="p-docs" style="border-bottom: 1px dotted black; display: inline-block; min-width: 400px;"></span>
-            </div>
+            <div style="margin-top: 15px;"><strong>Teslim Edilen Belgeler :</strong> <span id="p-docs" style="border-bottom: 1px dotted black; display: inline-block; width: 60%;"></span></div>
 
+            <!-- Footer -->
             <div style="margin-top: 40px; display: flex; justify-content: space-between;">
                 <div style="text-align: center; width: 200px;">
-                    <strong>Formu Dolduran</strong><br><br>
-                    <div id="p-filler" style="white-space: pre-wrap; margin-top: 10px;">.................</div>
+                    <strong>Formu Dolduran</strong><br><br><br>
+                    <div id="p-filler" style="white-space: pre-wrap; font-size: 13px;"></div>
                 </div>
                 <div style="text-align: center; width: 200px;">
-                    <strong>Onaylayan</strong><br><br>
-                    <div style="margin-top: 30px;">...................</div>
+                    <strong>Onaylayan</strong><br><br><br>
+                    <div>Okul Müdürü</div>
                 </div>
             </div>
         </div>

@@ -42,7 +42,6 @@ function calculateEduYear() {
 // Selectors
 const form = document.getElementById('activity-form');
 const saveBtn = document.getElementById('save-btn');
-const printBtn = document.getElementById('print-btn');
 const directPrintBtn = document.getElementById('direct-print-btn');
 const historyBtn = document.getElementById('history-btn');
 const backToFormBtn = document.getElementById('back-to-form');
@@ -114,47 +113,9 @@ saveBtn.addEventListener('click', () => {
     };
 });
 
-// PDF Generation Logic (Preview in new tab)
-async function generatePDF(data) {
-    const printArea = document.getElementById('print-content');
-    const printWrapper = document.getElementById('print-wrapper');
-    
-    try {
-        // Populate content
-        fillPrintTemplate(data);
-
-        // Wait for styles/content
-        await new Promise(r => setTimeout(r, 200));
-
-        // CRITICAL FIX: Make it visible JUST during capture
-        printWrapper.style.opacity = '1';
-        printWrapper.style.position = 'static';
-        printWrapper.style.zIndex = '1';
-
-        const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `Rapor_${(data.activityName || 'dosya').replace(/\s+/g, '_')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const pdf = await html2pdf().set(opt).from(printArea).output('bloburl');
-        window.open(pdf, '_blank');
-        
-        // Hide it back
-        printWrapper.style.opacity = '0';
-        printWrapper.style.position = 'fixed';
-        printWrapper.style.zIndex = '-1000';
-        
-    } catch (err) {
-        console.error('PDF Error:', err);
-        alert('PDF oluşturulurken bir hata oluştu.');
-    }
-}
-
-// Helper: Fill the hidden template with data
-function fillPrintTemplate(data) {
+// FILL PRINT TEMPLATE AND PRINT
+function printReport(data) {
+    // Fill Print IDs
     document.getElementById('p-date-top').textContent = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '..../....';
     document.getElementById('p-edu-year').textContent = data.eduYear;
     document.getElementById('p-type-area').textContent = data.projectType;
@@ -174,23 +135,14 @@ function fillPrintTemplate(data) {
     document.getElementById('p-docs').textContent = data.docs || '';
     const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
     document.getElementById('p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+        window.print();
+    }, 150);
 }
 
-// PDF Preview Button
-printBtn.addEventListener('click', () => generatePDF(getFormData()));
-
-// Direct Print Button (The most reliable method)
-directPrintBtn.addEventListener('click', () => {
-    const data = getFormData();
-    fillPrintTemplate(data);
-    
-    // Very short delay to ensure DOM update
-    setTimeout(() => {
-        window.print(); // This will trigger the CSS @media print rules
-    }, 100);
-});
-
-// Helper: Get current form data
+// Function to collect form data for immediate action
 function getFormData() {
     return {
         eduYear: document.getElementById('edu-year').value,
@@ -215,6 +167,11 @@ function getFormData() {
         fillerDate: document.getElementById('filler-date').value
     };
 }
+
+// Global Print Button (For current form)
+directPrintBtn.addEventListener('click', () => {
+    printReport(getFormData());
+});
 
 // View History
 historyBtn.addEventListener('click', () => {
@@ -250,11 +207,11 @@ function loadReports() {
                     <p style="font-size: 0.85rem; color: var(--text-muted);">${report.eduYear} - ${formatDateRange(report.startDate, report.endDate)}</p>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn-secondary" style="padding: 0.5rem 1rem;" onclick='printRecord(${JSON.stringify(report).replace(/'/g, "&apos;")})'>
-                        <i class="fa-solid fa-print"></i>
+                    <button class="btn-secondary" style="padding: 0.5rem;" onclick='window.printRecord(${JSON.stringify(report).replace(/'/g, "&apos;")})'>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                     </button>
-                    <button class="btn-secondary" style="padding: 0.5rem 1rem; color: #ef4444;" onclick="deleteRecord(${report.id})">
-                        <i class="fa-solid fa-trash"></i>
+                    <button class="btn-secondary" style="padding: 0.5rem; color: #ef4444;" onclick="deleteRecord(${report.id})">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </button>
                 </div>
             `;
@@ -264,7 +221,7 @@ function loadReports() {
 }
 
 window.printRecord = (data) => {
-    generatePDF(data);
+    printReport(data);
 };
 
 window.deleteRecord = (id) => {
