@@ -110,7 +110,7 @@ const COMBINED_DB = {
       "tema": 2,
       "sh": 1,
       "kod": "2.1.1",
-      "eylem_adi": "Deney Haftası (Kimya zümresi, Biyoloji zümresi, fizik zümresi 9. sınıflar deneleri)",
+      "eylem_adi": "Deney Haftası (Kimya zümresi, Biyoloji Zümresi zümresi, fizik zümresi 9. sınıflar deneleri)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -124,7 +124,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 5000,
-      "sorumlu": "Fen/Edebiyat Zümreleri, Okul İdaresi, Rehberlik Servisi"
+      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
     },
     {
       "no": 7,
@@ -145,7 +145,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Fen/Edebiyat Zümreleri, Okul İdaresi, Rehberlik Servisi"
+      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
     },
     {
       "no": 8,
@@ -166,7 +166,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Fen/Edebiyat Zümreleri, Okul İdaresi, Rehberlik Servisi"
+      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
     },
     {
       "no": 9,
@@ -187,7 +187,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Fen/Edebiyat Zümreleri, Okul İdaresi, Rehberlik Servisi"
+      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
     },
     {
       "no": 10,
@@ -208,7 +208,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Fen/Edebiyat Zümreleri, Okul İdaresi, Rehberlik Servisi"
+      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
     },
     {
       "no": 11,
@@ -229,7 +229,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
     {
       "no": 12,
@@ -250,7 +250,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
     {
       "no": 13,
@@ -271,7 +271,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
     {
       "no": 14,
@@ -292,7 +292,7 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
     {
       "no": 15,
@@ -313,7 +313,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 3000,
-      "sorumlu": "Okul İdaresi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
     {
       "no": 16,
@@ -502,7 +502,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 25,
@@ -523,7 +523,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 26,
@@ -544,7 +544,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 27,
@@ -565,7 +565,7 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 28,
@@ -586,7 +586,7 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 1000,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 29,
@@ -607,7 +607,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 30,
@@ -628,7 +628,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul İdaresi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih/İngilizce/Edebiyat/Almanca Zümreleri"
     },
     {
       "no": 31,
@@ -943,7 +943,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 46,
@@ -964,14 +964,14 @@ const COMBINED_DB = {
       "y4_bas": "01.12.2028",
       "y4_bit": "31.12.2028",
       "butce": 10000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 47,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.3",
-      "eylem_adi": "Sene Sonu Tiyatro Gösterisi",
+      "eylem_adi": "Sene Sonu Tiyatro Kulübü Gösterisi",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -985,14 +985,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "15.06.2029",
       "butce": 20000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 48,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.4",
-      "eylem_adi": "İstanbul Geneli Münazara Turnuvası",
+      "eylem_adi": "İstanbul Geneli Münazara Kulübü Turnuvası",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1006,14 +1006,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 150000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 49,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.5",
-      "eylem_adi": "Müzik kulübünün Sene Sonu Gösterisi",
+      "eylem_adi": "Müzik Zümresi kulübünün Sene Sonu Gösterisi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1027,14 +1027,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 50,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.6",
-      "eylem_adi": "Resim Kulübünün Sene Sonu Resim Sergisi",
+      "eylem_adi": "Resim Zümresi Kulübünün Sene Sonu Resim Zümresi Sergisi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1048,7 +1048,7 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 51,
@@ -1069,7 +1069,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 15000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 52,
@@ -1090,7 +1090,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 5000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 53,
@@ -1111,7 +1111,7 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 54,
@@ -1132,7 +1132,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 55,
@@ -1153,7 +1153,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 56,
@@ -1174,7 +1174,7 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 57,
@@ -1195,7 +1195,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 58,
@@ -1216,7 +1216,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 5000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 59,
@@ -1237,7 +1237,7 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 80000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 60,
@@ -1258,14 +1258,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 2000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 61,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.6",
-      "eylem_adi": "Dijital Okul Biyoloji Dergisi",
+      "eylem_adi": "Dijital Okul Biyoloji Zümresi Dergisi",
       "tip": "C",
       "tekrar": 5,
       "genel_baslangic": "01.11.2025",
@@ -1279,7 +1279,7 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.11.2028",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 62,
@@ -1300,7 +1300,7 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 63,
@@ -1321,7 +1321,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 64,
@@ -1342,7 +1342,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 65,
@@ -1363,7 +1363,7 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 66,
@@ -1384,14 +1384,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 67,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.4",
-      "eylem_adi": "Geleneksel Ayhan Suskun Satranç Turnuvasının düzenlenmesi",
+      "eylem_adi": "Geleneksel Ayhan Suskun Satranç Kulübü Turnuvasının düzenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1405,7 +1405,7 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 68,
@@ -1426,7 +1426,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 69,
@@ -1447,7 +1447,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 2000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 70,
@@ -1468,7 +1468,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 5000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 71,
@@ -1489,7 +1489,7 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 5000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 72,
@@ -1510,7 +1510,7 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 50000,
-      "sorumlu": "TDE, Müzik, Resim, Matematik, Biyoloji, Sosyal Bilimler, Beden Eğitimi Zümreleri; Onur Kurulu; Tiyatro, Münazara, Satranç, Oryantring, Değerler Kulüpleri"
+      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring, Değerler Kulübü"
     },
     {
       "no": 73,
@@ -1531,7 +1531,7 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce/Coğrafya Zümreleri"
+      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
     },
     {
       "no": 74,
@@ -1540,7 +1540,7 @@ const COMBINED_DB = {
       "kod": "10.2.1",
       "eylem_adi": "Dünya Temizlik Günü etkinliklerine öğrenci katılımı",
       "tip": "D",
-      "tekrar": 3,
+      "tekrar": 1,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "30.09.2028",
       "y1_bas": NaN,
@@ -1552,7 +1552,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce/Coğrafya Zümreleri"
+      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
     },
     {
       "no": 75,
@@ -1573,7 +1573,7 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce/Coğrafya Zümreleri"
+      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
     }
   ],
   "oo_db": [
@@ -1589,7 +1589,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Yönetimi ve Proje İzleme ve Yürütme Komisyonu "
+      "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
     },
     {
       "sira": 2,
@@ -1603,7 +1603,7 @@ const COMBINED_DB = {
       "bitis_3": "30.11.2025",
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği ve Okul Yönetimi "
+      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
       "sira": 3,
@@ -1645,7 +1645,7 @@ const COMBINED_DB = {
       "bitis_3": "30.06.2026",
       "baslangic_4": "01.06.2027",
       "bitis_4": "30.06.2027",
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu ve Branş Öğretmenleri "
+      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu, Branş Öğretmenleri "
     },
     {
       "sira": 6,
@@ -1659,7 +1659,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Yönetimi ve Proje İzleme ve Yürütme Komisyonu "
+      "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
     },
     {
       "sira": 7,
@@ -1673,7 +1673,7 @@ const COMBINED_DB = {
       "bitis_3": "30.11.2025",
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği ve Okul Yönetimi "
+      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
       "sira": 8,
@@ -1687,7 +1687,7 @@ const COMBINED_DB = {
       "bitis_3": "30.11.2025",
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği ve Okul Yönetimi "
+      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
       "sira": 9,
@@ -1701,7 +1701,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Rehberlik Servisi ve Üniveriste Paydaşları "
+      "sorumlu_verisi": "Okul Rehberlik Servisi, Üniveriste Paydaşları "
     },
     {
       "sira": 10,
@@ -1757,7 +1757,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Rehberlik Servisi-Beoğlu İlçe Sağlık Müdürlüğü "
+      "sorumlu_verisi": "Okul Rehberlik Servisi, Beoğlu İlçe Sağlık Müdürlüğü "
     },
     {
       "sira": 14,
@@ -1785,7 +1785,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul öğrenci Kulüpleri- İngilizce Öğretmenleri "
+      "sorumlu_verisi": "Okul öğrenci Kulüpleri, İngilizce Öğretmenleri "
     },
     {
       "sira": 16,
@@ -1813,7 +1813,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Galata Üniversitesi -Okul Rehberlik Servisi-Biyoloji Öğretmenleri "
+      "sorumlu_verisi": "Galata Üniversitesi, Okul Rehberlik Servisi, Biyoloji Öğretmenleri "
     },
     {
       "sira": 18,
@@ -1827,7 +1827,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Öğrenci Kulüpleri - İngilizce Öğretmenleri "
+      "sorumlu_verisi": "Okul Öğrenci Kulüpleri,  İngilizce Öğretmenleri "
     },
     {
       "sira": 19,
@@ -1841,7 +1841,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu ve Branş Öğretmenleri "
+      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu, Branş Öğretmenleri "
     },
     {
       "sira": 20,
@@ -1855,7 +1855,7 @@ const COMBINED_DB = {
       "bitis_3": NaN,
       "baslangic_4": NaN,
       "bitis_4": NaN,
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu ve Okul Yönetimi "
+      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu, Okul Yönetimi "
     },
     {
       "sira": 21,
