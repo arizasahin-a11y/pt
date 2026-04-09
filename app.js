@@ -52,25 +52,21 @@ const reportsList = document.getElementById('reports-list');
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
     calculateEduYear();
-    fetchCombinedData();
+    
+    // Load combined data from global variable (db_data.js)
+    if (typeof COMBINED_DB !== 'undefined') {
+        combinedData = COMBINED_DB;
+        console.log('Combined data loaded from JS');
+        updateResponsibleDatalist();
+    } else {
+        console.warn('COMBINED_DB not found. Dynamic lists will be disabled.');
+    }
     
     // Listen for project type changes to update responsible list
     document.querySelectorAll('input[name="project-type"]').forEach(radio => {
         radio.addEventListener('change', updateResponsibleDatalist);
     });
 });
-
-async function fetchCombinedData() {
-    try {
-        const response = await fetch('combined_db.json');
-        if (!response.ok) throw new Error('Data file not found');
-        combinedData = await response.json();
-        console.log('Combined data loaded');
-        updateResponsibleDatalist();
-    } catch (error) {
-        console.warn('Could not load combined_db.json. Dynamic lists will be disabled.', error);
-    }
-}
 
 function updateResponsibleDatalist() {
     if (!combinedData) return;
