@@ -4,6 +4,7 @@ const DB_VERSION = 1;
 const STORE_NAME = 'reports';
 
 let db;
+let combinedData = null;
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -51,7 +52,58 @@ const reportsList = document.getElementById('reports-list');
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
     calculateEduYear();
+    fetchCombinedData();
+    
+    // Listen for project type changes to update responsible list
+    document.querySelectorAll('input[name="project-type"]').forEach(radio => {
+        radio.addEventListener('change', updateResponsibleDatalist);
+    });
 });
+
+async function fetchCombinedData() {
+    try {
+        const response = await fetch('combined_db.json');
+        if (!response.ok) throw new Error('Data file not found');
+        combinedData = await response.json();
+        console.log('Combined data loaded');
+        updateResponsibleDatalist();
+    } catch (error) {
+        console.warn('Could not load combined_db.json. Dynamic lists will be disabled.', error);
+    }
+}
+
+function updateResponsibleDatalist() {
+    if (!combinedData) return;
+    
+    const datalist = document.getElementById('responsible-list');
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    
+    datalist.innerHTML = '';
+    
+    let items = [];
+    if (selectedType === 'OKUL GELİŞİM PROJESİ') {
+        items = combinedData.og_db.map(item => item.sorumlu);
+    } else {
+        items = combinedData.oo_db.map(item => item.sorumlu_verisi);
+    }
+    
+    // Unique, non-empty, and split by comma if multiple listed in one string
+    const uniqueResponsibles = new Set();
+    items.forEach(item => {
+        if (!item) return;
+        // Some entries have multiple responsibles separated by comma
+        item.split(',').forEach(part => {
+            const trimmed = part.trim();
+            if (trimmed) uniqueResponsibles.add(trimmed);
+        });
+    });
+    
+    Array.from(uniqueResponsibles).sort().forEach(resp => {
+        const option = document.createElement('option');
+        option.value = resp;
+        datalist.appendChild(option);
+    });
+}
 
 // Helper: Get checkbox values (including 'Other')
 function getCheckboxValues(name, otherCheckId, otherTextId) {

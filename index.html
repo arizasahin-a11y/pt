@@ -20,7 +20,6 @@
                 <p>İstanbul Atatürk Anadolu Lisesi | Veri Giriş Portalı</p>
             </div>
         </header>
-
         <form id="activity-form">
             <div class="grid">
                 <div class="field-group">
@@ -38,6 +37,12 @@
                         </label>
                     </div>
                 </div>
+            </div>
+            
+            <div class="field-group full-width" style="margin-bottom: 1.5rem;">
+                <label>SORUMLU</label>
+                <input type="text" id="responsible-teacher" placeholder="Ad Soyad..." list="responsible-list">
+                <datalist id="responsible-list"></datalist>
             </div>
             
             <div class="field-group full-width" style="margin-bottom: 1.5rem;">
@@ -60,10 +65,6 @@
                 </div>
             </div>
 
-            <div class="field-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Sorumlu Öğretmen(ler)</label>
-                <input type="text" id="responsible-teacher" placeholder="Ad Soyad...">
-            </div>
 
             <!-- Katılımcı Profili -->
             <div class="checkbox-group full-width" style="margin-bottom: 1.5rem;">
