@@ -89,6 +89,21 @@ window.addEventListener('DOMContentLoaded', () => {
         debounceAudit();
     });
 
+    // Show suggestions when clicked or focused
+    respInput.addEventListener('focus', () => {
+        const val = respInput.value;
+        const lastCommaIndex = val.lastIndexOf(',');
+        const currentFragment = val.substring(lastCommaIndex + 1).trim();
+        renderSuggestions(currentFragment); // Show suggestions even for empty/short strings on focus
+    });
+
+    respInput.addEventListener('click', () => {
+        const val = respInput.value;
+        const lastCommaIndex = val.lastIndexOf(',');
+        const currentFragment = val.substring(lastCommaIndex + 1).trim();
+        renderSuggestions(currentFragment);
+    });
+
     // Close suggestions when clicking outside
     document.addEventListener('click', (e) => {
         if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) {
