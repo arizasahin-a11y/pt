@@ -114,6 +114,14 @@ window.addEventListener('DOMContentLoaded', () => {
     // Modal Close Listeners
     document.getElementById('close-overdue').onclick = hideOverdueModal;
     document.getElementById('overdue-ok-btn').onclick = hideOverdueModal;
+
+    // Clear Button Listener
+    document.getElementById('clear-responsible').addEventListener('click', () => {
+        respInput.value = '';
+        suggestionsPanel.style.display = 'none';
+        respInput.focus();
+        // Hide the clear button itself is handled by CSS (:placeholder-shown)
+    });
 });
 
 function renderSuggestions(fragment) {
