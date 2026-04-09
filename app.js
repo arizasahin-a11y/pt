@@ -71,31 +71,90 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Listen for responsible selection to check overdue tasks and handle multiple selection
-    document.getElementById('responsible-teacher').addEventListener('input', (e) => {
-        const input = e.target;
-        const val = input.value;
-        const list = document.getElementById('responsible-list');
-        
-        // Detect if the user selected an item from the datalist
-        // Normally, the input event after a datalist choice doesn't have an inputType or has specific one
-        const options = Array.from(list.options).map(o => o.value);
-        
-        // If the current value matches exactly one of the options, 
-        // it means a single item was probably just picked OR typed.
-        // We want to allow appending if it's a selection.
-        if (options.includes(val)) {
-            // We'll use a small trick: if the user just picked it, 
-            // and we want to support multiple, we can check if they want to append.
-            // For now, let's make checkOverdueActivities handle the string regardless.
+    const respInput = document.getElementById('responsible-teacher');
+    const suggestionsPanel = document.getElementById('suggestions-panel');
+
+    respInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const lastCommaIndex = val.lastIndexOf(',');
+        const currentFragment = val.substring(lastCommaIndex + 1).trim();
+
+        if (currentFragment.length >= 2) {
+            renderSuggestions(currentFragment);
+        } else {
+            suggestionsPanel.style.display = 'none';
         }
         
         debounceCheck();
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) {
+            suggestionsPanel.style.display = 'none';
+        }
     });
     
     // Modal Close Listeners
     document.getElementById('close-overdue').onclick = hideOverdueModal;
     document.getElementById('overdue-ok-btn').onclick = hideOverdueModal;
 });
+
+function renderSuggestions(fragment) {
+    if (!combinedData) return;
+    const panel = document.getElementById('suggestions-panel');
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    
+    // Get all unique responsibles
+    let items = selectedType === 'OKUL GELİŞİM PROJESİ' 
+        ? combinedData.og_db.map(item => item.sorumlu) 
+        : combinedData.oo_db.map(item => item.sorumlu_verisi);
+    
+    const uniqueResponsibles = new Set();
+    items.forEach(item => {
+        if (!item) return;
+        item.split(',').forEach(part => {
+            const trimmed = part.trim();
+            if (trimmed) uniqueResponsibles.add(trimmed);
+        });
+    });
+
+    const filtered = Array.from(uniqueResponsibles)
+        .filter(name => name.toLocaleLowerCase('tr').includes(fragment.toLocaleLowerCase('tr')))
+        .sort();
+
+    if (filtered.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    panel.innerHTML = '';
+    filtered.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.innerHTML = `<i class="fas fa-user-tag"></i> ${name}`;
+        div.onclick = () => {
+            const input = document.getElementById('responsible-teacher');
+            const currentVal = input.value;
+            const lastCommaIndex = currentVal.lastIndexOf(',');
+            
+            let newValue = '';
+            if (lastCommaIndex === -1) {
+                newValue = name;
+            } else {
+                newValue = currentVal.substring(0, lastCommaIndex + 1).trim() + ' ' + name;
+            }
+            
+            input.value = newValue + ', ';
+            panel.style.display = 'none';
+            input.focus();
+            checkOverdueActivities();
+        };
+        panel.appendChild(div);
+    });
+
+    panel.style.display = 'block';
+}
 
 const debounceCheck = debounce(checkOverdueActivities, 1000);
 
@@ -110,36 +169,7 @@ function debounce(func, wait) {
 
 
 function updateResponsibleDatalist() {
-    if (!combinedData) return;
-    
-    const datalist = document.getElementById('responsible-list');
-    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    
-    datalist.innerHTML = '';
-    
-    let items = [];
-    if (selectedType === 'OKUL GELİŞİM PROJESİ') {
-        items = combinedData.og_db.map(item => item.sorumlu);
-    } else {
-        items = combinedData.oo_db.map(item => item.sorumlu_verisi);
-    }
-    
-    // Unique, non-empty, and split by comma if multiple listed in one string
-    const uniqueResponsibles = new Set();
-    items.forEach(item => {
-        if (!item) return;
-        // Some entries have multiple responsibles separated by comma
-        item.split(',').forEach(part => {
-            const trimmed = part.trim();
-            if (trimmed) uniqueResponsibles.add(trimmed);
-        });
-    });
-    
-    Array.from(uniqueResponsibles).sort().forEach(resp => {
-        const option = document.createElement('option');
-        option.value = resp;
-        datalist.appendChild(option);
-    });
+    // Custom suggestions panel handles this now
 }
 
 function checkOverdueActivities() {
