@@ -392,5 +392,42 @@ input:checked ~ .other-input {
 .overdue-person { font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 .modal-footer { margin-top: 1.5rem; display: flex; justify-content: flex-end; }
 
+/* Custom Suggestions Panel Styles */
+.suggestions-panel { 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    width: 100%; 
+    background: #1e293b; 
+    backdrop-filter: blur(16px); 
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    border-radius: 12px; 
+    margin-top: 5px; 
+    max-height: 250px; 
+    overflow-y: auto; 
+    z-index: 10000; /* Extremely high z-index to stay above everything */
+    display: none; 
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.6); 
+    animation: fadeIn 0.2s ease;
+}
+.suggestion-item { 
+    padding: 12px 15px; 
+    cursor: pointer; 
+    color: var(--text); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+    transition: all 0.2s; 
+    font-size: 0.95rem; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { 
+    background: rgba(99, 102, 241, 0.3); 
+    color: var(--primary); 
+    padding-left: 20px;
+}
+.suggestion-item i { opacity: 0.6; }
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

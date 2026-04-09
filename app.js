@@ -85,7 +85,8 @@ window.addEventListener('DOMContentLoaded', () => {
             suggestionsPanel.style.display = 'none';
         }
         
-        debounceCheck();
+        // Modal will only trigger after 3s of silence instead of 1s
+        debounceAudit();
     });
 
     // Close suggestions when clicking outside
@@ -148,6 +149,8 @@ function renderSuggestions(fragment) {
             input.value = newValue + ', ';
             panel.style.display = 'none';
             input.focus();
+            
+            // Immediate audit when a selection is confirmed
             checkOverdueActivities();
         };
         panel.appendChild(div);
@@ -156,7 +159,7 @@ function renderSuggestions(fragment) {
     panel.style.display = 'block';
 }
 
-const debounceCheck = debounce(checkOverdueActivities, 1000);
+const debounceAudit = debounce(checkOverdueActivities, 3000);
 
 // Helper: Debounce function to prevent excessive checks
 function debounce(func, wait) {
