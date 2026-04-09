@@ -431,3 +431,32 @@ input:checked ~ .other-input {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Clear Button Style */
+.clear-btn { 
+    position: absolute; 
+    right: 8px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    background: rgba(255, 255, 255, 0.08); 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    color: var(--text-muted); 
+    width: 18px; 
+    height: 18px; 
+    border-radius: 50%; 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    font-size: 0.8rem; 
+    line-height: 1; 
+    z-index: 5; 
+}
+.clear-btn:hover { 
+    background: #ef4444; 
+    color: white; 
+    border-color: #ef4444; 
+    transform: translateY(-50%) scale(1.1); 
+}
+#responsible-teacher:not(:placeholder-shown) + .clear-btn { display: flex; }
