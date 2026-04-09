@@ -64,9 +64,29 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Listen for project type changes to update responsible list
     document.querySelectorAll('input[name="project-type"]').forEach(radio => {
-        radio.addEventListener('change', updateResponsibleDatalist);
+        radio.addEventListener('change', () => {
+            updateResponsibleDatalist();
+            checkOverdueActivities();
+        });
     });
+
+    // Listen for responsible selection to check overdue tasks
+    document.getElementById('responsible-teacher').addEventListener('input', debounce(checkOverdueActivities, 800));
+    
+    // Modal Close Listeners
+    document.getElementById('close-overdue').onclick = hideOverdueModal;
+    document.getElementById('overdue-ok-btn').onclick = hideOverdueModal;
 });
+
+// Helper: Debounce function to prevent excessive checks
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(func, wait);
+    };
+}
+
 
 function updateResponsibleDatalist() {
     if (!combinedData) return;
@@ -99,6 +119,65 @@ function updateResponsibleDatalist() {
         option.value = resp;
         datalist.appendChild(option);
     });
+}
+
+function checkOverdueActivities() {
+    if (!combinedData) return;
+    
+    const name = document.getElementById('responsible-teacher').value.trim();
+    if (!name || name.length < 3) return;
+
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    const today = new Date('2026-04-09'); // Reference date as requested
+    
+    let db = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    let overdueTasks = [];
+
+    db.forEach(item => {
+        const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
+        if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
+            // Check current year (y1 for both in this context)
+            const dateStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+            
+            if (dateStr && typeof dateStr === 'string' && dateStr.includes('.')) {
+                const parts = dateStr.split('.');
+                const taskDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                
+                // If task was supposed to start before today
+                if (taskDate < today) {
+                    overdueTasks.push({
+                        name: selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev,
+                        date: dateStr
+                    });
+                }
+            }
+        }
+    });
+
+    if (overdueTasks.length > 0) {
+        showOverdueModal(overdueTasks);
+    }
+}
+
+function showOverdueModal(tasks) {
+    const list = document.getElementById('overdue-list');
+    list.innerHTML = '';
+    
+    tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'overdue-item';
+        li.innerHTML = `
+            <span class="overdue-name">${t.name}</span>
+            <span class="overdue-date"><i class="far fa-calendar-alt"></i> Planlanan Başlangıç: ${t.date}</span>
+        `;
+        list.appendChild(li);
+    });
+    
+    document.getElementById('overdue-modal').style.display = 'flex';
+}
+
+function hideOverdueModal() {
+    document.getElementById('overdue-modal').style.display = 'none';
 }
 
 // Helper: Get checkbox values (including 'Other')

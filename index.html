@@ -212,7 +212,7 @@
             <!-- Rows -->
             <div style="margin-top: 20px;"><strong>Faaliyetin Adı :</strong> <span id="p-name" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px;"><strong>Faaliyetin Türü :</strong> <span id="p-type" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
-            <div style="margin-top: 10px;"><strong>Sorumlu Öğretmen:</strong> <span id="p-teacher" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
+            <div style="margin-top: 10px;"><strong>SORUMLU:</strong> <span id="p-teacher" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px; display: flex; justify-content: space-between;">
                 <div><strong>Katılımcı Profili :</strong> <span id="p-profile" style="border-bottom: 1px dotted black; min-width: 150px; display: inline-block;"></span></div>
                 <div><strong>Toplam Kişi Sayısı :</strong> <span id="p-count" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></div>
@@ -265,6 +265,25 @@
                     <strong>Onaylayan</strong><br><br><br>
                     <div>Okul Müdürü</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Activities Modal -->
+    <div id="overdue-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Gecikmiş Faaliyetler</h3>
+                <button class="close-modal" id="close-overdue">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-desc">Seçilen sorumluya ait bu yılın planında yer alan ancak tarihi geçmiş faaliyetler:</p>
+                <div id="overdue-list-container">
+                    <ul id="overdue-list"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="overdue-ok-btn">Anladım</button>
             </div>
         </div>
     </div>
