@@ -70,13 +70,34 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Listen for responsible selection to check overdue tasks
-    document.getElementById('responsible-teacher').addEventListener('input', debounce(checkOverdueActivities, 800));
+    // Listen for responsible selection to check overdue tasks and handle multiple selection
+    document.getElementById('responsible-teacher').addEventListener('input', (e) => {
+        const input = e.target;
+        const val = input.value;
+        const list = document.getElementById('responsible-list');
+        
+        // Detect if the user selected an item from the datalist
+        // Normally, the input event after a datalist choice doesn't have an inputType or has specific one
+        const options = Array.from(list.options).map(o => o.value);
+        
+        // If the current value matches exactly one of the options, 
+        // it means a single item was probably just picked OR typed.
+        // We want to allow appending if it's a selection.
+        if (options.includes(val)) {
+            // We'll use a small trick: if the user just picked it, 
+            // and we want to support multiple, we can check if they want to append.
+            // For now, let's make checkOverdueActivities handle the string regardless.
+        }
+        
+        debounceCheck();
+    });
     
     // Modal Close Listeners
     document.getElementById('close-overdue').onclick = hideOverdueModal;
     document.getElementById('overdue-ok-btn').onclick = hideOverdueModal;
 });
+
+const debounceCheck = debounce(checkOverdueActivities, 1000);
 
 // Helper: Debounce function to prevent excessive checks
 function debounce(func, wait) {
@@ -124,34 +145,48 @@ function updateResponsibleDatalist() {
 function checkOverdueActivities() {
     if (!combinedData) return;
     
-    const name = document.getElementById('responsible-teacher').value.trim();
-    if (!name || name.length < 3) return;
+    const fullValue = document.getElementById('responsible-teacher').value.trim();
+    if (!fullValue) return;
+
+    // Split by comma to check multiple people
+    const names = fullValue.split(',').map(n => n.trim()).filter(n => n.length >= 3);
+    if (names.length === 0) return;
 
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    const today = new Date('2026-04-09'); // Reference date as requested
+    const today = new Date('2026-04-09'); // Reference date
     
     let db = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
     let overdueTasks = [];
+    let seenTasks = new Set(); // To avoid duplicates if multiple names are in the same task
 
-    db.forEach(item => {
-        const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
-        if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
-            // Check current year (y1 for both in this context)
-            const dateStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+    names.forEach(name => {
+        db.forEach(item => {
+            const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
+            const taskId = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${item.no}` : `oo-${item.sira}`;
             
-            if (dateStr && typeof dateStr === 'string' && dateStr.includes('.')) {
-                const parts = dateStr.split('.');
-                const taskDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
+                if (seenTasks.has(taskId)) return;
+
+                // Check dates for y1
+                const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+                const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
                 
-                // If task was supposed to start before today
-                if (taskDate < today) {
-                    overdueTasks.push({
-                        name: selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev,
-                        date: dateStr
-                    });
+                if (startStr && typeof startStr === 'string' && startStr.includes('.')) {
+                    const parts = startStr.split('.');
+                    const taskDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    
+                    if (taskDate < today) {
+                        seenTasks.add(taskId);
+                        overdueTasks.push({
+                            name: selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev,
+                            start: startStr,
+                            end: endStr && endStr !== 'NaN' ? endStr : '...',
+                            person: name
+                        });
+                    }
                 }
             }
-        }
+        });
     });
 
     if (overdueTasks.length > 0) {
@@ -168,7 +203,10 @@ function showOverdueModal(tasks) {
         li.className = 'overdue-item';
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
-            <span class="overdue-date"><i class="far fa-calendar-alt"></i> Planlanan Başlangıç: ${t.date}</span>
+            <div class="overdue-details">
+                <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
+                <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
+            </div>
         `;
         list.appendChild(li);
     });
