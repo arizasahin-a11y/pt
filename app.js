@@ -292,11 +292,14 @@ function checkOverdueActivities() {
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
                 const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
                 
-                if (startStr && typeof startStr === 'string' && startStr.includes('.')) {
-                    const parts = startStr.split('.');
-                    const taskDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                // Use End Date for filtering as per user request (only list if end date has passed)
+                const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
+
+                if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
+                    const parts = dateToCheck.split('.');
+                    const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     
-                    if (taskDate < today) {
+                    if (taskEndDate < today) {
                         seenTasks.add(taskId);
                         overdueTasks.push({
                             id: taskId,
