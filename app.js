@@ -152,11 +152,13 @@ function checkUnreportedActivities() {
     const today = new Date(); // Use actual current date
     let unreportedTasks = [];
     
-    // Check both databases
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    
+    // Check only the selected database
     const databases = [
         { data: combinedData.og_db, type: 'OKUL GELİŞİM PROJESİ' },
         { data: combinedData.oo_db, type: 'OKUL ÖZEL PROJESİ' }
-    ];
+    ].filter(db => db.type === selectedType);
 
     databases.forEach(dbObj => {
         if (!dbObj.data) return;
