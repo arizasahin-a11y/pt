@@ -284,10 +284,6 @@ function checkOverdueActivities() {
                 // Filtering out ignored tasks
                 if (isTaskIgnored(name, taskId)) return;
 
-                // Filtering out already reported tasks
-                const taskName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-                if (isSpecificReported(name, taskName)) return;
-
                 // Check dates for y1
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
                 const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
