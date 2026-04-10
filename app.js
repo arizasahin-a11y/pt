@@ -137,7 +137,108 @@ window.addEventListener('DOMContentLoaded', () => {
         respInput.focus();
         // Hide the clear button itself is handled by CSS (:placeholder-shown)
     });
+
+    // Unreported Actions Listener
+    document.getElementById('unreported-actions-btn').addEventListener('click', checkUnreportedActivities);
 });
+
+function checkUnreportedActivities() {
+    if (!combinedData) return;
+    
+    const today = new Date('2026-04-09');
+    let unreportedTasks = [];
+    
+    // Check both databases
+    const databases = [
+        { data: combinedData.og_db, type: 'OKUL GELİŞİM PROJESİ' },
+        { data: combinedData.oo_db, type: 'OKUL ÖZEL PROJESİ' }
+    ];
+
+    databases.forEach(dbObj => {
+        dbObj.data.forEach(item => {
+            const taskName = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+            
+            // Check if ANY report exists for this activity
+            const isReported = savedReportsCache.some(r => r.activityName === taskName);
+            if (isReported) return;
+
+            // Check if end date has passed
+            const startStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+            const endStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
+            const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
+
+            if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
+                const parts = dateToCheck.split('.');
+                const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                
+                if (taskEndDate < today) {
+                    unreportedTasks.push({
+                        name: taskName,
+                        start: startStr,
+                        end: endStr && endStr !== 'NaN' ? endStr : '...',
+                        person: dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi,
+                        type: dbObj.type
+                    });
+                }
+            }
+        });
+    });
+
+    if (unreportedTasks.length > 0) {
+        showUnreportedModal(unreportedTasks);
+    } else {
+        alert('Tüm süresi geçmiş eylemler için en az bir rapor girilmiş.');
+    }
+}
+
+function showUnreportedModal(tasks) {
+    // We can reuse the overdue modal structure but update content
+    const modal = document.getElementById('overdue-modal');
+    const title = modal.querySelector('.modal-header h3');
+    const desc = modal.querySelector('#modal-desc');
+    const list = document.getElementById('overdue-list');
+    
+    // Backup original header/desc if needed or just overwrite
+    title.innerHTML = '<i class="fas fa-clipboard-list"></i> Hiç Rapor Girilmemiş Eylemler';
+    desc.textContent = 'Süresi geçmiş ancak hiçbir sorumlu tarafından raporu henüz girilmemiş eylemler:';
+    
+    list.innerHTML = '';
+    tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'overdue-item';
+        // Note: Blue border instead of the usual primary for this global list
+        li.style.borderColor = '#60a5fa'; 
+        li.innerHTML = `
+            <span class="overdue-name">${t.name}</span>
+            <div class="overdue-details">
+                <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
+                <span class="overdue-person"><i class="fas fa-users"></i> ${t.person}</span>
+            </div>
+            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase;">${t.type}</div>
+        `;
+        list.appendChild(li);
+    });
+    
+    // Add close listener that restores titles (simple way)
+    const originalTitle = '<i class="fas fa-file-invoice"></i> Rapor Yazılması Gereken Eylemler';
+    const originalDesc = 'Seçilen sorumluya ait bu yılın planında yer alan ancak raporu doldurulması gereken faaliyetler:';
+    
+    const closeBtn = document.getElementById('close-overdue');
+    const okBtn = document.getElementById('overdue-ok-btn');
+    
+    const restoreAndClose = () => {
+        modal.style.display = 'none';
+        title.innerHTML = originalTitle;
+        desc.textContent = originalDesc;
+        // Remove individual style if any
+        list.querySelectorAll('li').forEach(li => li.style.borderColor = '');
+    };
+    
+    closeBtn.onclick = restoreAndClose;
+    okBtn.onclick = restoreAndClose;
+
+    modal.style.display = 'flex';
+}
 
 function renderSuggestions(fragment) {
     if (!combinedData) return;
