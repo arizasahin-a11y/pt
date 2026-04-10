@@ -238,6 +238,19 @@ button {
     align-items: center;
 }
 
+.report-person-tag {
+    font-size: 0.7rem;
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+}
+
 /* PRINT TEMPLATE (Hidden) */
 #print-template {
     display: none;

@@ -6,6 +6,7 @@ const STORE_NAME = 'reports';
 let db;
 let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
+let currentReportingPerson = null; // Track who is currently filling from the modal
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -237,7 +238,16 @@ function isTaskIgnored(person, taskId) {
 function isAlreadyReported(person, activityName) {
     return savedReportsCache.some(report => 
         report.activityName === activityName && 
-        report.teacher && report.teacher.toLocaleLowerCase('tr').includes(person.toLocaleLowerCase('tr'))
+        (report.reportingPerson === person || 
+         (report.teacher && report.teacher.toLocaleLowerCase('tr').includes(person.toLocaleLowerCase('tr'))))
+    );
+}
+
+// Optimized matching: If reportingPerson is exact match, use it. Otherwise fallback to fuzzy teacher match if reportingPerson is missing.
+function isSpecificReported(person, activityName) {
+    return savedReportsCache.some(report => 
+        report.activityName === activityName && 
+        report.reportingPerson === person
     );
 }
 
@@ -276,7 +286,7 @@ function checkOverdueActivities() {
 
                 // Filtering out already reported tasks
                 const taskName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-                if (isAlreadyReported(name, taskName)) return;
+                if (isSpecificReported(name, taskName)) return;
 
                 // Check dates for y1
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
@@ -349,6 +359,11 @@ function showOverdueModal(tasks) {
         btn.onclick = (e) => {
             const id = e.currentTarget.dataset.id;
             const type = e.currentTarget.dataset.type;
+            const person = e.currentTarget.closest('.overdue-item').querySelector('.overdue-person').textContent.replace(' ', '').trim();
+            // Actually dataset person is better, it was there
+            const realPerson = e.currentTarget.previousElementSibling.dataset.person; 
+            
+            currentReportingPerson = realPerson;
             fillReportForm(id, type);
             hideOverdueModal();
         };
@@ -444,6 +459,7 @@ saveBtn.addEventListener('click', () => {
         fillerName: document.getElementById('filler-name').value,
         fillerRole: document.getElementById('filler-role').value,
         fillerDate: document.getElementById('filler-date').value,
+        reportingPerson: currentReportingPerson,
         timestamp: new Date().getTime()
     };
 
@@ -584,9 +600,10 @@ function loadReports() {
         reports.sort((a, b) => b.timestamp - a.timestamp).forEach(report => {
             const card = document.createElement('div');
             card.className = 'report-card';
+            const rpLabel = report.reportingPerson ? `<span class="report-person-tag">${report.reportingPerson}</span>` : '';
             card.innerHTML = `
                 <div>
-                    <h3 style="margin-bottom: 0.3rem;">${report.activityName}</h3>
+                    <h3 style="margin-bottom: 0.3rem;">${report.activityName} ${rpLabel}</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted);">${report.eduYear} - ${formatDateRange(report.startDate, report.endDate)}</p>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
