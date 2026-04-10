@@ -5,6 +5,7 @@ const STORE_NAME = 'reports';
 
 let db;
 let combinedData = null;
+let savedReportsCache = []; // Cache for filtering overdue list
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -19,11 +20,24 @@ request.onupgradeneeded = (event) => {
 request.onsuccess = (event) => {
     db = event.target.result;
     console.log('Database initialized successfully');
+    syncSavedReportsCache();
 };
 
 request.onerror = (event) => {
     console.error('Database error:', event.target.error);
 };
+
+async function syncSavedReportsCache() {
+    if (!db) return;
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        savedReportsCache = getAllRequest.result;
+        console.log(`Cache updated: ${savedReportsCache.length} reports.`);
+    };
+}
 
 // Automatic Academic Year Calculation
 function calculateEduYear() {
@@ -220,6 +234,13 @@ function isTaskIgnored(person, taskId) {
     return ignored[person] && ignored[person].includes(taskId);
 }
 
+function isAlreadyReported(person, activityName) {
+    return savedReportsCache.some(report => 
+        report.activityName === activityName && 
+        report.teacher && report.teacher.toLocaleLowerCase('tr').includes(person.toLocaleLowerCase('tr'))
+    );
+}
+
 
 function updateResponsibleDatalist() {
     // Custom suggestions panel handles this now
@@ -252,6 +273,10 @@ function checkOverdueActivities() {
                 
                 // Filtering out ignored tasks
                 if (isTaskIgnored(name, taskId)) return;
+
+                // Filtering out already reported tasks
+                const taskName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+                if (isAlreadyReported(name, taskName)) return;
 
                 // Check dates for y1
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
@@ -428,6 +453,7 @@ saveBtn.addEventListener('click', () => {
 
     addRequest.onsuccess = () => {
         alert('Rapor başarıyla kaydedildi!');
+        syncSavedReportsCache(); // Refresh cache after save
         form.reset();
         calculateEduYear();
     };
