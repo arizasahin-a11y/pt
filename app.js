@@ -143,9 +143,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkUnreportedActivities() {
-    if (!combinedData) return;
+    console.log('Checking unreported activities...');
+    if (!combinedData) {
+        alert('Veritabanı henüz yüklenmedi, lütfen biraz bekleyip tekrar deneyin.');
+        return;
+    }
     
-    const today = new Date('2026-04-09');
+    const today = new Date(); // Use actual current date
     let unreportedTasks = [];
     
     // Check both databases
@@ -155,9 +159,11 @@ function checkUnreportedActivities() {
     ];
 
     databases.forEach(dbObj => {
+        if (!dbObj.data) return;
         dbObj.data.forEach(item => {
             const taskName = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-            
+            if (!taskName) return;
+
             // Check if ANY report exists for this activity
             const isReported = savedReportsCache.some(r => r.activityName === taskName);
             if (isReported) return;
@@ -184,10 +190,11 @@ function checkUnreportedActivities() {
         });
     });
 
+    console.log(`Found ${unreportedTasks.length} unreported tasks.`);
     if (unreportedTasks.length > 0) {
         showUnreportedModal(unreportedTasks);
     } else {
-        alert('Tüm süresi geçmiş eylemler için en az bir rapor girilmiş.');
+        alert('Tüm süresi geçmiş eylemler için en az bir rapor girilmiş veya süresi geçmiş eylem bulunamadı.');
     }
 }
 
