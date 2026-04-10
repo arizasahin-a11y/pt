@@ -193,6 +193,33 @@ function debounce(func, wait) {
     };
 }
 
+// Helper: Parse DD.MM.YYYY to YYYY-MM-DD
+function parseDBDate(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string' || !dateStr.includes('.')) return null;
+    const parts = dateStr.trim().split('.');
+    if (parts.length !== 3) return null;
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+}
+
+// Helper: Ignore list management
+function getIgnoredTasks() {
+    return JSON.parse(localStorage.getItem('pfds_ignored_tasks') || '{}');
+}
+
+function ignoreTask(person, taskId) {
+    const ignored = getIgnoredTasks();
+    if (!ignored[person]) ignored[person] = [];
+    if (!ignored[person].includes(taskId)) {
+        ignored[person].push(taskId);
+        localStorage.setItem('pfds_ignored_tasks', JSON.stringify(ignored));
+    }
+}
+
+function isTaskIgnored(person, taskId) {
+    const ignored = getIgnoredTasks();
+    return ignored[person] && ignored[person].includes(taskId);
+}
+
 
 function updateResponsibleDatalist() {
     // Custom suggestions panel handles this now
@@ -211,17 +238,20 @@ function checkOverdueActivities() {
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     const today = new Date('2026-04-09'); // Reference date
     
-    let db = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
     let overdueTasks = [];
-    let seenTasks = new Set(); // To avoid duplicates if multiple names are in the same task
+    let seenTasks = new Set(); 
 
     names.forEach(name => {
-        db.forEach(item => {
+        dbSource.forEach(item => {
             const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
             const taskId = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${item.no}` : `oo-${item.sira}`;
             
             if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
                 if (seenTasks.has(taskId)) return;
+                
+                // Filtering out ignored tasks
+                if (isTaskIgnored(name, taskId)) return;
 
                 // Check dates for y1
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
@@ -234,6 +264,7 @@ function checkOverdueActivities() {
                     if (taskDate < today) {
                         seenTasks.add(taskId);
                         overdueTasks.push({
+                            id: taskId,
                             name: selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev,
                             start: startStr,
                             end: endStr && endStr !== 'NaN' ? endStr : '...',
@@ -254,6 +285,8 @@ function showOverdueModal(tasks) {
     const list = document.getElementById('overdue-list');
     list.innerHTML = '';
     
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = 'overdue-item';
@@ -263,11 +296,77 @@ function showOverdueModal(tasks) {
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
             </div>
+            <div class="overdue-actions">
+                <button class="btn-secondary btn-action-sm btn-ignore" data-id="${t.id}" data-person="${t.person}">
+                    <i class="fas fa-trash-alt"></i> Listeden Kaldır
+                </button>
+                <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${selectedType}">
+                    <i class="fas fa-edit"></i> Rapor Doldur
+                </button>
+            </div>
         `;
         list.appendChild(li);
     });
     
+    // Add Click Listeners
+    list.querySelectorAll('.btn-ignore').forEach(btn => {
+        btn.onclick = (e) => {
+            const id = e.currentTarget.dataset.id;
+            const person = e.currentTarget.dataset.person;
+            ignoreTask(person, id);
+            // Refresh modal or remove item
+            e.currentTarget.closest('.overdue-item').remove();
+            if (list.children.length === 0) hideOverdueModal();
+        };
+    });
+
+    list.querySelectorAll('.btn-fill').forEach(btn => {
+        btn.onclick = (e) => {
+            const id = e.currentTarget.dataset.id;
+            const type = e.currentTarget.dataset.type;
+            fillReportForm(id, type);
+            hideOverdueModal();
+        };
+    });
+
     document.getElementById('overdue-modal').style.display = 'flex';
+}
+
+function fillReportForm(taskId, selectedType) {
+    if (!combinedData) return;
+    
+    let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    const item = dbSource.find(i => {
+        const currentId = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`;
+        return currentId === taskId;
+    });
+
+    if (!item) return;
+
+    // 1. Activity Name
+    const name = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+    document.getElementById('activity-name').value = name;
+
+    // 2. All Responsibles for this task
+    const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
+    if (respText) {
+        // Ensure it ends with a comma for better UX with the suggestion system if needed
+        document.getElementById('responsible-teacher').value = respText.trim() + ', ';
+    }
+
+    // 3. Dates
+    const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+    const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
+
+    const formattedStart = parseDBDate(startStr);
+    const formattedEnd = parseDBDate(endStr);
+
+    if (formattedStart) document.getElementById('activity-start').value = formattedStart;
+    if (formattedEnd) document.getElementById('activity-end').value = formattedEnd;
+
+    // Scroll to form top and give feedback
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    console.log(`Form filled for task: ${taskId}`);
 }
 
 function hideOverdueModal() {
