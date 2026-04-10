@@ -140,6 +140,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Unreported Actions Listener
     document.getElementById('unreported-actions-btn').addEventListener('click', checkUnreportedActivities);
+    
+    // Excel Export Listener
+    const exportBtn = document.getElementById('export-excel-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportToExcel);
+    }
 });
 
 function checkUnreportedActivities() {
@@ -648,6 +654,128 @@ function printReport(data) {
         console.error('Print Error:', error);
         alert('İşlem sırasında bir hata oluştu: ' + error.message);
     }
+}
+
+// EXCEL EXPORT (Multi-Sheet Enhanced)
+async function exportToExcel() {
+    if (!db || !combinedData) {
+        alert('Veritabanı bağlantısı veya plan verisi henüz hazır değil.');
+        return;
+    }
+
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        const reports = getAllRequest.result;
+        const matchedReportIds = new Set();
+        
+        // Helper: Clean for matching
+        const clean = (text) => {
+            if (!text) return "";
+            let t = text.toString().toLowerCase()
+                .replace(/İ/g, 'i').replace(/ı/g, 'i')
+                .toLocaleLowerCase('tr-TR');
+            t = t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return t.replace(/[^a-z0-9]/g, '');
+        };
+
+        // Plan Row Mapper
+        const mapPlanWithReport = (planItem, report, type) => {
+            const row = {
+                // Plan Data
+                'ID': type === 'OG' ? `OG-${planItem.no}` : `OO-${planItem.sira}`,
+                'Kod': planItem.kod || '',
+                'Eylem/Görev Adı': type === 'OG' ? planItem.eylem_adi : planItem.eylem_gorev,
+                'Sorumlular (Plan)': type === 'OG' ? planItem.sorumlu : planItem.sorumlu_verisi,
+                'Başlangıç (Plan)': type === 'OG' ? planItem.y1_bas : planItem.baslangic_1,
+                'Bitiş (Plan)': type === 'OG' ? planItem.y1_bit : planItem.bitis_1,
+                
+                // Status
+                'DURUM': report ? 'TAMAMLANDI' : 'EKSİK',
+                
+                // Report Data (if exists)
+                'Raporlanan Faaliyet': report ? report.activityName : '',
+                'Faaliyet Türü': report ? report.activityType : '',
+                'Rapor Tarihi': report ? `${report.startDate} / ${report.endDate}` : '',
+                'Yer': report ? report.location : '',
+                'Katılımcı Profili': report ? report.participantProfile : '',
+                'Kişi Sayısı': report ? report.totalParticipants : '',
+                'Süre (Saat)': report ? report.duration : '',
+                'Raporu Dolduran Sorumlu': report ? (report.reportingPerson || '---') : '',
+                'Formu Dolduran Kişi': report ? report.fillerName : '',
+                'Doldurma Tarihi': report ? report.fillerDate : '',
+                'Değerlendirme': report ? report.evaluation : ''
+            };
+            return row;
+        };
+
+        // 1. Process School Action Plan (OG)
+        const ogRows = [];
+        combinedData.og_db.forEach(planItem => {
+            const planKey = clean(planItem.eylem_adi);
+            const matches = reports.filter(r => r.projectType === 'OKUL GELİŞİM PROJESİ' && clean(r.activityName) === planKey);
+            
+            if (matches.length > 0) {
+                matches.forEach(m => {
+                    ogRows.push(mapPlanWithReport(planItem, m, 'OG'));
+                    matchedReportIds.add(m.id);
+                });
+            } else {
+                ogRows.push(mapPlanWithReport(planItem, null, 'OG'));
+            }
+        });
+
+        // 2. Process Activity Calendar (OO)
+        const ooRows = [];
+        combinedData.oo_db.forEach(planItem => {
+            const planKey = clean(planItem.eylem_gorev);
+            const matches = reports.filter(r => r.projectType === 'OKUL ÖZEL PROJESİ' && clean(r.activityName) === planKey);
+            
+            if (matches.length > 0) {
+                matches.forEach(m => {
+                    ooRows.push(mapPlanWithReport(planItem, m, 'OO'));
+                    matchedReportIds.add(m.id);
+                });
+            } else {
+                ooRows.push(mapPlanWithReport(planItem, null, 'OO'));
+            }
+        });
+
+        // 3. Process Unmatched Reports
+        const unmatchedReports = reports.filter(r => !matchedReportIds.has(r.id));
+        const otherRows = unmatchedReports.map(r => ({
+            'Rapor Adı': r.activityName,
+            'Proje Türü': r.projectType,
+            'Durum': 'PLAN HARİCİ / EŞLEŞEMEDİ',
+            'Sorumlular': r.teacher,
+            'Tarih': `${r.startDate} - ${r.endDate}`,
+            'Yer': r.location,
+            'Katılımcılar': r.totalParticipants,
+            'Dolduran': r.fillerName,
+            'Timestamp': new Date(r.timestamp).toLocaleString('tr-TR')
+        }));
+
+        // Create Workbook
+        const wb = XLSX.utils.book_new();
+        
+        // Add Sheets
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Eylem Planı");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Faaliyet Takvimi");
+        
+        if (otherRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(otherRows), "Diğer Raporlar");
+        }
+
+        // Trigger Download
+        const fileName = `PTS_Monitor_Rapor_${new Date().toISOString().slice(0,10)}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    getAllRequest.onerror = () => {
+        alert('Raporlar veritabanından alınırken bir hata oluştu.');
+    };
 }
 
 // Function to collect form data for immediate action

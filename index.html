@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container no-print">
@@ -181,7 +183,12 @@
         </form>
 
         <div id="saved-reports">
-            <h2 style="margin-bottom: 1.5rem;">Kayıtlı Raporlar</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">Kayıtlı Raporlar</h2>
+                <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
+                    <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
+                </button>
+            </div>
             <div id="reports-list"></div>
             <button class="btn-secondary" id="back-to-form">Geri Dön</button>
         </div>
