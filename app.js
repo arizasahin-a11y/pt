@@ -714,6 +714,11 @@ function showOverdueModal(tasks) {
     // Add Click Listeners
     list.querySelectorAll('.btn-ignore').forEach(btn => {
         btn.onclick = (e) => {
+            const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
+            if (pw !== '321') {
+                alert('Hatalı şifre! İşlem iptal edildi.');
+                return;
+            }
             const id = e.currentTarget.dataset.id;
             const person = e.currentTarget.dataset.person;
             ignoreTask(person, id);
