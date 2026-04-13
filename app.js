@@ -311,6 +311,12 @@ function showUnreportedModal(tasks) {
     list.querySelectorAll('.cancel-task-btn').forEach(btn => {
         btn.onclick = (e) => {
             if (!confirm('Bu faaliyeti "İPTAL" olarak işaretlemek istediğinize emin misiniz?')) return;
+            const pw = prompt('İptal işlemi için yönetici şifresini giriniz:');
+            if (pw !== '4321') {
+                alert('Hatalı şifre! İşlem reddedildi.');
+                return;
+            }
+            
             const tNode = e.currentTarget;
             const dummyReport = {
                 eduYear: document.getElementById('edu-year').value,
@@ -917,15 +923,16 @@ function printReport(data) {
         const styles = `
             <style>
                 body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
-                #preview-container { max-width: 210mm; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
+                #preview-container { width: 210mm; min-height: 297mm; box-sizing: border-box; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
                 .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; }
                 .btn-print { background: #ff7e5f; color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
                 .btn-print:hover { transform: translateY(-2px); }
                 img { max-width: 100px; height: auto; }
                 @media print {
+                    @page { size: A4; margin: 5mm; }
                     body { background: white !important; padding: 0 !important; }
                     .action-bar { display: none !important; }
-                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
                 }
             </style>
         `;
@@ -1076,6 +1083,12 @@ async function exportToExcel() {
 // Global Print Button (For current form)
 directPrintBtn.addEventListener('click', () => {
     if (!validateForm()) return;
+    printReport(getFormData());
+});
+
+// Bypass validation on right-click for the print button
+directPrintBtn.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); // Prevent standard right-click menu
     printReport(getFormData());
 });
 
