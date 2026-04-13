@@ -655,7 +655,7 @@ function checkOverdueActivities() {
                             name: activityName,
                             start: startStr,
                             end: endStr && endStr !== 'NaN' ? endStr : '...',
-                            person: name,
+                            person: respText, // Full list instead of just searched name
                             isReported: hasReport,
                             filler: fillerTxt
                         });
@@ -931,26 +931,49 @@ function printReport(data) {
             <style>
                 body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
                 #preview-container { width: 210mm; min-height: 297mm; box-sizing: border-box; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
-                .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; }
-                .btn-print { background: #ff7e5f; color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
-                .btn-print:hover { transform: translateY(-2px); }
+                .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; gap: 10px; }
+                .btn-print { background: #ff7e5f; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
+                .btn-download { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(99,102,241,0.3); transition: transform 0.2s; }
+                .btn-print:hover, .btn-download:hover { transform: translateY(-2px); }
                 img { max-width: 100px; height: auto; }
                 @media print {
-                    @page { size: A4; margin: 5mm; }
+                    @page { size: A4; margin: 0; }
                     body { background: white !important; padding: 0 !important; }
                     .action-bar { display: none !important; }
-                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
+                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 10mm !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
                 }
             </style>
         `;
 
         const printIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
+        const downloadIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
 
         win.document.write('<!DOCTYPE html><html><head><title>Rapor Önizleme</title>' + styles + '</head><body>');
-        win.document.write('<div class="action-bar"><button class="btn-print" onclick="window.print()">' + printIcon + ' Raporu Hemen Yazdır</button></div>');
-        win.document.write('<div id="preview-container">');
+        win.document.write('<div class="action-bar">');
+        win.document.write('<button class="btn-download" onclick="window.downloadPDF()">' + downloadIcon + ' PDF İndir</button>');
+        win.document.write('<button class="btn-print" onclick="window.print()">' + printIcon + ' Hemen Yazdır</button>');
+        win.document.write('</div>');
+        win.document.write('<div id="preview-container" id="capture">');
         win.document.write(printContent.innerHTML);
-        win.document.write('</div></body></html>');
+        win.document.write('</div>');
+
+        win.document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>');
+        win.document.write('<script>');
+        win.document.write(`
+            window.downloadPDF = function() {
+                const element = document.getElementById('preview-container');
+                const opt = {
+                    margin: 0,
+                    filename: 'Rapor_${new Date().getTime()}.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
+            };
+        `);
+        win.document.write('</script>');
+        win.document.write('</body></html>');
         win.document.close();
         
     } catch (error) {
