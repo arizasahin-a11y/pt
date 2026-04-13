@@ -172,9 +172,9 @@ input:focus, textarea:focus {
 input.has-value:not([type="radio"]):not([type="checkbox"]), 
 textarea.has-value,
 input[type="date"].has-value {
-    border-color: var(--accent);
-    background: rgba(16, 185, 129, 0.12); /* More distinct green background */
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+    border-color: var(--accent) !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
 }
 
 /* Specific styling for readonly filled fields - match the green theme if filled */

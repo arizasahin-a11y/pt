@@ -195,8 +195,14 @@ window.addEventListener('DOMContentLoaded', () => {
     allInputs.forEach(el => {
         el.addEventListener('input', () => updateFilledState(el));
         el.addEventListener('change', () => updateFilledState(el));
+        el.addEventListener('blur', () => updateFilledState(el));
         updateFilledState(el);
     });
+    
+    // Safety re-check after a short delay for browser autofills
+    setTimeout(() => {
+        document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(updateFilledState);
+    }, 500);
 });
 
 // Helper: Track if an input has a meaningful value
@@ -204,17 +210,14 @@ function updateFilledState(el) {
     if (!el) return;
     if (el.type === 'radio' || el.type === 'checkbox') return;
 
-    let hasValue = false;
-    if (el.type === 'date') {
-        hasValue = !!el.value;
-    } else {
-        hasValue = el.value.trim().length > 0;
-    }
+    const val = el.value ? el.value.trim() : "";
+    let hasValue = val.length > 0;
 
-    if (hasValue) {
-        el.classList.add('has-value');
-    } else {
+    // Dates can be tricky, some browsers might have placeholder text but empty value
+    if (el.classList.contains('has-value') && !hasValue) {
         el.classList.remove('has-value');
+    } else if (hasValue) {
+        el.classList.add('has-value');
     }
 }
 
