@@ -605,7 +605,9 @@ function checkOverdueActivities() {
     if (names.length === 0) return;
 
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    const today = new Date('2026-04-09'); // Reference date
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
+    const today = new Date();
+    today.setHours(0,0,0,0);
     
     let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
     let modalTasks = [];
