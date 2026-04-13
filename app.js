@@ -282,11 +282,6 @@ function showUnreportedModal(tasks) {
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-users"></i> ${t.person}</span>
             </div>
-            <div class="overdue-actions" style="margin-top: 0.5rem;">
-                <button class="btn-action-sm cancel-task-btn" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);" data-name="${t.name.replace(/"/g, '&quot;')}" data-person="${t.person.replace(/"/g, '&quot;')}" data-type="${t.type}" data-start="${t.start}" data-end="${t.end}">
-                    <i class="fas fa-ban"></i> Faaliyeti İptal Et
-                </button>
-            </div>
             <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase;">${t.type}</div>
         `;
         list.appendChild(li);
@@ -307,59 +302,7 @@ function showUnreportedModal(tasks) {
         list.querySelectorAll('li').forEach(li => li.style.borderColor = '');
     };
     
-    // Add Cancel task listeners
-    list.querySelectorAll('.cancel-task-btn').forEach(btn => {
-        btn.onclick = (e) => {
-            if (!confirm('Bu faaliyeti "İPTAL" olarak işaretlemek istediğinize emin misiniz?')) return;
-            const pw = prompt('İptal işlemi için yönetici şifresini giriniz:');
-            if (pw !== '4321') {
-                alert('Hatalı şifre! İşlem reddedildi.');
-                return;
-            }
-            
-            const tNode = e.currentTarget;
-            const dummyReport = {
-                eduYear: document.getElementById('edu-year').value,
-                projectType: tNode.dataset.type,
-                activityName: tNode.dataset.name,
-                activityType: '-',
-                teacher: tNode.dataset.person,
-                participantProfile: '-',
-                totalParticipants: '',
-                location: '-',
-                startDate: tNode.dataset.start,
-                endDate: tNode.dataset.end,
-                duration: '',
-                cost: '',
-                documentNo: '',
-                status: 'İPTAL',
-                purpose: '-',
-                difficulties: '-',
-                suggestions: 'Faaliyet iptal edilmiştir.',
-                collaborations: '-',
-                evaluation: '-',
-                docs: '-',
-                fillerName: 'Sistem',
-                fillerRole: 'Yönetici',
-                fillerDate: new Date().toISOString().split('T')[0],
-                reportingPerson: 'Sistem Yöneticisi',
-                timestamp: new Date().getTime()
-            };
-            
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const addRequest = store.add(dummyReport);
-            
-            addRequest.onsuccess = () => {
-                syncSavedReportsCache();
-                const itemDiv = tNode.closest('.overdue-item');
-                if (itemDiv) itemDiv.remove();
-                if (list.children.length === 0) {
-                    restoreAndClose();
-                }
-            };
-        };
-    });
+
     
     closeBtn.onclick = restoreAndClose;
     okBtn.onclick = restoreAndClose;

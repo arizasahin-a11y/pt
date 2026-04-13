@@ -168,6 +168,15 @@ input:focus, textarea:focus {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
+/* Visual Feedback for Filled Inputs */
+input:not(:placeholder-shown):not([type="radio"]):not([type="checkbox"]), 
+textarea:not(:placeholder-shown),
+input[type="date"]:not(:placeholder-shown) {
+    border-color: var(--accent);
+    background: rgba(16, 185, 129, 0.05); /* Subtle green tint for completed feel */
+}
+
+
 /* Checkbox Style */
 .checkbox-group {
     background: rgba(255, 255, 255, 0.03);
@@ -198,6 +207,15 @@ input:focus, textarea:focus {
 .checkbox-item:hover {
     background: rgba(255,255,255,0.1);
 }
+
+/* Visual Feedback for Selected Items (Radio/Checkbox) */
+.checkbox-item:has(input:checked) {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 
 .checkbox-item input {
     accent-color: var(--primary);
