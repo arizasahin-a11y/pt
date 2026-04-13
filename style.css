@@ -171,18 +171,19 @@ input:focus, textarea:focus {
 /* Visual Feedback for Filled Inputs */
 input:not(:placeholder-shown):not([type="radio"]):not([type="checkbox"]), 
 textarea:not(:placeholder-shown),
-input[type="date"]:not(:placeholder-shown) {
+input[type="date"]:not(:placeholder-shown):not(:focus):not(:invalid) {
     border-color: var(--accent);
-    background: rgba(16, 185, 129, 0.08); /* Slightly more visible green */
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.12); /* More distinct green background */
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
 }
 
-/* Specific styling for readonly but filled fields */
+/* Specific styling for readonly filled fields - match the green theme if filled */
 input[readonly]:not(:placeholder-shown) {
-    background: rgba(148, 163, 184, 0.1);
-    border-color: var(--text-muted);
+    background: rgba(16, 185, 129, 0.08);
+    border-color: var(--accent);
     opacity: 0.9;
 }
+
 
 
 /* Checkbox Style */
@@ -218,24 +219,25 @@ input[readonly]:not(:placeholder-shown) {
 
 /* Visual Feedback for Selected Items (Radio/Checkbox) */
 .checkbox-item:has(input:checked) {
-    background: var(--primary);
+    background: var(--accent);
     color: white;
-    border: 1px solid var(--primary);
+    border: 1px solid var(--accent);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
 
 .checkbox-item:has(input:checked) label,
 .checkbox-item:has(input:checked) input {
-    accent-color: white; /* Contrast */
+    accent-color: white;
 }
 
-/* Header Status Radios Feedback */
+/* Header Status Radios Feedback - Also Green */
 .status-radio-group label:has(input:checked) {
-    color: var(--primary) !important;
+    color: var(--accent) !important;
     font-weight: 700;
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
+
 
 
 .checkbox-item input {
