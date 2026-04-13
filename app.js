@@ -1093,15 +1093,16 @@ async function exportToExcel() {
         const wb = XLSX.utils.book_new();
         
         // Add Sheets
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Eylem Planı");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Faaliyet Takvimi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Gelişim Projesi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Okul Özel Projesi");
         
         if (otherRows.length > 0) {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(otherRows), "Diğer Raporlar");
         }
 
         // Trigger Download
-        const fileName = `PTS_Monitor_Rapor_${new Date().toISOString().slice(0,10)}.xlsx`;
+        const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '_');
+        const fileName = `IAAL_PTS_Faaliyet_Raporu_${dateStr}.xlsx`;
         XLSX.writeFile(wb, fileName);
     };
 
