@@ -282,6 +282,16 @@ button {
     }
     .no-print { display: none !important; }
     #print-template { display: block !important; }
+    
+    * {
+        font-size: 11px !important;
+    }
+    #print-content {
+        padding: 15px !important;
+    }
+    #p-purpose, #p-difficulties, #p-suggestions, #p-collaborations, #p-evaluation {
+        min-height: 40px !important;
+    }
 }
 
 /* Custom "Other" Input */
@@ -310,7 +320,7 @@ input:checked ~ .other-input {
 @media print {
     @page {
         size: A4;
-        margin: 10mm;
+        margin: 5mm;
     }
     body {
         background: white !important;
@@ -424,6 +434,17 @@ input:checked ~ .other-input {
     background: rgba(255, 255, 255, 0.06);
     transform: translateX(5px);
     border-color: rgba(255, 255, 255, 0.1);
+}
+.reported-item {
+    background: rgba(16, 185, 129, 0.05);
+    border-left: 4px solid #10b981;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+.reported-item .overdue-name {
+    color: #6ee7b7;
+}
+.reported-item .overdue-date {
+    color: #10b981;
 }
 .overdue-name { font-weight: 600; margin-bottom: 0.6rem; display: block; color: white; font-size: 1.05rem; line-height: 1.4; }
 .overdue-details { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }

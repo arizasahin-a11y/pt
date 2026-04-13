@@ -21,9 +21,24 @@
                 <h1>Proje Faaliyeti Raporu</h1>
                 <p>İstanbul Atatürk Anadolu Lisesi | Veri Giriş Portalı</p>
             </div>
-            <button type="button" class="btn-secondary btn-header-special" id="unreported-actions-btn" title="Hiç rapor girilmemiş eylemleri listele">
-                <i class="fas fa-clipboard-list"></i> Hiç rapor girilmemiş eylemler
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn-secondary btn-header-special" id="unreported-actions-btn" title="Hiç rapor girilmemiş eylemleri listele">
+                        <i class="fas fa-clipboard-list"></i> Hiç rapor girilmemiş eylemler
+                    </button>
+                    <button type="button" class="btn-secondary btn-header-special" id="reported-actions-btn" title="Rapor girilmiş faaliyetleri listele">
+                        <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
+                    </button>
+                </div>
+                <div class="status-radio-group" style="display: flex; gap: 1rem; font-size: 0.85rem;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: var(--text);">
+                        <input type="radio" name="activity-status" value="expired" checked> Süresi Dolan
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: var(--text);">
+                        <input type="radio" name="activity-status" value="ongoing"> Devam Eden
+                    </label>
+                </div>
+            </div>
         </header>
         <form id="activity-form">
             <div class="grid">
@@ -109,10 +124,14 @@
                     <label>Toplam Süre (Saat)</label>
                     <input type="number" id="total-duration" placeholder="0">
                 </div>
+                <div class="field-group">
+                    <label>Maliyeti</label>
+                    <input type="number" id="cost" placeholder="0">
+                </div>
             </div>
 
             <div class="field-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Faaliyetin Amaç ve Kapsamı</label>
+                <label id="purpose-label">Faaliyetin Amaç ve Kapsamı</label>
                 <textarea id="purpose" rows="3" placeholder="..."></textarea>
             </div>
 
@@ -122,7 +141,7 @@
                     <textarea id="difficulties" rows="2"></textarea>
                 </div>
                 <div class="field-group">
-                    <label>İyileştirme Önerileri</label>
+                    <label id="suggestions-label">İyileştirme Önerileri</label>
                     <textarea id="suggestions" rows="2"></textarea>
                 </div>
                 <div class="field-group">
@@ -162,7 +181,11 @@
                     <label>Görevi</label>
                     <input type="text" id="filler-role" placeholder="Örn: Öğretmen">
                 </div>
-                <div class="field-group full-width">
+                <div class="field-group">
+                    <label>Evrak No (İsteğe Bağlı)</label>
+                    <input type="text" id="document-no" placeholder="Sayı / No">
+                </div>
+                <div class="field-group">
                     <label>Doldurulma Tarihi</label>
                     <input type="date" id="filler-date">
                 </div>
@@ -223,7 +246,8 @@
             </div>
 
             <!-- Rows -->
-            <div style="margin-top: 20px;"><strong>Faaliyetin Adı :</strong> <span id="p-name" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
+            <div style="margin-top: 20px;"><strong>Sayı :</strong> <span id="p-document-no" style="display: inline-block; width: 70%;"></span></div>
+            <div style="margin-top: 10px;"><strong>Faaliyetin Adı :</strong> <span id="p-name" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px;"><strong>Faaliyetin Türü :</strong> <span id="p-type" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px;"><strong>SORUMLU:</strong> <span id="p-teacher" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px; display: flex; justify-content: space-between;">
@@ -233,7 +257,8 @@
             <div style="margin-top: 10px;"><strong>Faaliyet Yeri :</strong> <span id="p-location" style="border-bottom: 1px dotted black; display: inline-block; width: 70%;"></span></div>
             <div style="margin-top: 10px;">
                 <strong>Faaliyet Tarihi :</strong> <span id="p-dates" style="border-bottom: 1px dotted black; min-width: 150px; display: inline-block;"></span>
-                <span style="margin-left: 20px;"><strong>Toplam Süre(saat) :</strong> <span id="p-duration" style="border-bottom: 1px dotted black; min-width: 50px; display: inline-block;"></span></span>
+                <span style="margin-left: 20px;"><strong>Toplam Süre(saat) :</strong> <span id="p-duration" style="border-bottom: 1px dotted black; min-width: 40px; display: inline-block;"></span></span>
+                <span style="margin-left: 20px;"><strong>Maliyeti :</strong> <span id="p-cost" style="border-bottom: 1px dotted black; min-width: 40px; display: inline-block;"></span></span>
             </div>
 
             <!-- Full width boxes -->
@@ -250,7 +275,7 @@
                         <p id="p-difficulties" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                     <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
-                        <strong>İyileştirme Önerileri:</strong>
+                        <strong id="p-suggestions-label">İyileştirme Önerileri:</strong>
                         <p id="p-suggestions" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                 </div>

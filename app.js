@@ -82,6 +82,32 @@ window.addEventListener('DOMContentLoaded', () => {
         radio.addEventListener('change', () => {
             updateResponsibleDatalist();
             checkOverdueActivities();
+            
+            // Handle label change for Okul Özel Projesi
+            const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+            const suggestionsLabel = document.getElementById('suggestions-label');
+            const pSuggestionsLabel = document.getElementById('p-suggestions-label');
+            
+            if (selectedType === 'OKUL ÖZEL PROJESİ') {
+                if (suggestionsLabel) suggestionsLabel.textContent = 'Gerçekleşen Değer';
+                if (pSuggestionsLabel) pSuggestionsLabel.textContent = 'Gerçekleşen Değer:';
+            } else {
+                if (suggestionsLabel) suggestionsLabel.textContent = 'İyileştirme Önerileri';
+                if (pSuggestionsLabel) pSuggestionsLabel.textContent = 'İyileştirme Önerileri:';
+            }
+        });
+    });
+    
+    // Trigger change event once to set initial state
+    document.querySelector('input[name="project-type"]:checked').dispatchEvent(new Event('change'));
+    
+    // Also attach to radio buttons for date status text change behavior
+    document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const inputVal = document.getElementById('responsible-teacher').value.trim();
+            if (inputVal && inputVal.length > 2) {
+                checkOverdueActivities();
+            }
         });
     });
 
@@ -141,6 +167,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // Unreported Actions Listener
     document.getElementById('unreported-actions-btn').addEventListener('click', checkUnreportedActivities);
     
+    // Reported Actions Listener
+    document.getElementById('reported-actions-btn').addEventListener('click', checkReportedActivities);
+    
     // Excel Export Listener
     const exportBtn = document.getElementById('export-excel-btn');
     if (exportBtn) {
@@ -155,10 +184,12 @@ function checkUnreportedActivities() {
         return;
     }
     
-    const today = new Date(); // Use actual current date
+    const today = new Date();
+    today.setHours(0,0,0,0);
     let unreportedTasks = [];
     
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
     
     // Check only the selected database
     const databases = [
@@ -185,7 +216,14 @@ function checkUnreportedActivities() {
                 const parts = dateToCheck.split('.');
                 const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 
-                if (taskEndDate < today) {
+                let isMatch = false;
+                if (statusRadio === 'expired') {
+                    isMatch = taskEndDate < today;
+                } else {
+                    isMatch = taskEndDate >= today;
+                }
+
+                if (isMatch) {
                     unreportedTasks.push({
                         name: taskName,
                         start: startStr,
@@ -247,6 +285,116 @@ function showUnreportedModal(tasks) {
         desc.textContent = originalDesc;
         // Remove individual style if any
         list.querySelectorAll('li').forEach(li => li.style.borderColor = '');
+    };
+    
+    closeBtn.onclick = restoreAndClose;
+    okBtn.onclick = restoreAndClose;
+
+    modal.style.display = 'flex';
+}
+
+function checkReportedActivities() {
+    console.log('Checking reported activities...');
+    if (!combinedData) {
+        alert('Veritabanı henüz yüklenmedi, lütfen biraz bekleyip tekrar deneyin.');
+        return;
+    }
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    let reportedTasks = [];
+    
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
+    
+    const databases = [
+        { data: combinedData.og_db, type: 'OKUL GELİŞİM PROJESİ' },
+        { data: combinedData.oo_db, type: 'OKUL ÖZEL PROJESİ' }
+    ].filter(db => db.type === selectedType);
+
+    databases.forEach(dbObj => {
+        if (!dbObj.data) return;
+        dbObj.data.forEach(item => {
+            const taskName = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+            if (!taskName) return;
+
+            const isReported = savedReportsCache.some(r => r.activityName === taskName);
+            if (!isReported) return;
+
+            const startStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
+            const endStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
+            const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
+
+            if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
+                const parts = dateToCheck.split('.');
+                const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                
+                let isMatch = false;
+                if (statusRadio === 'expired') {
+                    isMatch = taskEndDate < today;
+                } else {
+                    isMatch = taskEndDate >= today;
+                }
+
+                if (isMatch) {
+                    // Find actual filler
+                    const matchingReport = savedReportsCache.find(r => r.activityName === taskName);
+                    reportedTasks.push({
+                        name: taskName,
+                        start: startStr,
+                        end: endStr && endStr !== 'NaN' ? endStr : '...',
+                        person: dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi,
+                        type: dbObj.type,
+                        filler: matchingReport ? matchingReport.fillerName : ''
+                    });
+                }
+            }
+        });
+    });
+
+    if (reportedTasks.length > 0) {
+        showReportedModal(reportedTasks);
+    } else {
+        alert('Seçili duruma uyan, raporlanmış eylem bulunamadı.');
+    }
+}
+
+function showReportedModal(tasks) {
+    const modal = document.getElementById('overdue-modal');
+    const title = modal.querySelector('.modal-header h3');
+    const desc = modal.querySelector('#modal-desc');
+    const list = document.getElementById('overdue-list');
+    
+    title.innerHTML = '<i class="fas fa-check-circle"></i> Raporu Girilmiş Eylemler';
+    desc.textContent = 'Aşağıdaki faaliyetler daha önceden raporlanmıştır:';
+    
+    list.innerHTML = '';
+    tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'overdue-item reported-item';
+        let reporterHtml = t.filler ? `<div style="font-size:0.75rem; color:#10b981; margin-top:4px;"><i class="fas fa-check"></i> Raporu Dolduran: ${t.filler}</div>` : '';
+        li.innerHTML = `
+            <span class="overdue-name">${t.name}</span>
+            <div class="overdue-details">
+                <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
+                <span class="overdue-person"><i class="fas fa-users"></i> ${t.person}</span>
+                ${reporterHtml}
+            </div>
+            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase;">${t.type}</div>
+        `;
+        list.appendChild(li);
+    });
+    
+    const originalTitle = '<i class="fas fa-file-invoice"></i> Rapor Yazılması Gereken Eylemler';
+    const originalDesc = 'Seçilen sorumluya ait bu yılın planında yer alan ancak raporu doldurulması gereken faaliyetler:';
+    
+    const closeBtn = document.getElementById('close-overdue');
+    const okBtn = document.getElementById('overdue-ok-btn');
+    
+    const restoreAndClose = () => {
+        modal.style.display = 'none';
+        title.innerHTML = originalTitle;
+        desc.textContent = originalDesc;
     };
     
     closeBtn.onclick = restoreAndClose;
@@ -386,7 +534,7 @@ function checkOverdueActivities() {
     const today = new Date('2026-04-09'); // Reference date
     
     let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
-    let overdueTasks = [];
+    let modalTasks = [];
     let seenTasks = new Set(); 
 
     names.forEach(name => {
@@ -397,28 +545,43 @@ function checkOverdueActivities() {
             if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
                 if (seenTasks.has(taskId)) return;
                 
-                // Filtering out ignored tasks
-                if (isTaskIgnored(name, taskId)) return;
-
-                // Check dates for y1
                 const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
                 const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
-                
-                // Use End Date for filtering as per user request (only list if end date has passed)
                 const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
 
                 if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
                     const parts = dateToCheck.split('.');
                     const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     
-                    if (taskEndDate < today) {
+                    let isMatch = false;
+                    if (statusRadio === 'expired') {
+                        isMatch = taskEndDate < today;
+                    } else {
+                        isMatch = taskEndDate >= today;
+                    }
+
+                    if (isMatch) {
                         seenTasks.add(taskId);
-                        overdueTasks.push({
+                        
+                        const activityName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+                        const hasReport = isSpecificReported(name, activityName) || isAlreadyReported(name, activityName);
+                        
+                        if (!hasReport && isTaskIgnored(name, taskId)) return;
+                        
+                        let fillerTxt = "";
+                        if (hasReport) {
+                            const matchingReport = savedReportsCache.find(r => r.activityName === activityName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
+                            if(matchingReport) fillerTxt = matchingReport.fillerName;
+                        }
+                        
+                        modalTasks.push({
                             id: taskId,
-                            name: selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev,
+                            name: activityName,
                             start: startStr,
                             end: endStr && endStr !== 'NaN' ? endStr : '...',
-                            person: name
+                            person: name,
+                            isReported: hasReport,
+                            filler: fillerTxt
                         });
                     }
                 }
@@ -426,8 +589,8 @@ function checkOverdueActivities() {
         });
     });
 
-    if (overdueTasks.length > 0) {
-        showOverdueModal(overdueTasks);
+    if (modalTasks.length > 0) {
+        showOverdueModal(modalTasks);
     }
 }
 
@@ -435,21 +598,32 @@ function showOverdueModal(tasks) {
     const list = document.getElementById('overdue-list');
     list.innerHTML = '';
     
+    // Update Title based on Radio state
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
+    const titleText = statusRadio === 'expired' ? 'Süresi Dolan Faaliyetler (' + tasks.length + ')' : 'Devam Eden Faaliyetler (' + tasks.length + ')';
+    
+    const modalEl = document.getElementById('overdue-modal');
+    modalEl.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-file-invoice"></i> ' + titleText;
+    
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
 
     tasks.forEach(t => {
         const li = document.createElement('li');
-        li.className = 'overdue-item';
+        li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
+        
+        let reporterHtml = t.isReported && t.filler ? `<div style="font-size:0.75rem; color:#10b981; margin-top:4px;"><i class="fas fa-check"></i> Raporu Dolduran: ${t.filler}</div>` : '';
+        
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
+                ${reporterHtml}
             </div>
             <div class="overdue-actions">
-                <button class="btn-secondary btn-action-sm btn-ignore" data-id="${t.id}" data-person="${t.person}">
+                ${!t.isReported ? `<button class="btn-secondary btn-action-sm btn-ignore" data-id="${t.id}" data-person="${t.person}">
                     <i class="fas fa-trash-alt"></i> Listeden Kaldır
-                </button>
+                </button>` : ''}
                 <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${selectedType}">
                     <i class="fas fa-edit"></i> Rapor Doldur
                 </button>
@@ -551,9 +725,41 @@ function formatDateRange(start, end) {
     return `${s} - ${e}`;
 }
 
-// Save Report
-saveBtn.addEventListener('click', () => {
-    const reportData = {
+// Validation Logic
+function validateForm() {
+    const requiredInputIds = [
+        'activity-name', 'total-participants', 'activity-location', 
+        'activity-start', 'activity-end', 'total-duration', 'cost',
+        'purpose', 'difficulties', 'suggestions', 'collaborations', 
+        'evaluation', 'filler-name', 'filler-role', 'filler-date', 'responsible-teacher'
+    ];
+    
+    for (const id of requiredInputIds) {
+        const el = document.getElementById(id);
+        if (!el || !el.value.trim()) {
+            alert('Lütfen tüm zorunlu alanları doldurun! (Evrak No hariç)');
+            if(el) el.focus();
+            return false;
+        }
+    }
+
+    const aType = getCheckboxValues('activity-type', 'type-other-check', 'type-other-text');
+    if (!aType) { alert('Faaliyetin Türü alanından en az bir seçim yapınız!'); document.getElementById('activity-type-container').scrollIntoView(); return false; }
+    
+    const pProfile = getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text');
+    if (!pProfile) { alert('Katılımcı Profili alanından en az bir seçim yapınız!'); return false; }
+    
+    const docs = getCheckboxValues('docs', 'docs-other-check', 'docs-other-text');
+    if (!docs) { alert('Teslim Edilen Belgeler alanından en az bir seçim yapınız!'); return false; }
+
+    return true;
+}
+
+function getFormData() {
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
+    const taskStatus = statusRadio && statusRadio.value === 'ongoing' ? 'Güncellendi' : 'Tamamlandı';
+
+    return {
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
         activityName: document.getElementById('activity-name').value,
@@ -565,6 +771,9 @@ saveBtn.addEventListener('click', () => {
         startDate: document.getElementById('activity-start').value,
         endDate: document.getElementById('activity-end').value,
         duration: document.getElementById('total-duration').value,
+        cost: document.getElementById('cost').value,
+        documentNo: document.getElementById('document-no').value,
+        status: taskStatus,
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
         suggestions: document.getElementById('suggestions').value,
@@ -577,6 +786,13 @@ saveBtn.addEventListener('click', () => {
         reportingPerson: currentReportingPerson,
         timestamp: new Date().getTime()
     };
+}
+
+// Save Report
+saveBtn.addEventListener('click', () => {
+    if (!validateForm()) return;
+    
+    const reportData = getFormData();
 
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
@@ -607,6 +823,8 @@ function printReport(data) {
         printContent.querySelector('#p-location').textContent = data.location || '';
         printContent.querySelector('#p-dates').textContent = formatDateRange(data.startDate, data.endDate);
         printContent.querySelector('#p-duration').textContent = data.duration || '';
+        printContent.querySelector('#p-cost').textContent = data.cost || '0';
+        printContent.querySelector('#p-document-no').textContent = data.documentNo || '-';
         printContent.querySelector('#p-purpose').textContent = data.purpose || '';
         printContent.querySelector('#p-difficulties').textContent = data.difficulties || '';
         printContent.querySelector('#p-suggestions').textContent = data.suggestions || '';
@@ -693,7 +911,7 @@ async function exportToExcel() {
                 'Bitiş (Plan)': type === 'OG' ? planItem.y1_bit : planItem.bitis_1,
                 
                 // Status
-                'DURUM': report ? 'TAMAMLANDI' : 'EKSİK',
+                'DURUM': report && report.status ? report.status : (report ? 'TAMAMLANDI' : 'EKSİK'),
                 
                 // Report Data (if exists)
                 'Raporlanan Faaliyet': report ? report.activityName : '',
@@ -703,9 +921,12 @@ async function exportToExcel() {
                 'Katılımcı Profili': report ? report.participantProfile : '',
                 'Kişi Sayısı': report ? report.totalParticipants : '',
                 'Süre (Saat)': report ? report.duration : '',
+                'Maliyeti': report ? (report.cost || '0') : '',
                 'Raporu Dolduran Sorumlu': report ? (report.reportingPerson || '---') : '',
                 'Formu Dolduran Kişi': report ? report.fillerName : '',
+                'Evrak No': report ? (report.documentNo || '') : '',
                 'Doldurma Tarihi': report ? report.fillerDate : '',
+                'Öneri/Gerçekleşen Değer': report ? report.suggestions : '',
                 'Değerlendirme': report ? report.evaluation : ''
             };
             return row;
@@ -748,11 +969,14 @@ async function exportToExcel() {
         const otherRows = unmatchedReports.map(r => ({
             'Rapor Adı': r.activityName,
             'Proje Türü': r.projectType,
-            'Durum': 'PLAN HARİCİ / EŞLEŞEMEDİ',
+            'Durum': r.status ? r.status : 'PLAN HARİCİ / EŞLEŞEMEDİ',
             'Sorumlular': r.teacher,
             'Tarih': `${r.startDate} - ${r.endDate}`,
             'Yer': r.location,
             'Katılımcılar': r.totalParticipants,
+            'Maliyeti': r.cost || '0',
+            'Evrak No': r.documentNo || '',
+            'Öneri/Gerçekleşen Değer': r.suggestions || '',
             'Dolduran': r.fillerName,
             'Timestamp': new Date(r.timestamp).toLocaleString('tr-TR')
         }));
@@ -778,34 +1002,9 @@ async function exportToExcel() {
     };
 }
 
-// Function to collect form data for immediate action
-function getFormData() {
-    return {
-        eduYear: document.getElementById('edu-year').value,
-        projectType: document.querySelector('input[name="project-type"]:checked').value,
-        activityName: document.getElementById('activity-name').value,
-        activityType: getCheckboxValues('activity-type', 'type-other-check', 'type-other-text'),
-        teacher: document.getElementById('responsible-teacher').value,
-        participantProfile: getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text'),
-        totalParticipants: document.getElementById('total-participants').value,
-        location: document.getElementById('activity-location').value,
-        startDate: document.getElementById('activity-start').value,
-        endDate: document.getElementById('activity-end').value,
-        duration: document.getElementById('total-duration').value,
-        purpose: document.getElementById('purpose').value,
-        difficulties: document.getElementById('difficulties').value,
-        suggestions: document.getElementById('suggestions').value,
-        collaborations: document.getElementById('collaborations').value,
-        evaluation: document.getElementById('evaluation').value,
-        docs: getCheckboxValues('docs', 'docs-other-check', 'docs-other-text'),
-        fillerName: document.getElementById('filler-name').value,
-        fillerRole: document.getElementById('filler-role').value,
-        fillerDate: document.getElementById('filler-date').value
-    };
-}
-
 // Global Print Button (For current form)
 directPrintBtn.addEventListener('click', () => {
+    if (!validateForm()) return;
     printReport(getFormData());
 });
 
