@@ -68,6 +68,19 @@ const reportsList = document.getElementById('reports-list');
 window.addEventListener('DOMContentLoaded', () => {
     calculateEduYear();
     
+    // Recovery of last state from localStorage
+    const lastType = localStorage.getItem('lastProjectType');
+    if (lastType) {
+        const typeRadio = document.querySelector(`input[name="project-type"][value="${lastType}"]`);
+        if (typeRadio) typeRadio.checked = true;
+    }
+
+    const lastStatus = localStorage.getItem('lastActivityStatus');
+    if (lastStatus) {
+        const statusRadio = document.querySelector(`input[name="activity-status"][value="${lastStatus}"]`);
+        if (statusRadio) statusRadio.checked = true;
+    }
+    
     // Load combined data from global variable (db_data.js)
     if (typeof COMBINED_DB !== 'undefined') {
         combinedData = COMBINED_DB;
@@ -79,7 +92,8 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Listen for project type changes to update responsible list
     document.querySelectorAll('input[name="project-type"]').forEach(radio => {
-        radio.addEventListener('change', () => {
+        radio.addEventListener('change', (e) => {
+            localStorage.setItem('lastProjectType', e.target.value);
             updateResponsibleDatalist();
             checkOverdueActivities();
             
@@ -103,7 +117,8 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Also attach to radio buttons for date status text change behavior
     document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
-        radio.addEventListener('change', () => {
+        radio.addEventListener('change', (e) => {
+            localStorage.setItem('lastActivityStatus', e.target.value);
             const inputVal = document.getElementById('responsible-teacher').value.trim();
             if (inputVal && inputVal.length > 2) {
                 checkOverdueActivities();
@@ -240,7 +255,7 @@ function checkUnreportedActivities() {
     if (unreportedTasks.length > 0) {
         showUnreportedModal(unreportedTasks);
     } else {
-        alert('Tüm süresi geçmiş eylemler için en az bir rapor girilmiş veya süresi geçmiş eylem bulunamadı.');
+        alert('Seçili olan projede ve durumda, raporu girilmemiş etkinlik bulunamadı.');
     }
 }
 
@@ -355,7 +370,7 @@ function checkReportedActivities() {
     if (reportedTasks.length > 0) {
         showReportedModal(reportedTasks);
     } else {
-        alert('Seçili duruma uyan, raporlanmış eylem bulunamadı.');
+        alert('Seçili olan projede ve durumda, daha önceden raporlanmış etkinlik bulunamadı.');
     }
 }
 
@@ -591,6 +606,9 @@ function checkOverdueActivities() {
 
     if (modalTasks.length > 0) {
         showOverdueModal(modalTasks);
+    } else if (names.length > 0) {
+        const statusText = statusRadio === 'expired' ? 'Süresi Dolan' : 'Devam Eden';
+        alert(`Belirtilen sorumlunun ${selectedType} planında "${statusText}" statüsünde faaliyeti bulunmamaktadır.`);
     }
 }
 
