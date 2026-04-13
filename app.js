@@ -267,7 +267,7 @@ function showUnreportedModal(tasks) {
     const list = document.getElementById('overdue-list');
     
     // Backup original header/desc if needed or just overwrite
-    title.innerHTML = '<i class="fas fa-clipboard-list"></i> Hiç Rapor Girilmemiş Eylemler';
+    title.innerHTML = `<i class="fas fa-clipboard-list"></i> Hiç Rapor Girilmemiş Eylemler(${tasks.length})`;
     desc.textContent = 'Süresi geçmiş ancak hiçbir sorumlu tarafından raporu henüz girilmemiş eylemler:';
     
     list.innerHTML = '';
@@ -439,7 +439,7 @@ function showReportedModal(tasks) {
     const desc = modal.querySelector('#modal-desc');
     const list = document.getElementById('overdue-list');
     
-    title.innerHTML = '<i class="fas fa-check-circle"></i> Raporu Girilmiş Eylemler';
+    title.innerHTML = `<i class="fas fa-check-circle"></i> Raporu Girilmiş Eylemler (${tasks.length})`;
     desc.textContent = 'Aşağıdaki faaliyetler daha önceden raporlanmıştır:';
     
     list.innerHTML = '';
