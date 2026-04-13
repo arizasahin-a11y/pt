@@ -190,7 +190,33 @@ window.addEventListener('DOMContentLoaded', () => {
     if (exportBtn) {
         exportBtn.addEventListener('click', exportToExcel);
     }
+    // Initialize visual feedback for already filled fields
+    const allInputs = document.querySelectorAll('input, textarea');
+    allInputs.forEach(el => {
+        el.addEventListener('input', () => updateFilledState(el));
+        el.addEventListener('change', () => updateFilledState(el));
+        updateFilledState(el);
+    });
 });
+
+// Helper: Track if an input has a meaningful value
+function updateFilledState(el) {
+    if (!el) return;
+    if (el.type === 'radio' || el.type === 'checkbox') return;
+
+    let hasValue = false;
+    if (el.type === 'date') {
+        hasValue = !!el.value;
+    } else {
+        hasValue = el.value.trim().length > 0;
+    }
+
+    if (hasValue) {
+        el.classList.add('has-value');
+    } else {
+        el.classList.remove('has-value');
+    }
+}
 
 function checkUnreportedActivities() {
     console.log('Checking unreported activities...');
@@ -829,7 +855,9 @@ saveBtn.addEventListener('click', () => {
         alert('Rapor başarıyla kaydedildi!');
         syncSavedReportsCache(); // Refresh cache after save
         form.reset();
+        document.querySelectorAll('.has-value').forEach(el => el.classList.remove('has-value'));
         calculateEduYear();
+        updateFilledState(document.getElementById('edu-year'));
     };
 });
 
