@@ -296,13 +296,14 @@ button {
     #print-template { display: block !important; }
     
     * {
-        font-size: 11px !important;
+        font-size: 10px !important;
     }
     #print-content {
-        padding: 15px !important;
+        padding: 5mm !important;
     }
     #p-purpose, #p-difficulties, #p-suggestions, #p-collaborations, #p-evaluation {
-        min-height: 40px !important;
+        min-height: 30px !important;
+        font-size: 10px !important;
     }
 }
 
