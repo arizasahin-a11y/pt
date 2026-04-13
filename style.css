@@ -173,7 +173,15 @@ input:not(:placeholder-shown):not([type="radio"]):not([type="checkbox"]),
 textarea:not(:placeholder-shown),
 input[type="date"]:not(:placeholder-shown) {
     border-color: var(--accent);
-    background: rgba(16, 185, 129, 0.05); /* Subtle green tint for completed feel */
+    background: rgba(16, 185, 129, 0.08); /* Slightly more visible green */
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+
+/* Specific styling for readonly but filled fields */
+input[readonly]:not(:placeholder-shown) {
+    background: rgba(148, 163, 184, 0.1);
+    border-color: var(--text-muted);
+    opacity: 0.9;
 }
 
 
@@ -210,10 +218,23 @@ input[type="date"]:not(:placeholder-shown) {
 
 /* Visual Feedback for Selected Items (Radio/Checkbox) */
 .checkbox-item:has(input:checked) {
-    background: rgba(99, 102, 241, 0.2);
+    background: var(--primary);
+    color: white;
     border: 1px solid var(--primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.checkbox-item:has(input:checked) label,
+.checkbox-item:has(input:checked) input {
+    accent-color: white; /* Contrast */
+}
+
+/* Header Status Radios Feedback */
+.status-radio-group label:has(input:checked) {
+    color: var(--primary) !important;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
 }
 
 
