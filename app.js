@@ -840,8 +840,8 @@ function validateForm() {
 }
 
 function getFormData() {
-    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
-    const taskStatus = statusRadio && statusRadio.value === 'ongoing' ? 'Güncellendi' : 'Tamamlandı';
+    const reportStatusRadio = document.querySelector('input[name="report-status"]:checked');
+    const taskStatus = reportStatusRadio ? reportStatusRadio.value : 'Tamamlandı';
 
     return {
         eduYear: document.getElementById('edu-year').value,
