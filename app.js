@@ -303,11 +303,23 @@ function formatNameTR(rawName) {
     if (rawName.includes(',')) {
         return rawName.split(',').map(s => formatNameTR(s.trim())).join(', ');
     }
-    const parts = rawName.trim().split(/\s+/);
+    const val = rawName.trim();
+    // Keywords that indicate this is a role/organization, not a person
+    const orgKeywords = ['Yönetimi', 'İdaresi', 'Lideri', 'Vakfı', 'Derneği', 'Birliği', 'Zümresi', 'Kurulu', 'Kulübü', 'Okul', 'Tema'];
+    const isOrg = orgKeywords.some(key => val.toLocaleLowerCase('tr-TR').includes(key.toLocaleLowerCase('tr-TR')));
+
+    const parts = val.split(/\s+/);
     if (parts.length === 0) return '';
-    const surname = parts.pop().toLocaleUpperCase('tr-TR');
-    const names = parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
-    return [...names, surname].join(' ');
+
+    if (isOrg) {
+        // Just title case for organizations/roles
+        return parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR')).join(' ');
+    } else {
+        // Person formatting: Name SURNAME
+        const surname = parts.pop().toLocaleUpperCase('tr-TR');
+        const names = parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
+        return [...names, surname].join(' ');
+    }
 }
 
 function renderSuggestions(fragment) {
@@ -319,11 +331,22 @@ function renderSuggestions(fragment) {
     const unique = new Set();
     items.forEach(it => { if (it) it.split(',').forEach(p => { if (p.trim()) unique.add(p.trim()); }); });
 
-    const filtered = Array.from(unique).filter(n => n.toLocaleLowerCase('tr').includes(fragment.toLocaleLowerCase('tr'))).sort();
+    const filtered = Array.from(unique)
+        .filter(n => n.toLocaleLowerCase('tr').includes(fragment.toLocaleLowerCase('tr')))
+        .sort((a, b) => {
+            // Put organizations/roles at the top
+            const orgKeywords = ['Yönetimi', 'İdaresi', 'Lideri', 'Vakfı', 'Derneği', 'Birliği', 'Zümresi', 'Kurulu', 'Kulübü'];
+            const aIsOrg = orgKeywords.some(k => a.includes(k));
+            const bIsOrg = orgKeywords.some(k => b.includes(k));
+            if (aIsOrg && !bIsOrg) return -1;
+            if (!aIsOrg && bIsOrg) return 1;
+            return a.localeCompare(b, 'tr');
+        });
+
     if (filtered.length === 0) { panel.style.display = 'none'; return; }
 
     panel.innerHTML = '';
-    filtered.slice(0, 10).forEach(name => {
+    filtered.slice(0, 40).forEach(name => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
         div.innerHTML = `<i class="fas fa-user-tag"></i> ${name}`;
