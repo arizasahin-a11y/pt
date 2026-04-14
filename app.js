@@ -474,6 +474,12 @@ function showOverdueModal(tasks) {
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
+        
+        const ignoreBtn = !t.isReported ? `
+            <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
+                <i class="fas fa-trash-alt"></i> Listeden Kaldır
+            </button>` : '';
+
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
@@ -481,6 +487,7 @@ function showOverdueModal(tasks) {
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
             </div>
             <div class="overdue-actions">
+                ${ignoreBtn}
                 <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${document.querySelector('input[name="project-type"]:checked').value}">
                     <i class="fas fa-edit"></i> Raporu Doldur
                 </button>
