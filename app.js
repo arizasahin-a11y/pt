@@ -537,12 +537,65 @@ function printReport(data) {
     fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
     const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
     fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
-    if (pc.querySelector('#p-principal-name')) pc.querySelector('#p-principal-name').textContent = (data.principalName || '').toUpperCase();
+    
+    // Formatting Principal Name (First name Initial caps, Surname ALL CAPS)
+    if (pc.querySelector('#p-principal-name')) {
+        const rawName = data.principalName || '';
+        const parts = rawName.trim().split(/\s+/);
+        if (parts.length > 0) {
+            const surname = parts.pop().toLocaleUpperCase('tr-TR');
+            const names = parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
+            pc.querySelector('#p-principal-name').textContent = [...names, surname].join(' ');
+        }
+    }
 
     const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>Preview</title><style>body{padding:20px;background:#eee;} #container{background:white;padding:30px;width:210mm;margin:auto;box-shadow:0 0 10px rgba(0,0,0,0.1);}</style></head><body><div id="container">${pc.innerHTML}</div></body></html>`);
+    if (!win) { alert('Pop-up engelleyiciyi kapatın!'); return; }
+
+    const styles = `
+        <style>
+            body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
+            #preview-container { width: 210mm; background: white; padding: 30px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; min-height: 297mm; }
+            .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; gap: 10px; }
+            .btn-action { padding: 10px 20px; border-radius: 50px; cursor: pointer; border: none; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
+            .btn-print { background: #ff7e5f; }
+            .btn-download { background: #6366f1; }
+            @media print { .action-bar { display: none !important; } body { background: white; padding: 0; } #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; } }
+        </style>
+    `;
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>Rapor Önizleme</title>
+            ${styles}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        </head>
+        <body>
+            <div class="action-bar">
+                <button class="btn-action btn-download" onclick="window.downloadPDF()">PDF İndir</button>
+                <button class="btn-action btn-print" onclick="window.print()">Hemen Yazdır</button>
+            </div>
+            <div id="preview-container">
+                ${pc.innerHTML}
+            </div>
+            <script>
+                window.downloadPDF = function() {
+                    const element = document.getElementById('preview-container');
+                    const opt = {
+                        margin: 0,
+                        filename: 'Rapor_${new Date().getTime()}.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(element).save();
+                };
+            </script>
+        </body>
+        </html>
+    `);
     win.document.close();
-    setTimeout(() => { win.print(); }, 500);
 }
 
 function downloadMasterJson() {
