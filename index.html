@@ -224,9 +224,14 @@
         <div id="saved-reports">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h2 style="margin: 0;">Kayıtlı Raporlar</h2>
-                <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
-                    <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
-                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-primary" id="export-updates-btn" style="background: #2563eb; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Güncellendi olarak işaretlenmiş kayıtları ana veritabanına işlemek için indir">
+                        <i class="fas fa-sync-alt"></i> Güncellemeleri Aktar
+                    </button>
+                    <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
+                        <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
+                    </button>
+                </div>
             </div>
             <div id="reports-list"></div>
             <button class="btn-secondary" id="back-to-form">Geri Dön</button>

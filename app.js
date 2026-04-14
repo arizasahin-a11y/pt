@@ -190,6 +190,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if (exportBtn) {
         exportBtn.addEventListener('click', exportToExcel);
     }
+    
+    // Sync Updates Export Listener
+    const exportUpdatesBtn = document.getElementById('export-updates-btn');
+    if (exportUpdatesBtn) {
+        exportUpdatesBtn.addEventListener('click', exportUpdatedReports);
+    }
     // Initialize visual feedback for already filled fields
     const allInputs = document.querySelectorAll('input, textarea');
     allInputs.forEach(el => {
@@ -957,6 +963,29 @@ function printReport(data) {
 }
 
 // EXCEL EXPORT (Multi-Sheet Enhanced)
+function exportUpdatedReports() {
+    // Filter for reports with status 'Güncellendi'
+    const updates = savedReportsCache.filter(r => r.status === 'Güncellendi' || r.activityStatus === 'Güncellendi');
+    
+    if (updates.length === 0) {
+        alert('Güncellenmiş (Güncellendi durumunda) herhangi bir rapor bulunamadı.');
+        return;
+    }
+
+    const dataStr = JSON.stringify(updates, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sync_updates.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert(`${updates.length} adet güncellenmiş kayıt 'sync_updates.json' olarak indirildi.\nŞimdi 'sync_master.py' scriptini çalıştırarak ana veritabanını güncelleyebilirsiniz.`);
+}
+
 async function exportToExcel() {
     if (!db || !combinedData) {
         alert('Veritabanı bağlantısı veya plan verisi henüz hazır değil.');
