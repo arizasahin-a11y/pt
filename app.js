@@ -203,19 +203,24 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
     document.getElementById('export-excel-btn').onclick = exportToExcel;
 
-    // Principal Name (Shift + Right Click)
+    // Principal Name (Shift + Right Click on Title)
     const mainTitle = document.getElementById('main-title');
     if (mainTitle) {
-        mainTitle.addEventListener('contextmenu', (e) => {
-            if (e.shiftKey) {
+        mainTitle.title = "Okul müdürünü değiştirmek için Shift+Sağ Tık yapın";
+        mainTitle.addEventListener('mousedown', (e) => {
+            if (e.shiftKey && e.button === 2) {
                 e.preventDefault();
                 const current = localStorage.getItem('schoolPrincipal') || '';
                 const name = prompt('Okul Müdürü İsmini Giriniz:', current);
                 if (name !== null) {
                     localStorage.setItem('schoolPrincipal', name.trim());
-                    alert('Okul Müdürü güncellendi.');
+                    alert('Okul Müdürü güncellendi: ' + name.trim());
                 }
             }
+        });
+        // Also suppress context menu to avoid overlap
+        mainTitle.addEventListener('contextmenu', (e) => {
+            if (e.shiftKey) e.preventDefault();
         });
     }
 
@@ -536,13 +541,60 @@ function downloadMasterJson() {
 }
 
 function exportToExcel() {
+    if (!combinedData) { alert('Veri henüz hazır değil.'); return; }
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
-    store.getAll().onsuccess = (e) => {
-        const reports = e.target.result;
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        const reports = getAllRequest.result;
+        const matchedIds = new Set();
+        
+        const clean = (t) => t ? t.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : "";
+
+        const mapRow = (pItem, report, type) => ({
+            'ID': type === 'OG' ? `OG-${pItem.no}` : `OO-${pItem.sira}`,
+            'Kod': pItem.kod || '',
+            'Eylem/Görev Adı': type === 'OG' ? pItem.eylem_adi : pItem.eylem_gorev,
+            'Sorumlular (Plan)': type === 'OG' ? pItem.sorumlu : pItem.sorumlu_verisi,
+            'Başlangıç (Plan)': type === 'OG' ? pItem.y1_bas : pItem.baslangic_1,
+            'Bitiş (Plan)': type === 'OG' ? pItem.y1_bit : pItem.bitis_1,
+            'DURUM': report ? report.status : 'EKSİK',
+            'Raporlanan Faaliyet': report ? report.activityName : '',
+            'Süre (Saat)': report ? report.duration : '',
+            'Maliyeti': report ? report.cost : '',
+            'Dolduran': report ? report.fillerName : '',
+            'Tarih': report ? report.fillerDate : ''
+        });
+
+        // School Action Plan (OG)
+        const ogRows = combinedData.og_db.map(p => {
+            const m = reports.find(r => r.projectType === 'OKUL GELİŞİM PROJESİ' && clean(r.activityName) === clean(p.eylem_adi));
+            if (m) matchedIds.add(m.id);
+            return mapRow(p, m, 'OG');
+        });
+
+        // Activity Calendar (OO)
+        const ooRows = combinedData.oo_db.map(p => {
+            const m = reports.find(r => r.projectType === 'OKUL ÖZEL PROJESİ' && clean(r.activityName) === clean(p.eylem_gorev));
+            if (m) matchedIds.add(m.id);
+            return mapRow(p, m, 'OO');
+        });
+
+        // Unmatched
+        const unmatched = reports.filter(r => !matchedIds.has(r.id)).map(r => ({
+            'Rapor Adı': r.activityName,
+            'Tür': r.projectType,
+            'Durum': 'PLAN HARİCİ',
+            'Tarih': r.fillerDate
+        }));
+
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(reports), "Raporlar");
-        XLSX.writeFile(wb, `PTS_Rapor_${new Date().getTime()}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Gelişim Projesi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Okul Özel Projesi");
+        if (unmatched.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(unmatched), "Diğer");
+        
+        XLSX.writeFile(wb, `IAAL_PTS_Rapor_${new Date().getTime()}.xlsx`);
     };
 }
 
