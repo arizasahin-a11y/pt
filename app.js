@@ -406,6 +406,7 @@ function checkOverdueActivities() {
                     const isMatch = statusRadio === 'expired' ? dt < today : dt >= today;
                     
                     if (isMatch) {
+                        if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
                         const aName = isOG ? item.eylem_adi : item.eylem_gorev;
                         const hasRep = savedReportsCache.some(r => r.activityName === aName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
@@ -746,6 +747,21 @@ function checkReportedActivities() {
     else alert('Kriterlere uygun eylem bulunamadı.');
 }
 
+// --- HELPERS & IGNORE LOGIC ---
+function getIgnoredTasks() { return JSON.parse(localStorage.getItem('pfds_ignored_tasks') || '{}'); }
+function ignoreTask(person, taskId) {
+    const ignored = getIgnoredTasks();
+    if (!ignored[person]) ignored[person] = [];
+    if (!ignored[person].includes(taskId)) {
+        ignored[person].push(taskId);
+        localStorage.setItem('pfds_ignored_tasks', JSON.stringify(ignored));
+    }
+}
+function isTaskIgnored(person, taskId) {
+    const ignored = getIgnoredTasks();
+    return ignored[person] && ignored[person].includes(taskId);
+}
+
 function showStatusModal(title, tasks) {
     const list = document.getElementById('overdue-list');
     list.innerHTML = '';
@@ -755,6 +771,12 @@ function showStatusModal(title, tasks) {
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = t.reported ? 'overdue-item reported-item' : 'overdue-item';
+        
+        const ignoreBtn = !t.reported ? `
+            <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
+                <i class="fas fa-trash-alt"></i> Listeden Kaldır
+            </button>` : '';
+
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
@@ -763,6 +785,7 @@ function showStatusModal(title, tasks) {
                 ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${t.filler}</div>` : ''}
             </div>
             <div class="overdue-actions">
+                ${ignoreBtn}
                 <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
             </div>
         `;
@@ -770,6 +793,17 @@ function showStatusModal(title, tasks) {
     });
     modal.style.display = 'flex';
 }
+
+window.handleIgnoreTask = (e, person, tid) => {
+    const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
+    if (pw === '321') {
+        ignoreTask(person, tid);
+        e.target.closest('.overdue-item').remove();
+        if (document.getElementById('overdue-list').children.length === 0) hideOverdueModal();
+    } else {
+        alert('Hatalı şifre!');
+    }
+};
 
 window.fillFromModal = (name, person, start, end) => {
     document.getElementById('activity-name').value = name;
