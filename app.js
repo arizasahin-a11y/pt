@@ -7,6 +7,8 @@ let db;
 let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
 let currentReportingPerson = null; // Track who is currently filling from the modal
+let lastSavedData = null; // Track last successfully saved form data
+let currentRecordId = null; // Track the ID of the current record being edited
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -229,11 +231,50 @@ window.addEventListener('DOMContentLoaded', () => {
     backToFormBtn.onclick = () => { savedReportsSection.style.display = 'none'; form.style.display = 'block'; };
 
     // Direct Print
-    directPrintBtn.onclick = () => { if (validateForm()) printReport(getFormData()); };
-    directPrintBtn.oncontextmenu = (e) => { e.preventDefault(); printReport(getFormData()); };
+    directPrintBtn.onclick = async () => {
+        if (!validateForm()) return;
+        
+        if (!lastSavedData) {
+            alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.');
+            return;
+        }
+
+        if (isFormDirty()) {
+            if (confirm('Kaydettiğiniz veri yaptığınız değişikliklere göre güncellenecektir. Onaylıyor musunuz?')) {
+                await updateCurrentRecord();
+                printReport(getFormData());
+            }
+        } else {
+            printReport(getFormData());
+        }
+    };
+    directPrintBtn.oncontextmenu = (e) => { e.preventDefault(); };
 
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 });
+
+// Helper to check if form was modified since last save
+function isFormDirty() {
+    if (!lastSavedData) return true;
+    const current = getFormData();
+    const keys = ['activityName', 'teacher', 'totalParticipants', 'location', 'startDate', 'endDate', 'duration', 'cost', 'purpose', 'difficulties', 'suggestions', 'collaborations', 'evaluation', 'fillerName', 'fillerRole'];
+    return keys.some(k => JSON.stringify(current[k]) !== JSON.stringify(lastSavedData[k]));
+}
+
+async function updateCurrentRecord() {
+    if (!currentRecordId) return;
+    const data = getFormData();
+    data.id = currentRecordId;
+    return new Promise((resolve) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
+            lastSavedData = JSON.parse(JSON.stringify(data));
+            refreshCombinedData();
+            syncSavedReportsCache();
+            resolve();
+        };
+    });
+}
 
 // --- CORE LOGIC FUNCTIONS ---
 
@@ -522,6 +563,10 @@ function fillReportForm(taskId, selectedType) {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
+    
+    // Reset save state for new fill
+    lastSavedData = null;
+    currentRecordId = null;
 }
 
 function hideOverdueModal() { document.getElementById('overdue-modal').style.display = 'none'; }
@@ -566,10 +611,26 @@ saveBtn.addEventListener('click', async () => {
     if (!validateForm()) return;
     const data = getFormData();
     const transaction = db.transaction([STORE_NAME], 'readwrite');
-    transaction.objectStore(STORE_NAME).add(data).onsuccess = () => {
-        alert('Rapor kaydedildi!'); form.reset(); refreshCombinedData(); syncSavedReportsCache();
-        document.querySelectorAll('.has-value').forEach(el => el.classList.remove('has-value'));
-    };
+    const store = transaction.objectStore(STORE_NAME);
+    
+    if (currentRecordId) {
+        data.id = currentRecordId;
+        store.put(data).onsuccess = () => {
+            lastSavedData = JSON.parse(JSON.stringify(data));
+            alert('Rapor güncellendi!');
+            refreshCombinedData();
+            syncSavedReportsCache();
+        };
+    } else {
+        const req = store.add(data);
+        req.onsuccess = (e) => {
+            currentRecordId = e.target.result;
+            lastSavedData = JSON.parse(JSON.stringify(data));
+            alert('Rapor kaydedildi!');
+            refreshCombinedData();
+            syncSavedReportsCache();
+        };
+    }
 });
 
 function printReport(data) {
