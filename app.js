@@ -695,22 +695,26 @@ function checkUnreportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
     const status = document.querySelector('input[name="activity-status"]:checked').value;
     const type = document.querySelector('input[name="project-type"]:checked').value;
+    const isOG = type === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
     
-    let list = type === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
     list.forEach(item => {
-        const name = type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+        const name = isOG ? item.eylem_adi : item.eylem_gorev;
         if (!name) return;
         if (savedReportsCache.some(r => r.activityName === name)) return;
 
-        const dStr = (type === 'OKUL GELİŞİM PROJESİ' ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1));
+        const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
         const dt = parseDBDate(dStr);
         if (dt) {
             const d = new Date(dt);
             if (status === 'expired' ? d < today : d >= today) {
-                results.push({ name, start: (type==='og'?item.y1_bas:item.baslangic_1), end: (type==='og'?item.y1_bit:item.bitis_1), person: (type==='og'?item.sorumlu:item.sorumlu_verisi), type });
+                const start = isOG ? item.y1_bas : item.baslangic_1;
+                const end = isOG ? item.y1_bit : item.bitis_1;
+                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
+                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start, end, person, type });
             }
         }
     });
@@ -723,22 +727,24 @@ function checkReportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
     const status = document.querySelector('input[name="activity-status"]:checked').value;
     const type = document.querySelector('input[name="project-type"]:checked').value;
+    const isOG = type === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
 
-    let list = type === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
     list.forEach(item => {
-        const name = type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+        const name = isOG ? item.eylem_adi : item.eylem_gorev;
         const report = savedReportsCache.find(r => r.activityName === name);
         if (!report) return;
 
-        const dStr = (type === 'OKUL GELİŞİM PROJESİ' ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1));
+        const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
         const dt = parseDBDate(dStr);
         if (dt) {
             const d = new Date(dt);
             if (status === 'expired' ? d < today : d >= today) {
-                results.push({ name, start: report.startDate, end: report.endDate, person: item.sorumlu || item.sorumlu_verisi, filler: report.fillerName, reported: true });
+                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
+                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, reported: true });
             }
         }
     });
