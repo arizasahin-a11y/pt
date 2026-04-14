@@ -258,7 +258,7 @@ function applyOverlayUpdate(targetDb, report) {
     const list = targetDb[dbKey];
     if (!list) return;
 
-    const actionKey = dbKey === 'og_db' ? 'eylem_adi' : 'eylem_gorev';
+    const actionKey = 'eylem_adi';
     const item = list.find(i => (i[actionKey] || "").toString().trim() === (report.activityName || "").toString().trim());
     if (!item) return;
 
@@ -280,8 +280,7 @@ function applyOverlayUpdate(targetDb, report) {
 
     item[startKey] = format(newStart);
     item[endKey] = format(newEnd);
-    if (dbKey === 'og_db') item.sorumlu = report.teacher;
-    else item.sorumlu_verisi = report.teacher;
+    item.sorumlu = report.teacher;
 
     if (oldStart) {
         const deltaMs = newStart.getTime() - oldStart.getTime();
@@ -299,12 +298,24 @@ function applyOverlayUpdate(targetDb, report) {
     }
 }
 
+function formatNameTR(rawName) {
+    if (!rawName) return '';
+    if (rawName.includes(',')) {
+        return rawName.split(',').map(s => formatNameTR(s.trim())).join(', ');
+    }
+    const parts = rawName.trim().split(/\s+/);
+    if (parts.length === 0) return '';
+    const surname = parts.pop().toLocaleUpperCase('tr-TR');
+    const names = parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
+    return [...names, surname].join(' ');
+}
+
 function renderSuggestions(fragment) {
     if (!combinedData) return;
     const panel = document.getElementById('suggestions-panel');
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     
-    let items = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db.map(item => item.sorumlu) : combinedData.oo_db.map(item => item.sorumlu_verisi);
+    let items = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db.map(item => item.sorumlu) : combinedData.oo_db.map(item => item.sorumlu);
     const unique = new Set();
     items.forEach(it => { if (it) it.split(',').forEach(p => { if (p.trim()) unique.add(p.trim()); }); });
 
@@ -320,7 +331,9 @@ function renderSuggestions(fragment) {
             const input = document.getElementById('responsible-teacher');
             const current = input.value;
             const lastIdx = current.lastIndexOf(',');
-            input.value = (lastIdx === -1 ? name : current.substring(0, lastIdx + 1).trim() + ' ' + name) + ', ';
+            // Auto format the name being selected
+            const formattedName = formatNameTR(name);
+            input.value = (lastIdx === -1 ? formattedName : current.substring(0, lastIdx + 1).trim() + ' ' + formattedName) + ', ';
             panel.style.display = 'none';
             input.focus();
             updateFilledState(input);
@@ -345,7 +358,7 @@ function renderActivitySuggestions(fragment) {
         const teachers = respValue.split(',').map(s => s.trim().toLocaleLowerCase('tr')).filter(s => s.length > 0);
         if (teachers.length > 0) {
             filtered = list.filter(item => {
-                const itemSorumlu = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi) || "";
+                const itemSorumlu = item.sorumlu || "";
                 const itemT = itemSorumlu.toLocaleLowerCase('tr');
                 return teachers.every(t => itemT.includes(t));
             });
@@ -353,7 +366,7 @@ function renderActivitySuggestions(fragment) {
     }
 
     const final = filtered.filter(it => {
-        const name = (selectedType === 'OKUL GELİŞİM PROJESİ' ? it.eylem_adi : it.eylem_gorev) || "";
+        const name = it.eylem_adi || "";
         const pool = (name + " " + (it.kod || "")).toLocaleLowerCase('tr');
         return pool.includes(fragment.toLocaleLowerCase('tr'));
     });
@@ -362,11 +375,11 @@ function renderActivitySuggestions(fragment) {
 
     panel.innerHTML = '';
     final.slice(0, 12).forEach(item => {
-        const nameText = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev);
+        const nameText = item.eylem_adi;
         const div = document.createElement('div');
         div.className = 'suggestion-item';
         div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start';
-        div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi}</div>`;
+        div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${item.sorumlu || ''}</div>`;
         div.onclick = () => {
             activityInput.value = nameText;
             panel.style.display = 'none';
@@ -394,7 +407,7 @@ function checkOverdueActivities() {
     names.forEach(name => {
         dbSource.forEach(item => {
             const isOG = selectedType === 'OKUL GELİŞİM PROJESİ';
-            const resp = isOG ? item.sorumlu : item.sorumlu_verisi;
+            const resp = item.sorumlu;
             const tid = isOG ? `og-${item.no}` : `oo-${item.sira}`;
             
             if (resp && resp.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')) && !seen.has(tid)) {
@@ -408,7 +421,7 @@ function checkOverdueActivities() {
                     if (isMatch) {
                         if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
-                        const aName = isOG ? item.eylem_adi : item.eylem_gorev;
+                        const aName = item.eylem_adi;
                         const hasRep = savedReportsCache.some(r => r.activityName === aName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
                         
                         modalTasks.push({ 
@@ -440,7 +453,7 @@ function showOverdueModal(tasks) {
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
-                <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
+                <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
             </div>
             <div class="overdue-actions">
                 <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${document.querySelector('input[name="project-type"]:checked').value}">
@@ -466,8 +479,8 @@ function fillReportForm(taskId, selectedType) {
     const item = dbSource.find(i => (selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`) === taskId);
     if (!item) return;
 
-    document.getElementById('activity-name').value = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-    document.getElementById('responsible-teacher').value = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi).trim() + ', ';
+    document.getElementById('activity-name').value = item.eylem_adi;
+    document.getElementById('responsible-teacher').value = (item.sorumlu || '').trim() + ', ';
     
     const start = parseDBDate(selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1);
     const end = parseDBDate(selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1);
@@ -621,8 +634,8 @@ function exportToExcel() {
         const mapRow = (pItem, report, type) => ({
             'ID': type === 'OG' ? `OG-${pItem.no}` : `OO-${pItem.sira}`,
             'Kod': pItem.kod || '',
-            'Eylem/Görev Adı': type === 'OG' ? pItem.eylem_adi : pItem.eylem_gorev,
-            'Sorumlular (Plan)': type === 'OG' ? pItem.sorumlu : pItem.sorumlu_verisi,
+            'Eylem/Görev Adı': pItem.eylem_adi,
+            'Sorumlular (Plan)': pItem.sorumlu,
             'Başlangıç (Plan)': type === 'OG' ? pItem.y1_bas : pItem.baslangic_1,
             'Bitiş (Plan)': type === 'OG' ? pItem.y1_bit : pItem.bitis_1,
             'DURUM': report ? report.status : 'EKSİK',
@@ -713,7 +726,7 @@ function checkUnreportedActivities() {
             if (status === 'expired' ? d < today : d >= today) {
                 const start = isOG ? item.y1_bas : item.baslangic_1;
                 const end = isOG ? item.y1_bit : item.bitis_1;
-                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
+                const person = item.sorumlu;
                 results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start, end, person, type });
             }
         }
@@ -743,7 +756,7 @@ function checkReportedActivities() {
         if (dt) {
             const d = new Date(dt);
             if (status === 'expired' ? d < today : d >= today) {
-                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
+                const person = item.sorumlu;
                 results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, reported: true });
             }
         }
@@ -787,8 +800,8 @@ function showStatusModal(title, tasks) {
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
-                <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
-                ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${t.filler}</div>` : ''}
+                <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
+                ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${formatNameTR(t.filler)}</div>` : ''}
             </div>
             <div class="overdue-actions">
                 ${ignoreBtn}
