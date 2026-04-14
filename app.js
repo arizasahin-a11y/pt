@@ -8,6 +8,11 @@ let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
 let currentReportingPerson = null; // Track who is currently filling from the modal
 
+// Sync Configuration
+let directoryHandle = null;
+const MASTER_JSON_NAME = 'combined_db.json';
+const MASTER_JS_NAME = 'db_data.js';
+
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -205,11 +210,43 @@ window.addEventListener('DOMContentLoaded', () => {
         updateFilledState(el);
     });
     
+    // Sync Folder Listener
+    const connectBtn = document.getElementById('connect-folder-btn');
+    if (connectBtn) connectBtn.addEventListener('click', handleFolderConnect);
+
     // Safety re-check after a short delay for browser autofills
     setTimeout(() => {
         document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(updateFilledState);
     }, 500);
 });
+
+async function handleFolderConnect() {
+    try {
+        directoryHandle = await window.showDirectoryPicker({
+            mode: 'readwrite'
+        });
+        updateSyncStatus(true);
+        console.log('Project folder connected successfully');
+    } catch (err) {
+        console.error('Folder connection failed:', err);
+        updateSyncStatus(false);
+        if (err.name !== 'AbortError') {
+            alert('Klasör bağlantısı başarısız oldu: ' + err.message);
+        }
+    }
+}
+
+function updateSyncStatus(connected) {
+    const statusText = document.getElementById('sync-status');
+    const container = document.getElementById('sync-control');
+    if (connected) {
+        statusText.textContent = 'Bağlı';
+        container.classList.add('sync-active');
+    } else {
+        statusText.textContent = 'Bağlantı Kesik';
+        container.classList.remove('sync-active');
+    }
+}
 
 // Helper: Track if an input has a meaningful value
 function updateFilledState(el) {
@@ -851,7 +888,7 @@ function getFormData() {
 }
 
 // Save Report
-saveBtn.addEventListener('click', () => {
+saveBtn.addEventListener('click', async () => {
     if (!validateForm()) return;
     
     const reportData = getFormData();
@@ -860,7 +897,12 @@ saveBtn.addEventListener('click', () => {
     const store = transaction.objectStore(STORE_NAME);
     const addRequest = store.add(reportData);
 
-    addRequest.onsuccess = () => {
+    addRequest.onsuccess = async () => {
+        // Automatic Local Sync if folder is connected
+        if (directoryHandle && (reportData.status === 'Güncellendi')) {
+            await performLocalSync(reportData);
+        }
+
         alert('Rapor başarıyla kaydedildi!');
         syncSavedReportsCache(); // Refresh cache after save
         form.reset();
@@ -1185,3 +1227,122 @@ window.deleteRecord = (id) => {
         store.delete(id).onsuccess = () => loadReports();
     }
 };
+
+// --- LOCAL FILE SYNC ENGINE ---
+async function performLocalSync(reportData) {
+    if (!directoryHandle) return;
+
+    try {
+        // 1. Read existing master data
+        let jsonFileHandle;
+        try {
+            jsonFileHandle = await directoryHandle.getFileHandle(MASTER_JSON_NAME);
+        } catch (e) {
+            alert(`'${MASTER_JSON_NAME}' dosyası seçilen klasörde bulunamadı. Lütfen doğru klasörü seçtiğinizden emin olun.`);
+            return;
+        }
+
+        const file = await jsonFileHandle.getFile();
+        const content = await file.text();
+        const db = JSON.parse(content);
+
+        // 2. Perform intelligent redistribution logic
+        const updatedDb = redistributeDates(db, reportData);
+        if (!updatedDb) {
+            console.warn('Matching activity not found in master database. Skipping file update.');
+            return;
+        }
+
+        // 3. Write updated JSON
+        const writableJson = await jsonFileHandle.createWritable();
+        await writableJson.write(JSON.stringify(updatedDb, null, 2));
+        await writableJson.close();
+
+        // 4. Update JS wrapper file (db_data.js)
+        try {
+            const jsFileHandle = await directoryHandle.getFileHandle(MASTER_JS_NAME);
+            const writableJs = await jsFileHandle.createWritable();
+            const jsContent = `const COMBINED_DB = ${JSON.stringify(updatedDb, null, 2)};`;
+            await writableJs.write(jsContent);
+            await writableJs.close();
+        } catch (e) {
+            console.warn('db_data.js update failed (might not exist), proceeding.');
+        }
+
+        console.log('Automated local sync completed successfully.');
+    } catch (err) {
+        console.error('Local sync failed:', err);
+        alert('Dosyalar güncellenirken bir hata oluştu. İzinleri kontrol edin.');
+    }
+}
+
+function redistributeDates(db, report) {
+    const dbKey = report.projectType === 'OKUL GELİŞİM PROJESİ' ? 'og_db' : 'oo_db';
+    const list = db[dbKey];
+    if (!list) return null;
+
+    // Helper: Normalize for matching
+    const normalize = (s) => (s || "").toString().toLowerCase().trim();
+    
+    // Find matching activity
+    const item = list.find(i => 
+        normalize(i.eylem_adi || i.eylem_gorev) === normalize(report.activityName)
+    );
+    
+    if (!item) return null;
+
+    // Determine Year Index (N)
+    const baseYear = 2025; // Matching your config
+    const startYear = parseInt(report.eduYear.split('-')[0].trim());
+    const n = (startYear - baseYear) + 1;
+    if (n < 1 || n > 4) return db; // Out of 4-year range
+
+    // Prepare Date Utilities
+    const parse = (s) => {
+        if (!s || s === 'NaN') return null;
+        const parts = s.split('.');
+        if (parts.length !== 3) return null;
+        return new Date(parts[2], parts[1]-1, parts[0]);
+    };
+    const format = (d) => {
+        const padding = (v) => v.toString().padStart(2, '0');
+        return `${padding(d.getDate())}.${padding(d.getMonth()+1)}.${d.getFullYear()}`;
+    };
+
+    const newStart = parse(report.startDate);
+    const newEnd = parse(report.endDate);
+    if (!newStart || !newEnd) return db;
+
+    const startKey = dbKey === 'og_db' ? `y${n}_bas` : `baslangic_${n}`;
+    const endKey = dbKey === 'og_db' ? `y${n}_bit` : `bitis_${n}`;
+
+    const oldStart = parse(item[startKey]);
+    const durationMs = newEnd - newStart;
+
+    // 1. Update Current Year
+    item[startKey] = format(newStart);
+    item[endKey] = format(newEnd);
+    
+    // Sync other common fields
+    if (dbKey === 'og_db') item.sorumlu = report.teacher;
+    else item.sorumlu_verisi = report.teacher;
+
+    // 2. Propagate to future years if redistribution is possible
+    if (oldStart) {
+        const deltaMs = newStart - oldStart;
+        for (let year = n + 1; year <= 4; year++) {
+            const nextStartKey = dbKey === 'og_db' ? `y${year}_bas` : `baslangic_${year}`;
+            const nextEndKey = dbKey === 'og_db' ? `y${year}_bit` : `bitis_${year}`;
+            
+            const plannedStart = parse(item[nextStartKey]);
+            if (plannedStart) {
+                const shiftedStart = new Date(plannedStart.getTime() + deltaMs);
+                const shiftedEnd = new Date(shiftedStart.getTime() + durationMs);
+                item[nextStartKey] = format(shiftedStart);
+                item[nextEndKey] = format(shiftedEnd);
+            }
+        }
+    }
+
+    return db;
+}
