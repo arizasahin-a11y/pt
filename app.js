@@ -8,10 +8,7 @@ let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
 let currentReportingPerson = null; // Track who is currently filling from the modal
 
-// Sync Configuration
-let directoryHandle = null;
-const MASTER_JSON_NAME = 'combined_db.json';
-const MASTER_JS_NAME = 'db_data.js';
+let currentReportingPerson = null; // Track who is currently filling from the modal
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -86,14 +83,21 @@ window.addEventListener('DOMContentLoaded', () => {
         if (statusRadio) statusRadio.checked = true;
     }
     
-    // Load combined data from global variable (db_data.js)
+    // Initial load through overlay system
     if (typeof COMBINED_DB !== 'undefined') {
-        combinedData = COMBINED_DB;
-        console.log('Combined data loaded from JS');
-        updateResponsibleDatalist();
+        const checkInterval = setInterval(() => {
+            if (db) {
+                clearInterval(checkInterval);
+                refreshCombinedData();
+            }
+        }, 100);
     } else {
-        console.warn('COMBINED_DB not found. Dynamic lists will be disabled.');
+        console.warn('COMBINED_DB not found.');
     }
+    
+    // Download Master Listener
+    const downloadMasterBtn = document.getElementById('download-master-btn');
+    if (downloadMasterBtn) downloadMasterBtn.onclick = downloadMasterJson;
     
     // Listen for project type changes to update responsible list
     document.querySelectorAll('input[name="project-type"]').forEach(radio => {
@@ -897,14 +901,10 @@ saveBtn.addEventListener('click', async () => {
     const store = transaction.objectStore(STORE_NAME);
     const addRequest = store.add(reportData);
 
-    addRequest.onsuccess = async () => {
-        // Automatic Local Sync if folder is connected
-        if (directoryHandle && (reportData.status === 'Güncellendi')) {
-            await performLocalSync(reportData);
-        }
-
+    addRequest.onsuccess = () => {
         alert('Rapor başarıyla kaydedildi!');
-        syncSavedReportsCache(); // Refresh cache after save
+        refreshCombinedData(); // Re-merge data with new update
+        syncSavedReportsCache();
         form.reset();
         document.querySelectorAll('.has-value').forEach(el => el.classList.remove('has-value'));
         calculateEduYear();
@@ -1005,27 +1005,107 @@ function printReport(data) {
 }
 
 // EXCEL EXPORT (Multi-Sheet Enhanced)
-function exportUpdatedReports() {
-    // Filter for reports with status 'Güncellendi'
-    const updates = savedReportsCache.filter(r => r.status === 'Güncellendi' || r.activityStatus === 'Güncellendi');
-    
-    if (updates.length === 0) {
-        alert('Güncellenmiş (Güncellendi durumunda) herhangi bir rapor bulunamadı.');
+function downloadMasterJson() {
+    if (!combinedData) {
+        alert('Veritabanı henüz hazır değil.');
         return;
     }
-
-    const dataStr = JSON.stringify(updates, null, 2);
+    
+    const dataStr = JSON.stringify(combinedData, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'sync_updates.json';
+    link.download = 'combined_db.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    alert(`${updates.length} adet güncellenmiş kayıt 'sync_updates.json' olarak indirildi.\nŞimdi 'sync_master.py' scriptini çalıştırarak ana veritabanını güncelleyebilirsiniz.`);
+    alert('Güncellenmiş veritabanı "combined_db.json" olarak indirildi.\n\nBu dosyayı projenizdeki orijinal dosya ile değiştirerek tüm kullanıcılar için kalıcı hale getirebilirsiniz.');
+}
+
+async function refreshCombinedData() {
+    if (typeof COMBINED_DB === 'undefined' || !db) return;
+    
+    // 1. Deep clone master
+    combinedData = JSON.parse(JSON.stringify(COMBINED_DB));
+    
+    // 2. Get all reports
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        const reports = getAllRequest.result;
+        // Sort by timestamp to apply in order
+        reports.sort((a, b) => a.timestamp - b.timestamp).forEach(report => {
+            if (report.status === 'Güncellendi') {
+                applyOverlayUpdate(combinedData, report);
+            }
+        });
+        
+        console.log('Master data successfully merged with local updates.');
+        updateResponsibleDatalist();
+    };
+}
+
+function applyOverlayUpdate(targetDb, report) {
+    const dbKey = report.projectType === 'OKUL GELİŞİM PROJESİ' ? 'og_db' : 'oo_db';
+    const list = targetDb[dbKey];
+    if (!list) return;
+
+    const actionKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? 'eylem_adi' : 'eylem_gorev';
+    const item = list.find(i => (i[actionKey] || "").toString().trim() === (report.activityName || "").toString().trim());
+    if (!item) return;
+
+    const baseYear = 2025;
+    const startYear = parseInt(report.eduYear.split('-')[0].trim());
+    const n = (startYear - baseYear) + 1;
+    if (n < 1 || n > 4) return;
+
+    const parse = (s) => {
+        if (!s || s === 'NaN') return null;
+        const parts = s.split('.');
+        if (parts.length !== 3) return null;
+        return new Date(parts[2], parts[1]-1, parts[0]);
+    };
+    const format = (d) => {
+        const p = (v) => v.toString().padStart(2, '0');
+        return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
+    };
+
+    const newStart = parse(report.startDate);
+    const newEnd = parse(report.endDate);
+    if (!newStart || !newEnd) return;
+
+    const startKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? `y${n}_bas` : `baslangic_${n}`;
+    const endKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? `y${n}_bit` : `bitis_${n}`;
+
+    const oldStart = parse(item[startKey]);
+    const durationMs = newEnd.getTime() - newStart.getTime();
+
+    // Update Current
+    item[startKey] = format(newStart);
+    item[endKey] = format(newEnd);
+    if (dbKey === 'og_db') item.sorumlu = report.teacher;
+    else item.sorumlu_verisi = report.teacher;
+
+    // Propagate
+    if (oldStart) {
+        const deltaMs = newStart.getTime() - oldStart.getTime();
+        for (let i = n + 1; i <= 4; i++) {
+            const nextS = dbKey === 'og_db' ? `y${i}_bas` : `baslangic_${i}`;
+            const nextE = dbKey === 'og_db' ? `y${i}_bit` : `bitis_${i}`;
+            const plannedS = parse(item[nextS]);
+            if (plannedS) {
+                const s = new Date(plannedS.getTime() + deltaMs);
+                const e = new Date(s.getTime() + durationMs);
+                item[nextS] = format(s);
+                item[nextE] = format(e);
+            }
+        }
+    }
 }
 
 async function exportToExcel() {
@@ -1228,121 +1308,3 @@ window.deleteRecord = (id) => {
     }
 };
 
-// --- LOCAL FILE SYNC ENGINE ---
-async function performLocalSync(reportData) {
-    if (!directoryHandle) return;
-
-    try {
-        // 1. Read existing master data
-        let jsonFileHandle;
-        try {
-            jsonFileHandle = await directoryHandle.getFileHandle(MASTER_JSON_NAME);
-        } catch (e) {
-            alert(`'${MASTER_JSON_NAME}' dosyası seçilen klasörde bulunamadı. Lütfen doğru klasörü seçtiğinizden emin olun.`);
-            return;
-        }
-
-        const file = await jsonFileHandle.getFile();
-        const content = await file.text();
-        const db = JSON.parse(content);
-
-        // 2. Perform intelligent redistribution logic
-        const updatedDb = redistributeDates(db, reportData);
-        if (!updatedDb) {
-            console.warn('Matching activity not found in master database. Skipping file update.');
-            return;
-        }
-
-        // 3. Write updated JSON
-        const writableJson = await jsonFileHandle.createWritable();
-        await writableJson.write(JSON.stringify(updatedDb, null, 2));
-        await writableJson.close();
-
-        // 4. Update JS wrapper file (db_data.js)
-        try {
-            const jsFileHandle = await directoryHandle.getFileHandle(MASTER_JS_NAME);
-            const writableJs = await jsFileHandle.createWritable();
-            const jsContent = `const COMBINED_DB = ${JSON.stringify(updatedDb, null, 2)};`;
-            await writableJs.write(jsContent);
-            await writableJs.close();
-        } catch (e) {
-            console.warn('db_data.js update failed (might not exist), proceeding.');
-        }
-
-        console.log('Automated local sync completed successfully.');
-    } catch (err) {
-        console.error('Local sync failed:', err);
-        alert('Dosyalar güncellenirken bir hata oluştu. İzinleri kontrol edin.');
-    }
-}
-
-function redistributeDates(db, report) {
-    const dbKey = report.projectType === 'OKUL GELİŞİM PROJESİ' ? 'og_db' : 'oo_db';
-    const list = db[dbKey];
-    if (!list) return null;
-
-    // Helper: Normalize for matching
-    const normalize = (s) => (s || "").toString().toLowerCase().trim();
-    
-    // Find matching activity
-    const item = list.find(i => 
-        normalize(i.eylem_adi || i.eylem_gorev) === normalize(report.activityName)
-    );
-    
-    if (!item) return null;
-
-    // Determine Year Index (N)
-    const baseYear = 2025; // Matching your config
-    const startYear = parseInt(report.eduYear.split('-')[0].trim());
-    const n = (startYear - baseYear) + 1;
-    if (n < 1 || n > 4) return db; // Out of 4-year range
-
-    // Prepare Date Utilities
-    const parse = (s) => {
-        if (!s || s === 'NaN') return null;
-        const parts = s.split('.');
-        if (parts.length !== 3) return null;
-        return new Date(parts[2], parts[1]-1, parts[0]);
-    };
-    const format = (d) => {
-        const padding = (v) => v.toString().padStart(2, '0');
-        return `${padding(d.getDate())}.${padding(d.getMonth()+1)}.${d.getFullYear()}`;
-    };
-
-    const newStart = parse(report.startDate);
-    const newEnd = parse(report.endDate);
-    if (!newStart || !newEnd) return db;
-
-    const startKey = dbKey === 'og_db' ? `y${n}_bas` : `baslangic_${n}`;
-    const endKey = dbKey === 'og_db' ? `y${n}_bit` : `bitis_${n}`;
-
-    const oldStart = parse(item[startKey]);
-    const durationMs = newEnd - newStart;
-
-    // 1. Update Current Year
-    item[startKey] = format(newStart);
-    item[endKey] = format(newEnd);
-    
-    // Sync other common fields
-    if (dbKey === 'og_db') item.sorumlu = report.teacher;
-    else item.sorumlu_verisi = report.teacher;
-
-    // 2. Propagate to future years if redistribution is possible
-    if (oldStart) {
-        const deltaMs = newStart - oldStart;
-        for (let year = n + 1; year <= 4; year++) {
-            const nextStartKey = dbKey === 'og_db' ? `y${year}_bas` : `baslangic_${year}`;
-            const nextEndKey = dbKey === 'og_db' ? `y${year}_bit` : `bitis_${year}`;
-            
-            const plannedStart = parse(item[nextStartKey]);
-            if (plannedStart) {
-                const shiftedStart = new Date(plannedStart.getTime() + deltaMs);
-                const shiftedEnd = new Date(shiftedStart.getTime() + durationMs);
-                item[nextStartKey] = format(shiftedStart);
-                item[nextEndKey] = format(shiftedEnd);
-            }
-        }
-    }
-
-    return db;
-}

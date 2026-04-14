@@ -30,15 +30,8 @@
                         <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
                     </button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="status-badge" id="app-status">Sistem Hazır</div>
-                    <div id="sync-control" class="sync-control">
-                        <button type="button" id="connect-folder-btn" class="sync-btn" title="Otomatik kaydetme için proje klasörünü bağlayın">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> Klasörü Bağla
-                        </button>
-                        <span id="sync-status" class="sync-status-text">Bağlantı Kesik</span>
-                    </div>
-                </div>
+                <div class="status-badge" id="app-status">Sistem Hazır</div>
+
                 <div class="status-radio-group" style="display: flex; gap: 1rem; font-size: 0.85rem;">
                     <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: var(--text);">
                         <input type="radio" name="activity-status" value="expired" checked> Süresi Dolan
@@ -234,8 +227,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h2 style="margin: 0;">Kayıtlı Raporlar</h2>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn-primary" id="export-updates-btn" style="background: #2563eb; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Güncellendi olarak işaretlenmiş kayıtları ana veritabanına işlemek için indir">
-                        <i class="fas fa-sync-alt"></i> Güncellemeleri Aktar
+                    <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
+                        <i class="fas fa-file-download"></i> Güncel Master'ı İndir (.json)
                     </button>
                     <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
                         <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
