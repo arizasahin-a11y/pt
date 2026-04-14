@@ -393,19 +393,31 @@ function checkOverdueActivities() {
 
     names.forEach(name => {
         dbSource.forEach(item => {
-            const resp = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
-            const tid = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${item.no}` : `oo-${item.sira}`;
+            const isOG = selectedType === 'OKUL GELİŞİM PROJESİ';
+            const resp = isOG ? item.sorumlu : item.sorumlu_verisi;
+            const tid = isOG ? `og-${item.no}` : `oo-${item.sira}`;
+            
             if (resp && resp.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')) && !seen.has(tid)) {
-                const dateStr = ((selectedType === 'og' ? item.y1_bit : item.bitis_1) || (selectedType === 'og' ? item.y1_bas : item.baslangic_1));
+                const dateStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
                 const taskDate = parseDBDate(dateStr);
+                
                 if (taskDate) {
                     const dt = new Date(taskDate);
                     const isMatch = statusRadio === 'expired' ? dt < today : dt >= today;
+                    
                     if (isMatch) {
                         seen.add(tid);
-                        const aName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+                        const aName = isOG ? item.eylem_adi : item.eylem_gorev;
                         const hasRep = savedReportsCache.some(r => r.activityName === aName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
-                        modalTasks.push({ id: tid, name: aName, start: (selectedType === 'og' ? item.y1_bas : item.baslangic_1), end: (selectedType === 'og' ? item.y1_bit : item.bitis_1), person: resp, isReported: hasRep });
+                        
+                        modalTasks.push({ 
+                            id: tid, 
+                            name: aName, 
+                            start: isOG ? item.y1_bas : item.baslangic_1, 
+                            end: isOG ? item.y1_bit : item.bitis_1, 
+                            person: resp, 
+                            isReported: hasRep 
+                        });
                     }
                 }
             }
