@@ -8,8 +8,6 @@ let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
 let currentReportingPerson = null; // Track who is currently filling from the modal
 
-let currentReportingPerson = null; // Track who is currently filling from the modal
-
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -46,7 +44,7 @@ async function syncSavedReportsCache() {
 function calculateEduYear() {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth(); // 0 is January
+    const month = now.getMonth();
     
     let eduYear = "";
     if (month < 1) { // Before/In January
@@ -54,7 +52,23 @@ function calculateEduYear() {
     } else { // After January
         eduYear = `${year - 1} - ${year}`;
     }
-    document.getElementById('edu-year').value = eduYear;
+    const el = document.getElementById('edu-year');
+    if (el) el.value = eduYear;
+}
+
+// Helper: Track if an input has a meaningful value
+function updateFilledState(el) {
+    if (!el) return;
+    if (el.type === 'radio' || el.type === 'checkbox') return;
+
+    const val = el.value ? el.value.trim() : "";
+    let hasValue = val.length > 0;
+
+    if (hasValue) {
+        el.classList.add('has-value');
+    } else {
+        el.classList.remove('has-value');
+    }
 }
 
 // Selectors
@@ -66,11 +80,11 @@ const backToFormBtn = document.getElementById('back-to-form');
 const savedReportsSection = document.getElementById('saved-reports');
 const reportsList = document.getElementById('reports-list');
 
-// Initialize
+// Initialize Core Application
 window.addEventListener('DOMContentLoaded', () => {
     calculateEduYear();
     
-    // Recovery of last state from localStorage
+    // Recovery of last state
     const lastType = localStorage.getItem('lastProjectType');
     if (lastType) {
         const typeRadio = document.querySelector(`input[name="project-type"][value="${lastType}"]`);
@@ -83,7 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (statusRadio) statusRadio.checked = true;
     }
     
-    // Initial load through overlay system
+    // Initial load through database overlay
     if (typeof COMBINED_DB !== 'undefined') {
         const checkInterval = setInterval(() => {
             if (db) {
@@ -91,22 +105,27 @@ window.addEventListener('DOMContentLoaded', () => {
                 refreshCombinedData();
             }
         }, 100);
-    } else {
-        console.warn('COMBINED_DB not found.');
     }
     
-    // Download Master Listener
+    // Master Download Button
     const downloadMasterBtn = document.getElementById('download-master-btn');
     if (downloadMasterBtn) downloadMasterBtn.onclick = downloadMasterJson;
+
+    // Listeners for inputs (Visual feedback)
+    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
+        el.addEventListener('input', () => updateFilledState(el));
+        el.addEventListener('change', () => updateFilledState(el));
+        el.addEventListener('blur', () => updateFilledState(el));
+        updateFilledState(el);
+    });
     
-    // Listen for project type changes to update responsible list
+    // Listen for project type changes
     document.querySelectorAll('input[name="project-type"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             localStorage.setItem('lastProjectType', e.target.value);
-            updateResponsibleDatalist();
             checkOverdueActivities();
             
-            // Handle label change for Okul Özel Projesi
+            // Handle label update for Okul Özel Projesi
             const selectedType = document.querySelector('input[name="project-type"]:checked').value;
             const suggestionsLabel = document.getElementById('suggestions-label');
             const pSuggestionsLabel = document.getElementById('p-suggestions-label');
@@ -121,398 +140,158 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Trigger change event once to set initial state
-    document.querySelector('input[name="project-type"]:checked').dispatchEvent(new Event('change'));
-    
-    // Also attach to radio buttons for date status text change behavior
+    // Initial State Dispatch
+    const initialType = document.querySelector('input[name="project-type"]:checked');
+    if (initialType) initialType.dispatchEvent(new Event('change'));
+
+    // Status changes listener
     document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             localStorage.setItem('lastActivityStatus', e.target.value);
-            const inputVal = document.getElementById('responsible-teacher').value.trim();
-            if (inputVal && inputVal.length > 2) {
-                checkOverdueActivities();
-            }
+            checkOverdueActivities();
         });
     });
 
-    // Listen for responsible selection to check overdue tasks and handle multiple selection
+    // --- SUGGESTIONS SYSTEM ---
     const respInput = document.getElementById('responsible-teacher');
     const suggestionsPanel = document.getElementById('suggestions-panel');
+    const activityInput = document.getElementById('activity-name');
+    const activityPanel = document.getElementById('activity-suggestions-panel');
 
     respInput.addEventListener('input', (e) => {
         const val = e.target.value;
         const lastCommaIndex = val.lastIndexOf(',');
         const currentFragment = val.substring(lastCommaIndex + 1).trim();
-
-        if (currentFragment.length >= 2) {
-            renderSuggestions(currentFragment);
-        } else {
-            suggestionsPanel.style.display = 'none';
-        }
-        
-        // Modal will only trigger after 3s of silence instead of 1s
+        if (currentFragment.length >= 2) renderSuggestions(currentFragment);
+        else suggestionsPanel.style.display = 'none';
         debounceAudit();
     });
 
-    // Show suggestions when clicked or focused
-    respInput.addEventListener('focus', () => {
-        const val = respInput.value;
-        const lastCommaIndex = val.lastIndexOf(',');
-        const currentFragment = val.substring(lastCommaIndex + 1).trim();
-        renderSuggestions(currentFragment); // Show suggestions even for empty/short strings on focus
-    });
+    respInput.addEventListener('focus', () => renderSuggestions(respInput.value.substring(respInput.value.lastIndexOf(',') + 1).trim()));
+    respInput.addEventListener('click', () => renderSuggestions(respInput.value.substring(respInput.value.lastIndexOf(',') + 1).trim()));
 
-    respInput.addEventListener('click', () => {
-        const val = respInput.value;
-        const lastCommaIndex = val.lastIndexOf(',');
-        const currentFragment = val.substring(lastCommaIndex + 1).trim();
-        renderSuggestions(currentFragment);
-    });
+    // Activity Suggestions with filtering by Responsible
+    activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
+    activityInput.addEventListener('focus', () => renderActivitySuggestions(activityInput.value));
+    activityInput.addEventListener('click', () => renderActivitySuggestions(activityInput.value));
 
-    // Listen for activity name selection to show suggestions
-    const activityInput = document.getElementById('activity-name');
-    const activityPanel = document.getElementById('activity-suggestions-panel');
-
-    activityInput.addEventListener('input', (e) => {
-        renderActivitySuggestions(e.target.value);
-    });
-
-    activityInput.addEventListener('focus', () => {
-        renderActivitySuggestions(activityInput.value);
-    });
-
-    activityInput.addEventListener('click', () => {
-        renderActivitySuggestions(activityInput.value);
-    });
-
-    // Close all suggestions when clicking outside
+    // Close suggestions on outside click
     document.addEventListener('click', (e) => {
-        if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) {
+        if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) suggestionsPanel.style.display = 'none';
+        if (!activityInput.contains(e.target) && !activityPanel.contains(e.target)) activityPanel.style.display = 'none';
+    });
+
+    // Clear Button logic
+    const clearRespBtn = document.getElementById('clear-responsible');
+    if (clearRespBtn) {
+        clearRespBtn.addEventListener('click', () => {
+            respInput.value = '';
             suggestionsPanel.style.display = 'none';
-        }
-        if (!activityInput.contains(e.target) && !activityPanel.contains(e.target)) {
-            activityPanel.style.display = 'none';
-        }
-    });
-    
-    // Modal Close Listeners
-    document.getElementById('close-overdue').onclick = hideOverdueModal;
-    document.getElementById('overdue-ok-btn').onclick = hideOverdueModal;
-
-    // Clear Button Listener
-    document.getElementById('clear-responsible').addEventListener('click', () => {
-        respInput.value = '';
-        suggestionsPanel.style.display = 'none';
-        respInput.focus();
-        // Hide the clear button itself is handled by CSS (:placeholder-shown)
-    });
-
-    // Unreported Actions Listener
-    document.getElementById('unreported-actions-btn').addEventListener('click', checkUnreportedActivities);
-    
-    // Reported Actions Listener
-    document.getElementById('reported-actions-btn').addEventListener('click', checkReportedActivities);
-    
-    // Excel Export Listener
-    const exportBtn = document.getElementById('export-excel-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportToExcel);
+            respInput.focus();
+            updateFilledState(respInput);
+        });
     }
-    
-    // Sync Updates Export Listener
-    const exportUpdatesBtn = document.getElementById('export-updates-btn');
-    if (exportUpdatesBtn) {
-        exportUpdatesBtn.addEventListener('click', exportUpdatedReports);
-    }
-    // Initialize visual feedback for already filled fields
-    const allInputs = document.querySelectorAll('input, textarea');
-    allInputs.forEach(el => {
-        el.addEventListener('input', () => updateFilledState(el));
-        el.addEventListener('change', () => updateFilledState(el));
-        el.addEventListener('blur', () => updateFilledState(el));
-        updateFilledState(el);
-    });
-    
-    // Sync Folder Listener
-    const connectBtn = document.getElementById('connect-folder-btn');
-    if (connectBtn) connectBtn.addEventListener('click', handleFolderConnect);
 
-    // Safety re-check after a short delay for browser autofills
-    setTimeout(() => {
-        document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(updateFilledState);
-    }, 500);
+    // Modal listeners
+    const outClose = document.getElementById('close-overdue');
+    const okClose = document.getElementById('overdue-ok-btn');
+    if (outClose) outClose.onclick = hideOverdueModal;
+    if (okClose) okClose.onclick = hideOverdueModal;
+
+    // Report Actions Listeners
+    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
+    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
+    document.getElementById('export-excel-btn').onclick = exportToExcel;
+
+    // Principal Name (Shift + Right Click)
+    const mainTitle = document.getElementById('main-title');
+    if (mainTitle) {
+        mainTitle.addEventListener('contextmenu', (e) => {
+            if (e.shiftKey) {
+                e.preventDefault();
+                const current = localStorage.getItem('schoolPrincipal') || '';
+                const name = prompt('Okul Müdürü İsmini Giriniz:', current);
+                if (name !== null) {
+                    localStorage.setItem('schoolPrincipal', name.trim());
+                    alert('Okul Müdürü güncellendi.');
+                }
+            }
+        });
+    }
+
+    // History Toggle
+    historyBtn.onclick = () => { form.style.display = 'none'; savedReportsSection.style.display = 'block'; loadReports(); };
+    backToFormBtn.onclick = () => { savedReportsSection.style.display = 'none'; form.style.display = 'block'; };
+
+    // Direct Print
+    directPrintBtn.onclick = () => { if (validateForm()) printReport(getFormData()); };
+    directPrintBtn.oncontextmenu = (e) => { e.preventDefault(); printReport(getFormData()); };
+
+    setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 });
 
-async function handleFolderConnect() {
-    try {
-        directoryHandle = await window.showDirectoryPicker({
-            mode: 'readwrite'
+// --- CORE LOGIC FUNCTIONS ---
+
+async function refreshCombinedData() {
+    if (typeof COMBINED_DB === 'undefined' || !db) return;
+    combinedData = JSON.parse(JSON.stringify(COMBINED_DB));
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        const reports = getAllRequest.result;
+        reports.sort((a, b) => a.timestamp - b.timestamp).forEach(report => {
+            if (report.status === 'Güncellendi') applyOverlayUpdate(combinedData, report);
         });
-        updateSyncStatus(true);
-        console.log('Project folder connected successfully');
-    } catch (err) {
-        console.error('Folder connection failed:', err);
-        updateSyncStatus(false);
-        if (err.name !== 'AbortError') {
-            alert('Klasör bağlantısı başarısız oldu: ' + err.message);
+        console.log('Data synchronization complete.');
+    };
+}
+
+function applyOverlayUpdate(targetDb, report) {
+    const dbKey = report.projectType === 'OKUL GELİŞİM PROJESİ' ? 'og_db' : 'oo_db';
+    const list = targetDb[dbKey];
+    if (!list) return;
+
+    const actionKey = dbKey === 'og_db' ? 'eylem_adi' : 'eylem_gorev';
+    const item = list.find(i => (i[actionKey] || "").toString().trim() === (report.activityName || "").toString().trim());
+    if (!item) return;
+
+    const n = (parseInt(report.eduYear.split('-')[0].trim()) - 2025) + 1;
+    if (n < 1 || n > 4) return;
+
+    const parse = (s) => (s && s !== 'NaN') ? new Date(s.split('.')[2], s.split('.')[1]-1, s.split('.')[0]) : null;
+    const format = (d) => `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
+
+    const newStart = parse(report.startDate);
+    const newEnd = parse(report.endDate);
+    if (!newStart || !newEnd) return;
+
+    const startKey = dbKey === 'og_db' ? `y${n}_bas` : `baslangic_${n}`;
+    const endKey = dbKey === 'og_db' ? `y${n}_bit` : `bitis_${n}`;
+
+    const oldStart = parse(item[startKey]);
+    const durationMs = newEnd.getTime() - newStart.getTime();
+
+    item[startKey] = format(newStart);
+    item[endKey] = format(newEnd);
+    if (dbKey === 'og_db') item.sorumlu = report.teacher;
+    else item.sorumlu_verisi = report.teacher;
+
+    if (oldStart) {
+        const deltaMs = newStart.getTime() - oldStart.getTime();
+        for (let i = n + 1; i <= 4; i++) {
+            const nS = dbKey === 'og_db' ? `y${i}_bas` : `baslangic_${i}`;
+            const nE = dbKey === 'og_db' ? `y${i}_bit` : `bitis_${i}`;
+            const pS = parse(item[nS]);
+            if (pS) {
+                const s = new Date(pS.getTime() + deltaMs);
+                const e = new Date(s.getTime() + durationMs);
+                item[nS] = format(s);
+                item[nE] = format(e);
+            }
         }
     }
-}
-
-function updateSyncStatus(connected) {
-    const statusText = document.getElementById('sync-status');
-    const container = document.getElementById('sync-control');
-    if (connected) {
-        statusText.textContent = 'Bağlı';
-        container.classList.add('sync-active');
-    } else {
-        statusText.textContent = 'Bağlantı Kesik';
-        container.classList.remove('sync-active');
-    }
-}
-
-// Helper: Track if an input has a meaningful value
-function updateFilledState(el) {
-    if (!el) return;
-    if (el.type === 'radio' || el.type === 'checkbox') return;
-
-    const val = el.value ? el.value.trim() : "";
-    let hasValue = val.length > 0;
-
-    // Dates can be tricky, some browsers might have placeholder text but empty value
-    if (el.classList.contains('has-value') && !hasValue) {
-        el.classList.remove('has-value');
-    } else if (hasValue) {
-        el.classList.add('has-value');
-    }
-}
-
-function checkUnreportedActivities() {
-    console.log('Checking unreported activities...');
-    if (!combinedData) {
-        alert('Veritabanı henüz yüklenmedi, lütfen biraz bekleyip tekrar deneyin.');
-        return;
-    }
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    let unreportedTasks = [];
-    
-    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
-    
-    // Check only the selected database
-    const databases = [
-        { data: combinedData.og_db, type: 'OKUL GELİŞİM PROJESİ' },
-        { data: combinedData.oo_db, type: 'OKUL ÖZEL PROJESİ' }
-    ].filter(db => db.type === selectedType);
-
-    databases.forEach(dbObj => {
-        if (!dbObj.data) return;
-        dbObj.data.forEach(item => {
-            const taskName = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-            if (!taskName) return;
-
-            // Check if ANY report exists for this activity
-            const isReported = savedReportsCache.some(r => r.activityName === taskName);
-            if (isReported) return;
-
-            // Check if end date has passed
-            const startStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
-            const endStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
-            const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
-
-            if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
-                const parts = dateToCheck.split('.');
-                const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                
-                let isMatch = false;
-                if (statusRadio === 'expired') {
-                    isMatch = taskEndDate < today;
-                } else {
-                    isMatch = taskEndDate >= today;
-                }
-
-                if (isMatch) {
-                    unreportedTasks.push({
-                        name: taskName,
-                        start: startStr,
-                        end: endStr && endStr !== 'NaN' ? endStr : '...',
-                        person: dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi,
-                        type: dbObj.type
-                    });
-                }
-            }
-        });
-    });
-
-    console.log(`Found ${unreportedTasks.length} unreported tasks.`);
-    if (unreportedTasks.length > 0) {
-        showUnreportedModal(unreportedTasks);
-    } else {
-        alert('Seçili olan projede ve durumda, raporu girilmemiş etkinlik bulunamadı.');
-    }
-}
-
-function showUnreportedModal(tasks) {
-    // We can reuse the overdue modal structure but update content
-    const modal = document.getElementById('overdue-modal');
-    const title = modal.querySelector('.modal-header h3');
-    const desc = modal.querySelector('#modal-desc');
-    const list = document.getElementById('overdue-list');
-    
-    // Backup original header/desc if needed or just overwrite
-    title.innerHTML = `<i class="fas fa-clipboard-list"></i> Hiç Rapor Girilmemiş Eylemler(${tasks.length})`;
-    desc.textContent = 'Süresi geçmiş ancak hiçbir sorumlu tarafından raporu henüz girilmemiş eylemler:';
-    
-    list.innerHTML = '';
-    tasks.forEach(t => {
-        const li = document.createElement('li');
-        li.className = 'overdue-item';
-        // Note: Blue border instead of the usual primary for this global list
-        li.style.borderColor = '#60a5fa'; 
-        li.innerHTML = `
-            <span class="overdue-name">${t.name}</span>
-            <div class="overdue-details">
-                <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
-                <span class="overdue-person"><i class="fas fa-users"></i> ${t.person}</span>
-            </div>
-            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase;">${t.type}</div>
-        `;
-        list.appendChild(li);
-    });
-    
-    // Add close listener that restores titles (simple way)
-    const originalTitle = '<i class="fas fa-file-invoice"></i> Rapor Yazılması Gereken Eylemler';
-    const originalDesc = 'Seçilen sorumluya ait bu yılın planında yer alan ancak raporu doldurulması gereken faaliyetler:';
-    
-    const closeBtn = document.getElementById('close-overdue');
-    const okBtn = document.getElementById('overdue-ok-btn');
-    
-    const restoreAndClose = () => {
-        modal.style.display = 'none';
-        title.innerHTML = originalTitle;
-        desc.textContent = originalDesc;
-        // Remove individual style if any
-        list.querySelectorAll('li').forEach(li => li.style.borderColor = '');
-    };
-    
-
-    
-    closeBtn.onclick = restoreAndClose;
-    okBtn.onclick = restoreAndClose;
-
-    modal.style.display = 'flex';
-}
-
-function checkReportedActivities() {
-    console.log('Checking reported activities...');
-    if (!combinedData) {
-        alert('Veritabanı henüz yüklenmedi, lütfen biraz bekleyip tekrar deneyin.');
-        return;
-    }
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    let reportedTasks = [];
-    
-    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
-    
-    const databases = [
-        { data: combinedData.og_db, type: 'OKUL GELİŞİM PROJESİ' },
-        { data: combinedData.oo_db, type: 'OKUL ÖZEL PROJESİ' }
-    ].filter(db => db.type === selectedType);
-
-    databases.forEach(dbObj => {
-        if (!dbObj.data) return;
-        dbObj.data.forEach(item => {
-            const taskName = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-            if (!taskName) return;
-
-            const isReported = savedReportsCache.some(r => r.activityName === taskName);
-            if (!isReported) return;
-
-            const startStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
-            const endStr = dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
-            const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
-
-            if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
-                const parts = dateToCheck.split('.');
-                const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                
-                let isMatch = false;
-                if (statusRadio === 'expired') {
-                    isMatch = taskEndDate < today;
-                } else {
-                    isMatch = taskEndDate >= today;
-                }
-
-                if (isMatch) {
-                    // Find actual filler
-                    const matchingReport = savedReportsCache.find(r => r.activityName === taskName);
-                    reportedTasks.push({
-                        name: taskName,
-                        start: startStr,
-                        end: endStr && endStr !== 'NaN' ? endStr : '...',
-                        person: dbObj.type === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi,
-                        type: dbObj.type,
-                        filler: matchingReport ? matchingReport.fillerName : ''
-                    });
-                }
-            }
-        });
-    });
-
-    if (reportedTasks.length > 0) {
-        showReportedModal(reportedTasks);
-    } else {
-        alert('Seçili olan projede ve durumda, daha önceden raporlanmış etkinlik bulunamadı.');
-    }
-}
-
-function showReportedModal(tasks) {
-    const modal = document.getElementById('overdue-modal');
-    const title = modal.querySelector('.modal-header h3');
-    const desc = modal.querySelector('#modal-desc');
-    const list = document.getElementById('overdue-list');
-    
-    title.innerHTML = `<i class="fas fa-check-circle"></i> Raporu Girilmiş Eylemler (${tasks.length})`;
-    desc.textContent = 'Aşağıdaki faaliyetler daha önceden raporlanmıştır:';
-    
-    list.innerHTML = '';
-    tasks.forEach(t => {
-        const li = document.createElement('li');
-        li.className = 'overdue-item reported-item';
-        let reporterHtml = t.filler ? `<div style="font-size:0.75rem; color:#10b981; margin-top:4px;"><i class="fas fa-check"></i> Raporu Dolduran: ${t.filler}</div>` : '';
-        li.innerHTML = `
-            <span class="overdue-name">${t.name}</span>
-            <div class="overdue-details">
-                <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
-                <span class="overdue-person"><i class="fas fa-users"></i> ${t.person}</span>
-                ${reporterHtml}
-            </div>
-            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem; text-transform: uppercase;">${t.type}</div>
-        `;
-        list.appendChild(li);
-    });
-    
-    const originalTitle = '<i class="fas fa-file-invoice"></i> Rapor Yazılması Gereken Eylemler';
-    const originalDesc = 'Seçilen sorumluya ait bu yılın planında yer alan ancak raporu doldurulması gereken faaliyetler:';
-    
-    const closeBtn = document.getElementById('close-overdue');
-    const okBtn = document.getElementById('overdue-ok-btn');
-    
-    const restoreAndClose = () => {
-        modal.style.display = 'none';
-        title.innerHTML = originalTitle;
-        desc.textContent = originalDesc;
-    };
-    
-    closeBtn.onclick = restoreAndClose;
-    okBtn.onclick = restoreAndClose;
-
-    modal.style.display = 'flex';
 }
 
 function renderSuggestions(fragment) {
@@ -520,56 +299,30 @@ function renderSuggestions(fragment) {
     const panel = document.getElementById('suggestions-panel');
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     
-    // Get all unique responsibles
-    let items = selectedType === 'OKUL GELİŞİM PROJESİ' 
-        ? combinedData.og_db.map(item => item.sorumlu) 
-        : combinedData.oo_db.map(item => item.sorumlu_verisi);
-    
-    const uniqueResponsibles = new Set();
-    items.forEach(item => {
-        if (!item) return;
-        item.split(',').forEach(part => {
-            const trimmed = part.trim();
-            if (trimmed) uniqueResponsibles.add(trimmed);
-        });
-    });
+    let items = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db.map(item => item.sorumlu) : combinedData.oo_db.map(item => item.sorumlu_verisi);
+    const unique = new Set();
+    items.forEach(it => { if (it) it.split(',').forEach(p => { if (p.trim()) unique.add(p.trim()); }); });
 
-    const filtered = Array.from(uniqueResponsibles)
-        .filter(name => name.toLocaleLowerCase('tr').includes(fragment.toLocaleLowerCase('tr')))
-        .sort();
-
-    if (filtered.length === 0) {
-        panel.style.display = 'none';
-        return;
-    }
+    const filtered = Array.from(unique).filter(n => n.toLocaleLowerCase('tr').includes(fragment.toLocaleLowerCase('tr'))).sort();
+    if (filtered.length === 0) { panel.style.display = 'none'; return; }
 
     panel.innerHTML = '';
-    filtered.forEach(name => {
+    filtered.slice(0, 10).forEach(name => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
         div.innerHTML = `<i class="fas fa-user-tag"></i> ${name}`;
         div.onclick = () => {
             const input = document.getElementById('responsible-teacher');
-            const currentVal = input.value;
-            const lastCommaIndex = currentVal.lastIndexOf(',');
-            
-            let newValue = '';
-            if (lastCommaIndex === -1) {
-                newValue = name;
-            } else {
-                newValue = currentVal.substring(0, lastCommaIndex + 1).trim() + ' ' + name;
-            }
-            
-            input.value = newValue + ', ';
+            const current = input.value;
+            const lastIdx = current.lastIndexOf(',');
+            input.value = (lastIdx === -1 ? name : current.substring(0, lastIdx + 1).trim() + ' ' + name) + ', ';
             panel.style.display = 'none';
             input.focus();
-            
-            // Immediate audit when a selection is confirmed
+            updateFilledState(input);
             checkOverdueActivities();
         };
         panel.appendChild(div);
     });
-
     panel.style.display = 'block';
 }
 
@@ -579,375 +332,142 @@ function renderActivitySuggestions(fragment) {
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     const respValue = document.getElementById('responsible-teacher').value.trim();
     
-    // Get database branch
     const list = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
     if (!list) return;
 
-    // Filter by fragmented names (Teacher filter)
-    let filteredByTeacher = list;
+    let filtered = list;
     if (respValue) {
-        const selectedTeachers = respValue.split(',').map(s => s.trim().toLocaleLowerCase('tr')).filter(s => s.length > 0);
-        if (selectedTeachers.length > 0) {
-            filteredByTeacher = list.filter(item => {
+        const teachers = respValue.split(',').map(s => s.trim().toLocaleLowerCase('tr')).filter(s => s.length > 0);
+        if (teachers.length > 0) {
+            filtered = list.filter(item => {
                 const itemSorumlu = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi) || "";
-                const itemTeachers = itemSorumlu.toLocaleLowerCase('tr');
-                // All selected teachers must be present in the activity's responsible field
-                return selectedTeachers.every(st => itemTeachers.includes(st));
+                const itemT = itemSorumlu.toLocaleLowerCase('tr');
+                return teachers.every(t => itemT.includes(t));
             });
         }
     }
 
-    // Filter by user input (fragment)
-    const finalFiltered = filteredByTeacher.filter(item => {
-        const itemName = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev) || "";
-        const itemKod = item.kod || "";
-        const searchPool = (itemName + " " + itemKod).toLocaleLowerCase('tr');
-        return searchPool.includes(fragment.toLocaleLowerCase('tr'));
+    const final = filtered.filter(it => {
+        const name = (selectedType === 'OKUL GELİŞİM PROJESİ' ? it.eylem_adi : it.eylem_gorev) || "";
+        const pool = (name + " " + (it.kod || "")).toLocaleLowerCase('tr');
+        return pool.includes(fragment.toLocaleLowerCase('tr'));
     });
 
-    if (finalFiltered.length === 0) {
-        panel.style.display = 'none';
-        return;
-    }
+    if (final.length === 0) { panel.style.display = 'none'; return; }
 
     panel.innerHTML = '';
-    finalFiltered.slice(0, 15).forEach(item => {
-        const nameData = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev);
+    final.slice(0, 12).forEach(item => {
+        const nameText = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev);
         const div = document.createElement('div');
         div.className = 'suggestion-item';
-        div.style.flexDirection = 'column';
-        div.style.alignItems = 'flex-start';
-        div.style.gap = '2px';
-        
-        const kodHtml = item.kod ? `<span style="font-size: 0.7rem; color: var(--primary); font-weight: bold;">[${item.kod}]</span>` : '';
-        const sorumluHtml = `<div style="font-size: 0.7rem; color: var(--text-muted);"><i class="fas fa-users"></i> ${selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi}</div>`;
-        
-        div.innerHTML = `
-            <div>${kodHtml} ${nameData}</div>
-            ${sorumluHtml}
-        `;
-        
+        div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start';
+        div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi}</div>`;
         div.onclick = () => {
-            const input = document.getElementById('activity-name');
-            input.value = nameData;
+            activityInput.value = nameText;
             panel.style.display = 'none';
-            input.focus();
-            updateFilledState(input);
+            activityInput.focus();
+            updateFilledState(activityInput);
         };
         panel.appendChild(div);
     });
-
     panel.style.display = 'block';
-}
-
-const debounceAudit = debounce(checkOverdueActivities, 3000);
-
-// Helper: Debounce function to prevent excessive checks
-function debounce(func, wait) {
-    let timeout;
-    return function() {
-        clearTimeout(timeout);
-        timeout = setTimeout(func, wait);
-    };
-}
-
-// Helper: Parse DD.MM.YYYY to YYYY-MM-DD
-function parseDBDate(dateStr) {
-    if (!dateStr || typeof dateStr !== 'string' || !dateStr.includes('.')) return null;
-    const parts = dateStr.trim().split('.');
-    if (parts.length !== 3) return null;
-    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-}
-
-// Helper: Ignore list management
-function getIgnoredTasks() {
-    return JSON.parse(localStorage.getItem('pfds_ignored_tasks') || '{}');
-}
-
-function ignoreTask(person, taskId) {
-    const ignored = getIgnoredTasks();
-    if (!ignored[person]) ignored[person] = [];
-    if (!ignored[person].includes(taskId)) {
-        ignored[person].push(taskId);
-        localStorage.setItem('pfds_ignored_tasks', JSON.stringify(ignored));
-    }
-}
-
-function isTaskIgnored(person, taskId) {
-    const ignored = getIgnoredTasks();
-    return ignored[person] && ignored[person].includes(taskId);
-}
-
-function isAlreadyReported(person, activityName) {
-    return savedReportsCache.some(report => 
-        report.activityName === activityName && 
-        (report.reportingPerson === person || 
-         (report.teacher && report.teacher.toLocaleLowerCase('tr').includes(person.toLocaleLowerCase('tr'))))
-    );
-}
-
-// Optimized matching: If reportingPerson is exact match, use it. Otherwise fallback to fuzzy teacher match if reportingPerson is missing.
-function isSpecificReported(person, activityName) {
-    return savedReportsCache.some(report => 
-        report.activityName === activityName && 
-        report.reportingPerson === person
-    );
-}
-
-
-function updateResponsibleDatalist() {
-    // Custom suggestions panel handles this now
 }
 
 function checkOverdueActivities() {
     if (!combinedData) return;
-    
-    const fullValue = document.getElementById('responsible-teacher').value.trim();
-    if (!fullValue) return;
-
-    // Split by comma to check multiple people
-    const names = fullValue.split(',').map(n => n.trim()).filter(n => n.length >= 3);
+    const names = document.getElementById('responsible-teacher').value.split(',').map(n => n.trim()).filter(n => n.length >= 3);
     if (names.length === 0) return;
 
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
-    const today = new Date();
-    today.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0,0,0,0);
     
     let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
     let modalTasks = [];
-    let seenTasks = new Set(); 
+    let seen = new Set(); 
 
     names.forEach(name => {
         dbSource.forEach(item => {
-            const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
-            const taskId = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${item.no}` : `oo-${item.sira}`;
-            
-            if (respText && respText.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))) {
-                if (seenTasks.has(taskId)) return;
-                
-                const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
-                const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
-                const dateToCheck = (endStr && endStr !== 'NaN' && endStr !== '...') ? endStr : startStr;
-
-                if (dateToCheck && typeof dateToCheck === 'string' && dateToCheck.includes('.')) {
-                    const parts = dateToCheck.split('.');
-                    const taskEndDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                    
-                    let isMatch = false;
-                    if (statusRadio === 'expired') {
-                        isMatch = taskEndDate < today;
-                    } else {
-                        isMatch = taskEndDate >= today;
-                    }
-
+            const resp = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
+            const tid = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${item.no}` : `oo-${item.sira}`;
+            if (resp && resp.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')) && !seen.has(tid)) {
+                const dateStr = ((selectedType === 'og' ? item.y1_bit : item.bitis_1) || (selectedType === 'og' ? item.y1_bas : item.baslangic_1));
+                const taskDate = parseDBDate(dateStr);
+                if (taskDate) {
+                    const dt = new Date(taskDate);
+                    const isMatch = statusRadio === 'expired' ? dt < today : dt >= today;
                     if (isMatch) {
-                        seenTasks.add(taskId);
-                        
-                        const activityName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-                        const hasReport = isSpecificReported(name, activityName) || isAlreadyReported(name, activityName);
-                        
-                        if (!hasReport && isTaskIgnored(name, taskId)) return;
-                        
-                        let fillerTxt = "";
-                        if (hasReport) {
-                            const matchingReport = savedReportsCache.find(r => r.activityName === activityName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
-                            if(matchingReport) fillerTxt = matchingReport.fillerName;
-                        }
-                        
-                        modalTasks.push({
-                            id: taskId,
-                            name: activityName,
-                            start: startStr,
-                            end: endStr && endStr !== 'NaN' ? endStr : '...',
-                            person: respText, // Full list instead of just searched name
-                            isReported: hasReport,
-                            filler: fillerTxt
-                        });
+                        seen.add(tid);
+                        const aName = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+                        const hasRep = savedReportsCache.some(r => r.activityName === aName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
+                        modalTasks.push({ id: tid, name: aName, start: (selectedType === 'og' ? item.y1_bas : item.baslangic_1), end: (selectedType === 'og' ? item.y1_bit : item.bitis_1), person: resp, isReported: hasRep });
                     }
                 }
             }
         });
     });
-
-    if (modalTasks.length > 0) {
-        showOverdueModal(modalTasks);
-    } else if (names.length > 0) {
-        const statusText = statusRadio === 'expired' ? 'Süresi Dolan' : 'Devam Eden';
-        alert(`Belirtilen sorumlunun ${selectedType} planında "${statusText}" statüsünde faaliyeti bulunmamaktadır.`);
-    }
+    if (modalTasks.length > 0) showOverdueModal(modalTasks);
 }
 
 function showOverdueModal(tasks) {
     const list = document.getElementById('overdue-list');
     list.innerHTML = '';
-    
-    // Update Title based on Radio state
-    const statusRadio = document.querySelector('input[name="activity-status"]:checked').value;
-    const titleText = statusRadio === 'expired' ? 'Süresi Dolan Faaliyetler (' + tasks.length + ')' : 'Devam Eden Faaliyetler (' + tasks.length + ')';
-    
     const modalEl = document.getElementById('overdue-modal');
-    modalEl.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-file-invoice"></i> ' + titleText;
+    modalEl.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-file-invoice"></i> Görev Listesi (' + tasks.length + ')';
     
-    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
-        
-        let reporterHtml = t.isReported && t.filler ? `<div style="font-size:0.75rem; color:#10b981; margin-top:4px;"><i class="fas fa-check"></i> Raporu Dolduran: ${t.filler}</div>` : '';
-        
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${t.person}</span>
-                ${reporterHtml}
             </div>
             <div class="overdue-actions">
-                ${!t.isReported ? `<button class="btn-secondary btn-action-sm btn-ignore" data-id="${t.id}" data-person="${t.person}">
-                    <i class="fas fa-trash-alt"></i> Listeden Kaldır
-                </button>` : ''}
-                <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${selectedType}">
-                    <i class="fas fa-edit"></i> Rapor Doldur
+                <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${document.querySelector('input[name="project-type"]:checked').value}">
+                    <i class="fas fa-edit"></i> Raporu Doldur
                 </button>
             </div>
         `;
         list.appendChild(li);
     });
-    
-    // Add Click Listeners
-    list.querySelectorAll('.btn-ignore').forEach(btn => {
-        btn.onclick = (e) => {
-            const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
-            if (pw !== '321') {
-                alert('Hatalı şifre! İşlem iptal edildi.');
-                return;
-            }
-            const id = e.currentTarget.dataset.id;
-            const person = e.currentTarget.dataset.person;
-            ignoreTask(person, id);
-            // Refresh modal or remove item
-            e.currentTarget.closest('.overdue-item').remove();
-            if (list.children.length === 0) hideOverdueModal();
-        };
-    });
 
     list.querySelectorAll('.btn-fill').forEach(btn => {
         btn.onclick = (e) => {
-            const id = e.currentTarget.dataset.id;
-            const type = e.currentTarget.dataset.type;
-            const person = e.currentTarget.closest('.overdue-item').querySelector('.overdue-person').textContent.replace(' ', '').trim();
-            // Actually dataset person is better, it was there
-            const realPerson = e.currentTarget.previousElementSibling.dataset.person; 
-            
-            currentReportingPerson = realPerson;
-            fillReportForm(id, type);
+            fillReportForm(e.currentTarget.dataset.id, e.currentTarget.dataset.type);
             hideOverdueModal();
         };
     });
-
-    document.getElementById('overdue-modal').style.display = 'flex';
+    modalEl.style.display = 'flex';
 }
 
 function fillReportForm(taskId, selectedType) {
     if (!combinedData) return;
-    
-    let dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
-    const item = dbSource.find(i => {
-        const currentId = selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`;
-        return currentId === taskId;
-    });
-
+    const dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    const item = dbSource.find(i => (selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`) === taskId);
     if (!item) return;
 
-    // 1. Activity Name
-    const name = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
-    document.getElementById('activity-name').value = name;
+    document.getElementById('activity-name').value = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev;
+    document.getElementById('responsible-teacher').value = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi).trim() + ', ';
+    
+    const start = parseDBDate(selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1);
+    const end = parseDBDate(selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1);
+    if (start) document.getElementById('activity-start').value = start;
+    if (end) document.getElementById('activity-end').value = end;
 
-    // 2. All Responsibles for this task
-    const respText = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi;
-    if (respText) {
-        // Ensure it ends with a comma for better UX with the suggestion system if needed
-        document.getElementById('responsible-teacher').value = respText.trim() + ', ';
-    }
-
-    // 3. Dates
-    const startStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bas : item.baslangic_1;
-    const endStr = selectedType === 'OKUL GELİŞİM PROJESİ' ? item.y1_bit : item.bitis_1;
-
-    const formattedStart = parseDBDate(startStr);
-    const formattedEnd = parseDBDate(endStr);
-
-    if (formattedStart) document.getElementById('activity-start').value = formattedStart;
-    if (formattedEnd) document.getElementById('activity-end').value = formattedEnd;
-
-    // Scroll to form top and give feedback
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    console.log(`Form filled for task: ${taskId}`);
+    document.querySelectorAll('input, textarea').forEach(updateFilledState);
 }
 
-function hideOverdueModal() {
-    document.getElementById('overdue-modal').style.display = 'none';
-}
-
-// Helper: Get checkbox values (including 'Other')
-function getCheckboxValues(name, otherCheckId, otherTextId) {
-    const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
-    let values = Array.from(checkboxes).map(cb => cb.value);
-    
-    const otherCheck = document.getElementById(otherCheckId);
-    const otherText = document.getElementById(otherTextId);
-    
-    if (otherCheck && otherCheck.checked && otherText.value.trim() !== '') {
-        values = values.filter(v => v !== 'Diğer');
-        values.push(otherText.value.trim());
-    }
-    return values.join(', ');
-}
-
-// Helper: Format date for report
-function formatDateRange(start, end) {
-    if (!start && !end) return '....';
-    const s = start ? new Date(start).toLocaleDateString('tr-TR') : '...';
-    const e = end ? new Date(end).toLocaleDateString('tr-TR') : '...';
-    return `${s} - ${e}`;
-}
-
-// Validation Logic
+function hideOverdueModal() { document.getElementById('overdue-modal').style.display = 'none'; }
 function validateForm() {
-    const requiredInputIds = [
-        'activity-name', 'total-participants', 'activity-location', 
-        'activity-start', 'activity-end', 'total-duration', 'cost',
-        'purpose', 'difficulties', 'suggestions', 'collaborations', 
-        'evaluation', 'filler-name', 'filler-role', 'filler-date', 'responsible-teacher'
-    ];
-    
-    for (const id of requiredInputIds) {
-        const el = document.getElementById(id);
-        if (!el || !el.value.trim()) {
-            alert('Lütfen tüm zorunlu alanları doldurun! (Evrak No hariç)');
-            if(el) el.focus();
-            return false;
-        }
-    }
-
-    const aType = getCheckboxValues('activity-type', 'type-other-check', 'type-other-text');
-    if (!aType) { alert('Faaliyetin Türü alanından en az bir seçim yapınız!'); document.getElementById('activity-type-container').scrollIntoView(); return false; }
-    
-    const pProfile = getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text');
-    if (!pProfile) { alert('Katılımcı Profili alanından en az bir seçim yapınız!'); return false; }
-    
-    const docs = getCheckboxValues('docs', 'docs-other-check', 'docs-other-text');
-    if (!docs) { alert('Teslim Edilen Belgeler alanından en az bir seçim yapınız!'); return false; }
-
+    const ids = ['activity-name', 'total-participants', 'activity-location', 'activity-start', 'activity-end', 'total-duration', 'cost', 'filler-name', 'filler-role', 'filler-date', 'responsible-teacher'];
+    for (const id of ids) { const el = document.getElementById(id); if (!el || !el.value.trim()) { alert('Tüm alanları doldurun!'); el.focus(); return false; } }
     return true;
 }
 
 function getFormData() {
-    const reportStatusRadio = document.querySelector('input[name="report-status"]:checked');
-    const taskStatus = reportStatusRadio ? reportStatusRadio.value : 'Tamamlandı';
-
     return {
         eduYear: document.getElementById('edu-year').value,
         projectType: document.querySelector('input[name="project-type"]:checked').value,
@@ -962,7 +482,7 @@ function getFormData() {
         duration: document.getElementById('total-duration').value,
         cost: document.getElementById('cost').value,
         documentNo: document.getElementById('document-no').value,
-        status: taskStatus,
+        status: document.querySelector('input[name="report-status"]:checked').value,
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
         suggestions: document.getElementById('suggestions').value,
@@ -973,424 +493,86 @@ function getFormData() {
         fillerRole: document.getElementById('filler-role').value,
         fillerDate: document.getElementById('filler-date').value,
         reportingPerson: currentReportingPerson,
+        principalName: localStorage.getItem('schoolPrincipal') || '',
         timestamp: new Date().getTime()
     };
 }
 
-// Save Report
 saveBtn.addEventListener('click', async () => {
     if (!validateForm()) return;
-    
-    const reportData = getFormData();
-
+    const data = getFormData();
     const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const addRequest = store.add(reportData);
-
-    addRequest.onsuccess = () => {
-        alert('Rapor başarıyla kaydedildi!');
-        refreshCombinedData(); // Re-merge data with new update
-        syncSavedReportsCache();
-        form.reset();
+    transaction.objectStore(STORE_NAME).add(data).onsuccess = () => {
+        alert('Rapor kaydedildi!'); form.reset(); refreshCombinedData(); syncSavedReportsCache();
         document.querySelectorAll('.has-value').forEach(el => el.classList.remove('has-value'));
-        calculateEduYear();
-        updateFilledState(document.getElementById('edu-year'));
     };
 });
 
-// NEW TAB PREVIEW AND PRINT
 function printReport(data) {
-    try {
-        // Collect the content
-        const printContent = document.getElementById('print-content').cloneNode(true);
-        
-        // Fill the cloned content with data
-        printContent.querySelector('#p-edu-year').textContent = data.eduYear;
-        printContent.querySelector('#p-type-area').textContent = data.projectType;
-        printContent.querySelector('#p-name').textContent = data.activityName || '';
-        printContent.querySelector('#p-type').textContent = data.activityType || '';
-        printContent.querySelector('#p-teacher').textContent = data.teacher || '';
-        printContent.querySelector('#p-profile').textContent = data.participantProfile || '';
-        printContent.querySelector('#p-count').textContent = data.totalParticipants || '';
-        printContent.querySelector('#p-location').textContent = data.location || '';
-        printContent.querySelector('#p-dates').textContent = formatDateRange(data.startDate, data.endDate);
-        printContent.querySelector('#p-duration').textContent = data.duration || '';
-        printContent.querySelector('#p-cost').textContent = data.cost || '0';
-        printContent.querySelector('#p-document-no').textContent = data.documentNo || '-';
-        printContent.querySelector('#p-purpose').textContent = data.purpose || '';
-        printContent.querySelector('#p-difficulties').textContent = data.difficulties || '';
-        printContent.querySelector('#p-suggestions').textContent = data.suggestions || '';
-        printContent.querySelector('#p-collaborations').textContent = data.collaborations || '';
-        printContent.querySelector('#p-evaluation').textContent = data.evaluation || '';
-        printContent.querySelector('#p-docs').textContent = data.docs || '';
-        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
-        printContent.querySelector('#p-filler').textContent = `${data.fillerName || ''}\n${data.fillerRole || ''}\n${fDate}`;
+    const pc = document.getElementById('print-content').cloneNode(true);
+    const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
+    fill('#p-edu-year', data.eduYear); fill('#p-type-area', data.projectType); fill('#p-name', data.activityName);
+    fill('#p-type', data.activityType); fill('#p-teacher', data.teacher); fill('#p-profile', data.participantProfile);
+    fill('#p-count', data.totalParticipants); fill('#p-location', data.location); 
+    fill('#p-dates', formatDateRange(data.startDate, data.endDate)); fill('#p-duration', data.duration);
+    fill('#p-cost', data.cost); fill('#p-document-no', data.documentNo); fill('#p-purpose', data.purpose);
+    fill('#p-difficulties', data.difficulties); fill('#p-suggestions', data.suggestions);
+    fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
+    const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+    fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
+    if (pc.querySelector('#p-principal-name')) pc.querySelector('#p-principal-name').textContent = (data.principalName || '').toUpperCase();
 
-        // Open new window
-        const win = window.open('', '_blank');
-        
-        if (!win || win.closed || typeof win.closed == 'undefined') {
-            alert('Lütfen tarayıcınızın pop-up (açılır pencere) engelleyicisini kapatın ve tekrar deneyin.');
-            return;
-        }
-
-        // Styles for the new window
-        const styles = `
-            <style>
-                body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
-                #preview-container { width: 210mm; min-height: 297mm; max-height: 297mm; overflow: hidden; box-sizing: border-box; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
-                .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; padding: 0; gap: 10px; }
-                .btn-print { background: #ff7e5f; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,126,95,0.3); transition: transform 0.2s; }
-                .btn-download { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-family: sans-serif; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(99,102,241,0.3); transition: transform 0.2s; }
-                .btn-print:hover, .btn-download:hover { transform: translateY(-2px); }
-                img { max-width: 80px; height: auto; }
-                @media print {
-                    @page { size: A4; margin: 0; }
-                    body { background: white !important; padding: 0 !important; }
-                    .action-bar { display: none !important; }
-                    #preview-container { box-shadow: none !important; border-radius: 0 !important; padding: 8mm !important; margin: 0 !important; width: 100% !important; height: 297mm !important; overflow: hidden; }
-                }
-            </style>
-        `;
-
-        const printIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
-        const downloadIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
-
-        win.document.write('<!DOCTYPE html><html><head><title>Rapor Önizleme</title>' + styles + '</head><body>');
-        win.document.write('<div class="action-bar">');
-        win.document.write('<button class="btn-download" onclick="window.downloadPDF()">' + downloadIcon + ' PDF İndir</button>');
-        win.document.write('<button class="btn-print" onclick="window.print()">' + printIcon + ' Hemen Yazdır</button>');
-        win.document.write('</div>');
-        win.document.write('<div id="preview-container" id="capture">');
-        win.document.write(printContent.innerHTML);
-        win.document.write('</div>');
-
-        win.document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>');
-        win.document.write('<script>');
-        win.document.write(`
-            window.downloadPDF = function() {
-                const element = document.getElementById('preview-container');
-                const opt = {
-                    margin: 0,
-                    filename: 'Rapor_${new Date().getTime()}.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-                html2pdf().set(opt).from(element).save();
-            };
-        `);
-        win.document.write('</script>');
-        win.document.write('</body></html>');
-        win.document.close();
-        
-    } catch (error) {
-        console.error('Print Error:', error);
-        alert('İşlem sırasında bir hata oluştu: ' + error.message);
-    }
+    const win = window.open('', '_blank');
+    win.document.write(`<html><head><title>Preview</title><style>body{padding:20px;background:#eee;} #container{background:white;padding:30px;width:210mm;margin:auto;box-shadow:0 0 10px rgba(0,0,0,0.1);}</style></head><body><div id="container">${pc.innerHTML}</div></body></html>`);
+    win.document.close();
+    setTimeout(() => { win.print(); }, 500);
 }
 
-// EXCEL EXPORT (Multi-Sheet Enhanced)
 function downloadMasterJson() {
-    if (!combinedData) {
-        alert('Veritabanı henüz hazır değil.');
-        return;
-    }
-    
-    const dataStr = JSON.stringify(combinedData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    if (!combinedData) return;
+    const blob = new Blob([JSON.stringify(combinedData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'combined_db.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    alert('Güncellenmiş veritabanı "combined_db.json" olarak indirildi.\n\nBu dosyayı projenizdeki orijinal dosya ile değiştirerek tüm kullanıcılar için kalıcı hale getirebilirsiniz.');
+    const a = document.createElement('a'); a.href = url; a.download = 'combined_db.json'; a.click();
 }
 
-async function refreshCombinedData() {
-    if (typeof COMBINED_DB === 'undefined' || !db) return;
-    
-    // 1. Deep clone master
-    combinedData = JSON.parse(JSON.stringify(COMBINED_DB));
-    
-    // 2. Get all reports
+function exportToExcel() {
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        const reports = getAllRequest.result;
-        // Sort by timestamp to apply in order
-        reports.sort((a, b) => a.timestamp - b.timestamp).forEach(report => {
-            if (report.status === 'Güncellendi') {
-                applyOverlayUpdate(combinedData, report);
-            }
-        });
-        
-        console.log('Master data successfully merged with local updates.');
-        updateResponsibleDatalist();
-    };
-}
-
-function applyOverlayUpdate(targetDb, report) {
-    const dbKey = report.projectType === 'OKUL GELİŞİM PROJESİ' ? 'og_db' : 'oo_db';
-    const list = targetDb[dbKey];
-    if (!list) return;
-
-    const actionKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? 'eylem_adi' : 'eylem_gorev';
-    const item = list.find(i => (i[actionKey] || "").toString().trim() === (report.activityName || "").toString().trim());
-    if (!item) return;
-
-    const baseYear = 2025;
-    const startYear = parseInt(report.eduYear.split('-')[0].trim());
-    const n = (startYear - baseYear) + 1;
-    if (n < 1 || n > 4) return;
-
-    const parse = (s) => {
-        if (!s || s === 'NaN') return null;
-        const parts = s.split('.');
-        if (parts.length !== 3) return null;
-        return new Date(parts[2], parts[1]-1, parts[0]);
-    };
-    const format = (d) => {
-        const p = (v) => v.toString().padStart(2, '0');
-        return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
-    };
-
-    const newStart = parse(report.startDate);
-    const newEnd = parse(report.endDate);
-    if (!newStart || !newEnd) return;
-
-    const startKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? `y${n}_bas` : `baslangic_${n}`;
-    const endKey = dbKey === 'OKUL GELİŞİM PROJESİ' ? `y${n}_bit` : `bitis_${n}`;
-
-    const oldStart = parse(item[startKey]);
-    const durationMs = newEnd.getTime() - newStart.getTime();
-
-    // Update Current
-    item[startKey] = format(newStart);
-    item[endKey] = format(newEnd);
-    if (dbKey === 'og_db') item.sorumlu = report.teacher;
-    else item.sorumlu_verisi = report.teacher;
-
-    // Propagate
-    if (oldStart) {
-        const deltaMs = newStart.getTime() - oldStart.getTime();
-        for (let i = n + 1; i <= 4; i++) {
-            const nextS = dbKey === 'og_db' ? `y${i}_bas` : `baslangic_${i}`;
-            const nextE = dbKey === 'og_db' ? `y${i}_bit` : `bitis_${i}`;
-            const plannedS = parse(item[nextS]);
-            if (plannedS) {
-                const s = new Date(plannedS.getTime() + deltaMs);
-                const e = new Date(s.getTime() + durationMs);
-                item[nextS] = format(s);
-                item[nextE] = format(e);
-            }
-        }
-    }
-}
-
-async function exportToExcel() {
-    if (!db || !combinedData) {
-        alert('Veritabanı bağlantısı veya plan verisi henüz hazır değil.');
-        return;
-    }
-
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        const reports = getAllRequest.result;
-        const matchedReportIds = new Set();
-        
-        // Helper: Clean for matching
-        const clean = (text) => {
-            if (!text) return "";
-            let t = text.toString().toLowerCase()
-                .replace(/İ/g, 'i').replace(/ı/g, 'i')
-                .toLocaleLowerCase('tr-TR');
-            t = t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            return t.replace(/[^a-z0-9]/g, '');
-        };
-
-        // Plan Row Mapper
-        const mapPlanWithReport = (planItem, report, type) => {
-            const row = {
-                // Plan Data
-                'ID': type === 'OG' ? `OG-${planItem.no}` : `OO-${planItem.sira}`,
-                'Kod': planItem.kod || '',
-                'Eylem/Görev Adı': type === 'OG' ? planItem.eylem_adi : planItem.eylem_gorev,
-                'Sorumlular (Plan)': type === 'OG' ? planItem.sorumlu : planItem.sorumlu_verisi,
-                'Başlangıç (Plan)': type === 'OG' ? planItem.y1_bas : planItem.baslangic_1,
-                'Bitiş (Plan)': type === 'OG' ? planItem.y1_bit : planItem.bitis_1,
-                
-                // Status
-                'DURUM': report && report.status ? report.status : (report ? 'TAMAMLANDI' : 'EKSİK'),
-                
-                // Report Data (if exists)
-                'Raporlanan Faaliyet': report ? report.activityName : '',
-                'Faaliyet Türü': report ? report.activityType : '',
-                'Rapor Tarihi': report ? `${report.startDate} / ${report.endDate}` : '',
-                'Yer': report ? report.location : '',
-                'Katılımcı Profili': report ? report.participantProfile : '',
-                'Kişi Sayısı': report ? report.totalParticipants : '',
-                'Süre (Saat)': report ? report.duration : '',
-                'Maliyeti': report ? (report.cost || '0') : '',
-                'Raporu Dolduran Sorumlu': report ? (report.reportingPerson || '---') : '',
-                'Formu Dolduran Kişi': report ? report.fillerName : '',
-                'Evrak No': report ? (report.documentNo || '') : '',
-                'Doldurma Tarihi': report ? report.fillerDate : '',
-                'Öneri/Gerçekleşen Değer': report ? report.suggestions : '',
-                'Değerlendirme': report ? report.evaluation : ''
-            };
-            return row;
-        };
-
-        // 1. Process School Action Plan (OG)
-        const ogRows = [];
-        combinedData.og_db.forEach(planItem => {
-            const planKey = clean(planItem.eylem_adi);
-            const matches = reports.filter(r => r.projectType === 'OKUL GELİŞİM PROJESİ' && clean(r.activityName) === planKey);
-            
-            if (matches.length > 0) {
-                matches.forEach(m => {
-                    ogRows.push(mapPlanWithReport(planItem, m, 'OG'));
-                    matchedReportIds.add(m.id);
-                });
-            } else {
-                ogRows.push(mapPlanWithReport(planItem, null, 'OG'));
-            }
-        });
-
-        // 2. Process Activity Calendar (OO)
-        const ooRows = [];
-        combinedData.oo_db.forEach(planItem => {
-            const planKey = clean(planItem.eylem_gorev);
-            const matches = reports.filter(r => r.projectType === 'OKUL ÖZEL PROJESİ' && clean(r.activityName) === planKey);
-            
-            if (matches.length > 0) {
-                matches.forEach(m => {
-                    ooRows.push(mapPlanWithReport(planItem, m, 'OO'));
-                    matchedReportIds.add(m.id);
-                });
-            } else {
-                ooRows.push(mapPlanWithReport(planItem, null, 'OO'));
-            }
-        });
-
-        // 3. Process Unmatched Reports
-        const unmatchedReports = reports.filter(r => !matchedReportIds.has(r.id));
-        const otherRows = unmatchedReports.map(r => ({
-            'Rapor Adı': r.activityName,
-            'Proje Türü': r.projectType,
-            'Durum': r.status ? r.status : 'PLAN HARİCİ / EŞLEŞEMEDİ',
-            'Sorumlular': r.teacher,
-            'Tarih': `${r.startDate} - ${r.endDate}`,
-            'Yer': r.location,
-            'Katılımcılar': r.totalParticipants,
-            'Maliyeti': r.cost || '0',
-            'Evrak No': r.documentNo || '',
-            'Öneri/Gerçekleşen Değer': r.suggestions || '',
-            'Dolduran': r.fillerName,
-            'Timestamp': new Date(r.timestamp).toLocaleString('tr-TR')
-        }));
-
-        // Create Workbook
+    store.getAll().onsuccess = (e) => {
+        const reports = e.target.result;
         const wb = XLSX.utils.book_new();
-        
-        // Add Sheets
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Gelişim Projesi");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Okul Özel Projesi");
-        
-        if (otherRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(otherRows), "Diğer Raporlar");
-        }
-
-        // Trigger Download
-        const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '_');
-        const fileName = `IAAL_PTS_Faaliyet_Raporu_${dateStr}.xlsx`;
-        XLSX.writeFile(wb, fileName);
-    };
-
-    getAllRequest.onerror = () => {
-        alert('Raporlar veritabanından alınırken bir hata oluştu.');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(reports), "Raporlar");
+        XLSX.writeFile(wb, `PTS_Rapor_${new Date().getTime()}.xlsx`);
     };
 }
-
-// Global Print Button (For current form)
-directPrintBtn.addEventListener('click', () => {
-    if (!validateForm()) return;
-    printReport(getFormData());
-});
-
-// Bypass validation on right-click for the print button
-directPrintBtn.addEventListener('contextmenu', (e) => {
-    e.preventDefault(); // Prevent standard right-click menu
-    printReport(getFormData());
-});
-
-// View History
-historyBtn.addEventListener('click', () => {
-    form.style.display = 'none';
-    savedReportsSection.style.display = 'block';
-    loadReports();
-});
-
-backToFormBtn.addEventListener('click', () => {
-    savedReportsSection.style.display = 'none';
-    form.style.display = 'block';
-});
 
 function loadReports() {
     reportsList.innerHTML = '';
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        const reports = getAllRequest.result;
-        if (reports.length === 0) {
-            reportsList.innerHTML = '<p style="color: var(--text-muted);">Henüz kaydedilmiş rapor bulunmuyor.</p>';
-            return;
-        }
-
-        reports.sort((a, b) => b.timestamp - a.timestamp).forEach(report => {
-            const card = document.createElement('div');
-            card.className = 'report-card';
-            const rpLabel = report.reportingPerson ? `<span class="report-person-tag">${report.reportingPerson}</span>` : '';
-            card.innerHTML = `
-                <div>
-                    <h3 style="margin-bottom: 0.3rem;">${report.activityName} ${rpLabel}</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">${report.eduYear} - ${formatDateRange(report.startDate, report.endDate)}</p>
-                </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn-secondary" style="padding: 0.5rem;" onclick='window.printRecord(${JSON.stringify(report).replace(/'/g, "&apos;")})'>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    </button>
-                    <button class="btn-secondary" style="padding: 0.5rem; color: #ef4444;" onclick="deleteRecord(${report.id})">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                    </button>
-                </div>
-            `;
-            reportsList.appendChild(card);
+    db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).getAll().onsuccess = (e) => {
+        e.target.result.sort((a,b)=>b.timestamp-a.timestamp).forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'report-card';
+            div.innerHTML = `<div><h3>${r.activityName}</h3><p>${r.teacher}</p></div><button onclick='window.printRecord(${JSON.stringify(r)})'>Yazdır</button>`;
+            reportsList.appendChild(div);
         });
     };
 }
 
-window.printRecord = (data) => {
-    printReport(data);
-};
+window.printRecord = (data) => printReport(data);
 
-window.deleteRecord = (id) => {
-    if (confirm('Bu kaydı silmek istediğinize emin misiniz?')) {
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        store.delete(id).onsuccess = () => loadReports();
-    }
-};
+function parseDBDate(s) { 
+    if (!s || s.indexOf('.') === -1) return null;
+    const p = s.split('.'); return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+}
 
+function getCheckboxValues(name, otherCheckId, otherTextId) {
+    const cbs = document.querySelectorAll(`input[name="${name}"]:checked`);
+    let vals = Array.from(cbs).map(c => c.value);
+    const oc = document.getElementById(otherCheckId);
+    if (oc && oc.checked) { vals = vals.filter(v=>v!=='Diğer'); vals.push(document.getElementById(otherTextId).value); }
+    return vals.join(', ');
+}
+
+function debounce(f, w) { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>f(...a), w); }; }
+const debounceAudit = debounce(checkOverdueActivities, 1000);
+function formatDateRange(s, e) { return `${s ? new Date(s).toLocaleDateString('tr-TR') : ''} - ${e ? new Date(e).toLocaleDateString('tr-TR') : ''}`; }
