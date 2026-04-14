@@ -169,10 +169,29 @@ window.addEventListener('DOMContentLoaded', () => {
         renderSuggestions(currentFragment);
     });
 
-    // Close suggestions when clicking outside
+    // Listen for activity name selection to show suggestions
+    const activityInput = document.getElementById('activity-name');
+    const activityPanel = document.getElementById('activity-suggestions-panel');
+
+    activityInput.addEventListener('input', (e) => {
+        renderActivitySuggestions(e.target.value);
+    });
+
+    activityInput.addEventListener('focus', () => {
+        renderActivitySuggestions(activityInput.value);
+    });
+
+    activityInput.addEventListener('click', () => {
+        renderActivitySuggestions(activityInput.value);
+    });
+
+    // Close all suggestions when clicking outside
     document.addEventListener('click', (e) => {
         if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) {
             suggestionsPanel.style.display = 'none';
+        }
+        if (!activityInput.contains(e.target) && !activityPanel.contains(e.target)) {
+            activityPanel.style.display = 'none';
         }
     });
     
@@ -547,6 +566,73 @@ function renderSuggestions(fragment) {
             
             // Immediate audit when a selection is confirmed
             checkOverdueActivities();
+        };
+        panel.appendChild(div);
+    });
+
+    panel.style.display = 'block';
+}
+
+function renderActivitySuggestions(fragment) {
+    if (!combinedData) return;
+    const panel = document.getElementById('activity-suggestions-panel');
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    const respValue = document.getElementById('responsible-teacher').value.trim();
+    
+    // Get database branch
+    const list = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    if (!list) return;
+
+    // Filter by fragmented names (Teacher filter)
+    let filteredByTeacher = list;
+    if (respValue) {
+        const selectedTeachers = respValue.split(',').map(s => s.trim().toLocaleLowerCase('tr')).filter(s => s.length > 0);
+        if (selectedTeachers.length > 0) {
+            filteredByTeacher = list.filter(item => {
+                const itemSorumlu = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi) || "";
+                const itemTeachers = itemSorumlu.toLocaleLowerCase('tr');
+                // All selected teachers must be present in the activity's responsible field
+                return selectedTeachers.every(st => itemTeachers.includes(st));
+            });
+        }
+    }
+
+    // Filter by user input (fragment)
+    const finalFiltered = filteredByTeacher.filter(item => {
+        const itemName = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev) || "";
+        const itemKod = item.kod || "";
+        const searchPool = (itemName + " " + itemKod).toLocaleLowerCase('tr');
+        return searchPool.includes(fragment.toLocaleLowerCase('tr'));
+    });
+
+    if (finalFiltered.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    panel.innerHTML = '';
+    finalFiltered.slice(0, 15).forEach(item => {
+        const nameData = (selectedType === 'OKUL GELİŞİM PROJESİ' ? item.eylem_adi : item.eylem_gorev);
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.style.flexDirection = 'column';
+        div.style.alignItems = 'flex-start';
+        div.style.gap = '2px';
+        
+        const kodHtml = item.kod ? `<span style="font-size: 0.7rem; color: var(--primary); font-weight: bold;">[${item.kod}]</span>` : '';
+        const sorumluHtml = `<div style="font-size: 0.7rem; color: var(--text-muted);"><i class="fas fa-users"></i> ${selectedType === 'OKUL GELİŞİM PROJESİ' ? item.sorumlu : item.sorumlu_verisi}</div>`;
+        
+        div.innerHTML = `
+            <div>${kodHtml} ${nameData}</div>
+            ${sorumluHtml}
+        `;
+        
+        div.onclick = () => {
+            const input = document.getElementById('activity-name');
+            input.value = nameData;
+            panel.style.display = 'none';
+            input.focus();
+            updateFilledState(input);
         };
         panel.appendChild(div);
     });

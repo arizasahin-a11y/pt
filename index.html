@@ -70,9 +70,12 @@
                 <div id="suggestions-panel" class="suggestions-panel"></div>
             </div>
             
-            <div class="field-group full-width" style="margin-bottom: 1.5rem;">
+            <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
                 <label>Faaliyet Adı</label>
-                <input type="text" id="activity-name" placeholder="Faaliyet adını giriniz...">
+                <div class="input-wrapper" style="position: relative;">
+                    <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off" style="width: 100%;">
+                </div>
+                <div id="activity-suggestions-panel" class="suggestions-panel"></div>
             </div>
 
             <!-- Faaliyet Türü -->
