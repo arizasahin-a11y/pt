@@ -6,9 +6,11 @@ const STORE_NAME = 'reports';
 let db;
 let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
-let currentReportingPerson = null; // Track who is currently filling from the modal
-let lastSavedData = null; // Track last successfully saved form data
-let currentRecordId = null; // Track the ID of the current record being edited
+let currentReportingPerson = null; 
+let lastSavedData = null; 
+let currentRecordId = null; 
+let currentModalTasks = []; // Data for printing the current modal list
+let currentModalTitle = ""; // Title for the printed list
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -229,6 +231,11 @@ window.addEventListener('DOMContentLoaded', () => {
     // History Toggle
     historyBtn.onclick = () => { form.style.display = 'none'; savedReportsSection.style.display = 'block'; loadReports(); };
     backToFormBtn.onclick = () => { savedReportsSection.style.display = 'none'; form.style.display = 'block'; };
+
+    // Modal Print
+    document.getElementById('modal-print-btn').onclick = () => {
+        printModalList(currentModalTitle, currentModalTasks);
+    };
 
     // Direct Print
     directPrintBtn.onclick = async () => {
@@ -503,7 +510,65 @@ function checkOverdueActivities() {
             }
         });
     });
-    if (modalTasks.length > 0) showOverdueModal(modalTasks);
+    if (modalTasks.length > 0) {
+        currentModalTasks = modalTasks;
+        currentModalTitle = `Görev Listesi (${statusRadio === 'expired' ? 'Süresi Dolan' : 'Devam Eden'})`;
+        showOverdueModal(modalTasks);
+    }
+}
+
+function printModalList(title, tasks) {
+    const win = window.open('', '_blank');
+    if (!win) return;
+
+    const rows = tasks.map(t => `
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 12px;">${t.id.split('-')[1]}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 12px; font-weight: bold;">${t.name}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 12px; color: #555;">${t.start} - ${t.end}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 11px;">${formatNameTR(t.person)}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 11px; text-align: center;">${t.isReported ? 'TAMAMLANDI' : 'EKSİK'}</td>
+        </tr>
+    `).join('');
+
+    win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: 'Outfit', sans-serif; padding: 20px; color: #333; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th { background: #f8fafc; text-align: left; border: 1px solid #ddd; padding: 10px; font-size: 13px; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                .print-btn { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+                @media print { .print-btn { display: none; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div>
+                    <h2 style="margin:0;">${title}</h2>
+                    <p style="margin:5px 0 0; color:#666;">İstanbul Atatürk Anadolu Lisesi | Raporlama Sistemi</p>
+                </div>
+                <button class="print-btn" onclick="window.print()">Hemen Yazdır</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">No</th>
+                        <th>Faaliyet Adı</th>
+                        <th style="width: 150px;">Tarih</th>
+                        <th style="width: 200px;">Sorumlu</th>
+                        <th style="width: 100px;">Durum</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    win.document.close();
 }
 
 function showOverdueModal(tasks) {
@@ -544,6 +609,7 @@ function showOverdueModal(tasks) {
         };
     });
     modalEl.style.display = 'flex';
+    document.getElementById('modal-print-btn').style.display = 'block';
 }
 
 function fillReportForm(taskId, selectedType) {
@@ -569,7 +635,10 @@ function fillReportForm(taskId, selectedType) {
     currentRecordId = null;
 }
 
-function hideOverdueModal() { document.getElementById('overdue-modal').style.display = 'none'; }
+function hideOverdueModal() { 
+    document.getElementById('overdue-modal').style.display = 'none'; 
+    document.getElementById('modal-print-btn').style.display = 'none';
+}
 function validateForm() {
     const ids = ['activity-name', 'total-participants', 'activity-location', 'activity-start', 'activity-end', 'total-duration', 'cost', 'filler-name', 'filler-role', 'filler-date', 'responsible-teacher'];
     for (const id of ids) { const el = document.getElementById(id); if (!el || !el.value.trim()) { alert('Tüm alanları doldurun!'); el.focus(); return false; } }
@@ -777,10 +846,83 @@ function loadReports() {
         e.target.result.sort((a,b)=>b.timestamp-a.timestamp).forEach(r => {
             const div = document.createElement('div');
             div.className = 'report-card';
-            div.innerHTML = `<div><h3>${r.activityName}</h3><p>${r.teacher}</p></div><button onclick='window.printRecord(${JSON.stringify(r)})'>Yazdır</button>`;
+            div.innerHTML = `
+                <div style="flex-grow:1;">
+                    <h3 style="margin:0; font-size:1rem;">${r.activityName}</h3>
+                    <p style="margin:5px 0 0; font-size:0.85rem; color:#64748b;">${r.teacher}</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;" onclick='window.editRecord(${JSON.stringify(r)})'>Formda Göster</button>
+                    <button class="btn-primary" style="font-size:0.8rem; padding:0.5rem 1rem;" onclick='window.printRecord(${JSON.stringify(r)})'>Yazdır</button>
+                </div>
+            `;
             reportsList.appendChild(div);
         });
     };
+}
+
+window.editRecord = (data) => {
+    // Populate simple fields
+    const directFields = ['edu-year', 'activity-name', 'responsible-teacher', 'total-participants', 'activity-location', 'activity-start', 'activity-end', 'total-duration', 'cost', 'document-no', 'purpose', 'difficulties', 'suggestions', 'collaborations', 'evaluation', 'filler-name', 'filler-role', 'filler-date'];
+    
+    // Map data keys to element IDs (handle hyphenation differences)
+    const map = {
+        'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
+        'totalParticipants': 'total-participants', 'location': 'activity-location',
+        'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
+        'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
+        'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
+        'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
+    };
+
+    Object.keys(map).forEach(key => {
+        const el = document.getElementById(map[key]);
+        if (el) el.value = data[key] || '';
+    });
+
+    // Handle radios
+    const typeRadio = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
+    if (typeRadio) typeRadio.checked = true;
+
+    const statusRadio = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
+    if (statusRadio) statusRadio.checked = true;
+
+    // Handle Checkbox Groups
+    setCheckboxValues('activity-type', data.activityType, 'type-other-check', 'type-other-text');
+    setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
+    setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
+
+    // Set state for update tracking
+    currentRecordId = data.id;
+    lastSavedData = JSON.parse(JSON.stringify(data));
+
+    // Return to form view
+    document.getElementById('back-to-form').click();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelectorAll('input, textarea').forEach(updateFilledState);
+};
+
+function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
+    if (!csvValue) return;
+    const vals = csvValue.split(',').map(v => v.trim());
+    const checks = document.querySelectorAll(`input[name="${name}"]`);
+    const otherCheck = document.getElementById(otherCheckId);
+    const otherText = document.getElementById(otherTextId);
+
+    // Uncheck all first
+    checks.forEach(c => c.checked = false);
+    if (otherCheck) otherCheck.checked = false;
+
+    vals.forEach(val => {
+        let found = false;
+        checks.forEach(c => {
+            if (c.value === val) { c.checked = true; found = true; }
+        });
+        if (!found && otherCheck) {
+            otherCheck.checked = true;
+            if (otherText) otherText.value = val;
+        }
+    });
 }
 
 window.printRecord = (data) => printReport(data);
@@ -826,7 +968,11 @@ function checkUnreportedActivities() {
         }
     });
 
-    if (results.length > 0) showStatusModal('Hiç Rapor Girilmemiş Eylemler', results);
+    if (results.length > 0) {
+        currentModalTasks = results;
+        currentModalTitle = title;
+        showStatusModal(title, results);
+    }
     else alert('Kriterlere uygun eylem bulunamadı.');
 }
 
@@ -856,7 +1002,11 @@ function checkReportedActivities() {
         }
     });
 
-    if (results.length > 0) showStatusModal('Raporu Girilmiş Eylemler', results);
+    if (results.length > 0) {
+        currentModalTasks = results;
+        currentModalTitle = title;
+        showStatusModal(title, results);
+    }
     else alert('Kriterlere uygun eylem bulunamadı.');
 }
 
