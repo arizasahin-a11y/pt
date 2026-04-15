@@ -1,4 +1,4 @@
-﻿// Database Configuration
+// Database Configuration
 const DB_NAME = 'PFDS_Database';
 const DB_VERSION = 1;
 const STORE_NAME = 'reports';
@@ -48,12 +48,12 @@ async function syncSavedReportsCache() {
 function calculateEduYear() {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth();
+    const month = now.getMonth(); // 0=Ocak, 8=Eylül
     
     let eduYear = "";
-    if (month < 1) { // Before/In January
+    if (month >= 8) { // Eylül ve sonrası: yeni eğitim yılı başladı
         eduYear = `${year} - ${year + 1}`;
-    } else { // After January
+    } else { // Eylül'den önce: önceki yıl hala devam ediyor
         eduYear = `${year - 1} - ${year}`;
     }
     const el = document.getElementById('edu-year');
@@ -421,9 +421,10 @@ function renderActivitySuggestions(fragment) {
     if (!combinedData) return;
     const panel = document.getElementById('activity-suggestions-panel');
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    const isOG = selectedType === 'OKUL GELİŞİM PROJESİ'; // ← DÜZELTME: isOG tanımlandı
     const respValue = document.getElementById('responsible-teacher').value.trim();
     
-    const list = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
+    const list = isOG ? combinedData.og_db : combinedData.oo_db;
     if (!list) return;
 
     let filtered = list;
@@ -1061,6 +1062,7 @@ function showStatusModal(title, tasks) {
     });
     modal.style.display = 'flex';
     document.getElementById('modal-print-btn').style.display = 'block';
+} // ← DÜZELTME: showStatusModal kapanış parantezi eklendi
 
 window.handleIgnoreTask = (e, person, tid) => {
     const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
