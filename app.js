@@ -1,4 +1,4 @@
-// Database Configuration
+﻿// Database Configuration
 const DB_NAME = 'PFDS_Database';
 const DB_VERSION = 1;
 const STORE_NAME = 'reports';
@@ -970,8 +970,8 @@ function checkUnreportedActivities() {
 
     if (results.length > 0) {
         currentModalTasks = results;
-        currentModalTitle = title;
-        showStatusModal(title, results);
+        currentModalTitle = 'Hiç Rapor Girilmemiş Eylemler';
+        showStatusModal(currentModalTitle, results);
     }
     else alert('Kriterlere uygun eylem bulunamadı.');
 }
@@ -1004,8 +1004,8 @@ function checkReportedActivities() {
 
     if (results.length > 0) {
         currentModalTasks = results;
-        currentModalTitle = title;
-        showStatusModal(title, results);
+        currentModalTitle = 'Raporu Girilmiş Eylemler';
+        showStatusModal(currentModalTitle, results);
     }
     else alert('Kriterlere uygun eylem bulunamadı.');
 }
@@ -1035,10 +1035,15 @@ function showStatusModal(title, tasks) {
         const li = document.createElement('li');
         li.className = t.reported ? 'overdue-item reported-item' : 'overdue-item';
         
-        const ignoreBtn = !t.reported ? `
+        // Always show Ignore for status modals as requested, but logic handles it
+        const ignoreBtn = `
             <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
                 <i class="fas fa-trash-alt"></i> Listeden Kaldır
-            </button>` : '';
+            </button>`;
+
+        const actionBtn = !t.reported ? `
+            <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
+        ` : '';
 
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
@@ -1049,7 +1054,7 @@ function showStatusModal(title, tasks) {
             </div>
             <div class="overdue-actions">
                 ${ignoreBtn}
-                <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
+                ${actionBtn}
             </div>
         `;
         list.appendChild(li);
@@ -1081,3 +1086,4 @@ window.fillFromModal = (name, person, start, end) => {
 function debounce(f, w) { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>f(...a), w); }; }
 const debounceAudit = debounce(checkOverdueActivities, 1000);
 function formatDateRange(s, e) { return `${s ? new Date(s).toLocaleDateString('tr-TR') : ''} - ${e ? new Date(e).toLocaleDateString('tr-TR') : ''}`; }
+
