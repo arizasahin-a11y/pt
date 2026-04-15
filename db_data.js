@@ -1,4 +1,4 @@
-const COMBINED_DB = {
+﻿const COMBINED_DB = {
   "og_db": [
     {
       "no": 1,
@@ -502,7 +502,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 25,
@@ -523,7 +523,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 26,
@@ -544,7 +544,7 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 27,
@@ -565,7 +565,7 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 28,
@@ -586,7 +586,7 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 1000,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 29,
@@ -607,7 +607,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 30,
@@ -628,7 +628,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 31,
@@ -754,7 +754,7 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 150000,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 37,
@@ -775,7 +775,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 38,
@@ -796,7 +796,7 @@ const COMBINED_DB = {
       "y4_bas": NaN,
       "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 39,
@@ -817,7 +817,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 40,
@@ -838,7 +838,7 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.11.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 41,
@@ -859,7 +859,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 42,
@@ -880,7 +880,7 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 43,
@@ -901,7 +901,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 44,
@@ -922,7 +922,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 45,
