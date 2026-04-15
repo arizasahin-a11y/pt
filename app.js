@@ -581,10 +581,10 @@ function showOverdueModal(tasks) {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
         
-        const ignoreBtn = !t.isReported ? `
+        const ignoreBtn = `
             <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
                 <i class="fas fa-trash-alt"></i> Listeden Kaldır
-            </button>` : '';
+            </button>`;
 
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
@@ -592,12 +592,12 @@ function showOverdueModal(tasks) {
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
             </div>
+
             <div class="overdue-actions">
                 ${ignoreBtn}
-                <button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${document.querySelector('input[name="project-type"]:checked').value}">
-                    <i class="fas fa-edit"></i> Raporu Doldur
-                </button>
+                ${!t.isReported ? `<button class="btn-primary btn-action-sm btn-fill" data-id="${t.id}" data-type="${document.querySelector('input[name="project-type"]:checked').value}"><i class="fas fa-edit"></i> Raporu Doldur</button>` : ''}
             </div>
+        
         `;
         list.appendChild(li);
     });
@@ -1060,7 +1060,7 @@ function showStatusModal(title, tasks) {
         list.appendChild(li);
     });
     modal.style.display = 'flex';
-}
+    document.getElementById('modal-print-btn').style.display = 'block';
 
 window.handleIgnoreTask = (e, person, tid) => {
     const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
