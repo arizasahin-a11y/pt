@@ -530,7 +530,7 @@ function printModalList(title, tasks) {
             <td style="border: 1px solid #ddd; padding: 8px; font-size: 12px; font-weight: bold;">${t.name}</td>
             <td style="border: 1px solid #ddd; padding: 8px; font-size: 12px; color: #555;">${t.start} - ${t.end}</td>
             <td style="border: 1px solid #ddd; padding: 8px; font-size: 11px;">${formatNameTR(t.person)}</td>
-            <td style="border: 1px solid #ddd; padding: 8px; font-size: 11px; text-align: center;">${t.isReported ? 'TAMAMLANDI' : 'EKSİK'}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-size: 11px; text-align: center; font-weight: bold; color: ${t.isReported ? (t.status === 'İptal' ? '#ef4444' : '#10b981') : '#666'};">${t.isReported ? (t.status || 'TAMAMLANDI') : 'EKSİK'}</td>
         </tr>
     `).join('');
 
@@ -970,7 +970,7 @@ function checkUnreportedActivities() {
                 const start = isOG ? item.y1_bas : item.baslangic_1;
                 const end = isOG ? item.y1_bit : item.bitis_1;
                 const person = isOG ? item.sorumlu : item.sorumlu_verisi;
-                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start, end, person, type });
+                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start, end, person, type, isReported: false, status: null });
             }
         }
     });
@@ -1004,7 +1004,7 @@ function checkReportedActivities() {
             const d = new Date(dt);
             if (status === 'expired' ? d < today : d >= today) {
                 const person = isOG ? item.sorumlu : item.sorumlu_verisi;
-                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, reported: true, status: report.status });
+                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, isReported: true, status: report.status });
             }
         }
     });
@@ -1040,7 +1040,7 @@ function showStatusModal(title, tasks) {
     
     tasks.forEach(t => {
         const li = document.createElement('li');
-        li.className = t.reported ? 'overdue-item reported-item' : 'overdue-item';
+        li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
         
         // Always show Ignore for status modals as requested, but logic handles it
         const ignoreBtn = `
@@ -1048,7 +1048,7 @@ function showStatusModal(title, tasks) {
                 <i class="fas fa-trash-alt"></i> Listeden Kaldır
             </button>`;
 
-        const actionBtn = !t.reported ? `
+        const actionBtn = !t.isReported ? `
             <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
         ` : '';
 
