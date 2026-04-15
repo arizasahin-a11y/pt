@@ -496,7 +496,8 @@ function checkOverdueActivities() {
                         if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
                         const aName = isOG ? item.eylem_adi : item.eylem_gorev;
-                        const hasRep = savedReportsCache.some(r => r.activityName === aName && (r.reportingPerson === name || (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')))));
+                        const report = savedReportsCache.find(r => r.activityName === aName && (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))));
+                        const hasRep = !!report;
                         
                         modalTasks.push({ 
                             id: tid, 
@@ -504,7 +505,8 @@ function checkOverdueActivities() {
                             start: isOG ? item.y1_bas : item.baslangic_1, 
                             end: isOG ? item.y1_bit : item.bitis_1, 
                             person: resp, 
-                            isReported: hasRep 
+                            isReported: hasRep,
+                            status: report ? report.status : null
                         });
                     }
                 }
@@ -588,7 +590,7 @@ function showOverdueModal(tasks) {
             </button>`;
 
         li.innerHTML = `
-            <span class="overdue-name">${t.name}</span>
+            <span class="overdue-name">${t.name} ${t.isReported ? `<span class="status-badge status-${t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}" style="padding: 1px 6px; font-size: 0.6rem; vertical-align: middle; margin-left: 5px;">${t.status}</span>` : ''}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
@@ -711,6 +713,7 @@ function printReport(data) {
     fill('#p-count', data.totalParticipants); fill('#p-location', data.location); 
     fill('#p-dates', formatDateRange(data.startDate, data.endDate)); fill('#p-duration', data.duration);
     fill('#p-cost', data.cost); fill('#p-document-no', data.documentNo); fill('#p-purpose', data.purpose);
+    fill('#p-status', data.status); // Populating activity status
     fill('#p-difficulties', data.difficulties); fill('#p-suggestions', data.suggestions);
     fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
     const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
@@ -849,8 +852,11 @@ function loadReports() {
             div.className = 'report-card';
             div.innerHTML = `
                 <div style="flex-grow:1;">
-                    <h3 style="margin:0; font-size:1rem;">${r.activityName}</h3>
-                    <p style="margin:5px 0 0; font-size:0.85rem; color:#64748b;">${r.teacher}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+                        <h3 style="margin:0; font-size:1rem;">${r.activityName}</h3>
+                        <span class="status-badge status-${r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}">${r.status}</span>
+                    </div>
+                    <p style="margin:0; font-size:0.85rem; color:#64748b;">${formatNameTR(r.teacher)}</p>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;" onclick='window.editRecord(${JSON.stringify(r)})'>Formda Göster</button>
@@ -998,7 +1004,7 @@ function checkReportedActivities() {
             const d = new Date(dt);
             if (status === 'expired' ? d < today : d >= today) {
                 const person = isOG ? item.sorumlu : item.sorumlu_verisi;
-                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, reported: true });
+                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, reported: true, status: report.status });
             }
         }
     });
@@ -1051,6 +1057,7 @@ function showStatusModal(title, tasks) {
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
+                ${t.reported ? `<div style="margin-top:4px;"><span class="status-badge status-${t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}" style="padding: 1px 6px; font-size: 0.65rem;">${t.status}</span></div>` : ''}
                 ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${formatNameTR(t.filler)}</div>` : ''}
             </div>
             <div class="overdue-actions">
