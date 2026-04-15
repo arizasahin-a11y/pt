@@ -354,7 +354,7 @@ function formatNameTR(rawName) {
     }
     const val = rawName.trim();
     // Keywords that indicate this is a role/organization, not a person
-    const orgKeywords = ['Yönetimi', 'İdaresi', 'Lideri', 'Vakfı', 'Derneği', 'Birliği', 'Zümresi', 'Kurulu', 'Kulübü', 'Okul', 'Tema'];
+    const orgKeywords = ['Yönetimi', 'İdaresi', 'Lideri', 'Vakfı', 'Derneği', 'Birliği', 'Zümresi', 'Kurulu', 'Kulübü', 'Okul', 'Tema', 'Servisi', 'Rehberlik'];
     const isOrg = orgKeywords.some(key => val.toLocaleLowerCase('tr-TR').includes(key.toLocaleLowerCase('tr-TR')));
 
     const parts = val.split(/\s+/);
