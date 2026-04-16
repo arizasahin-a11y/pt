@@ -169,6 +169,46 @@ async function syncSavedReportsCache() {
     });
 }
 
+// ----------------------------------------------------
+// LOCAL-TO-CLOUD AUTOMATIC MIGRATOR
+// (Eski cihazlardaki yerel verileri yakalayıp buluta fırlatır)
+// ----------------------------------------------------
+function migrateOldDataToFirebase() {
+    const request = indexedDB.open('PFDS_Database', 1);
+    request.onsuccess = (e) => {
+        const localDb = e.target.result;
+        if (!localDb.objectStoreNames.contains(STORE_NAME)) return;
+        
+        const tx = localDb.transaction([STORE_NAME], 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const getReq = store.getAll();
+        
+        getReq.onsuccess = () => {
+            const oldReports = getReq.result;
+            if (oldReports && oldReports.length > 0) {
+                console.log(`Migration: ${oldReports.length} eski yerel rapor bulundu. Buluta aktarılıyor...`);
+                oldReports.forEach(report => {
+                    // Yerel ID'ler her cihazda '1, 2, 3' şeklinde olacağı için çakışma yaratır.
+                    // Bu yüzden bulut ortamına (Firebase) yepyeni eşsiz bir kimlikle yüklüyoruz.
+                    const oldId = report.id;
+                    const newDocRef = db.collection(STORE_NAME).doc();
+                    report.id = newDocRef.id;
+                    report.isMigrated = true; // Göç edilenleri etiketle
+                    
+                    newDocRef.set(report).then(() => {
+                        // Buluta başarıyla gittiyse, bir daha aktarmamak ve yer kaplamamak için yerelden sil.
+                        const delTx = localDb.transaction([STORE_NAME], 'readwrite');
+                        delTx.objectStore(STORE_NAME).delete(oldId);
+                    }).catch(err => console.error("Göç Hatası:", err));
+                });
+            }
+        };
+    };
+}
+// Göç ediciyi uygulamaya girilir girilmez çalıştır.
+migrateOldDataToFirebase();
+// ----------------------------------------------------
+
 // Automatic Academic Year Calculation
 function calculateEduYear() {
     const now = new Date();
