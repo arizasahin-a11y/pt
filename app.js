@@ -1451,7 +1451,17 @@ function checkReportedActivities() {
     let results = [];
 
     // --- REPORT-CENTRIC LOGIC ---
-    savedReportsCache.forEach(report => {
+    const uniqueReports = [];
+    const seenKeys = new Set();
+    savedReportsCache.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(r => {
+        const dupKey = r.timestamp ? `${r.timestamp}` : `${r.activityName}_${r.fillerName}`;
+        if (!seenKeys.has(dupKey)) {
+            seenKeys.add(dupKey);
+            uniqueReports.push(r);
+        }
+    });
+
+    uniqueReports.forEach(report => {
         if (report.projectType !== typeVal) return;
 
         const normReportName = normalizeString(report.activityName);
