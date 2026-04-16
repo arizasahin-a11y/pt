@@ -29,6 +29,11 @@ request.onsuccess = (event) => {
     db = event.target.result;
     console.log('Database initialized successfully');
     syncSavedReportsCache();
+    
+    // If user is already on the history page, refresh the list
+    if (savedReportsSection && savedReportsSection.style.display === 'block') {
+        loadReports();
+    }
 };
 
 request.onerror = (event) => {
@@ -200,6 +205,59 @@ window.addEventListener('DOMContentLoaded', () => {
     const downloadMasterBtn = document.getElementById('download-master-btn');
     if (downloadMasterBtn) downloadMasterBtn.onclick = downloadMasterJson;
 
+    const exportExcelBtn = document.getElementById('export-excel-btn');
+    if (exportExcelBtn) exportExcelBtn.onclick = exportToExcel;
+
+    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
+    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
+
+    // History Toggle
+    historyBtn.onclick = () => { 
+        form.style.display = 'none'; 
+        savedReportsSection.style.display = 'block'; 
+        loadReports(); 
+    };
+    backToFormBtn.onclick = () => { 
+        savedReportsSection.style.display = 'none'; 
+        form.style.display = 'block'; 
+    };
+
+    // Modal Print
+    document.getElementById('modal-print-btn').onclick = () => {
+        printModalList(currentModalTitle, currentModalTasks);
+    };
+
+    // Direct Print (Sol Tık: Önizleme Sayfası / Sağ Tık: Doğrudan Yazdır)
+    directPrintBtn.onclick = async () => {
+        if (!validateForm()) return;
+        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.'); return; }
+
+        if (isFormDirty()) {
+            if (confirm('Kaydettiğiniz veri yaptığınız değişikliklere göre güncellenecektir. Onaylıyor musunuz?')) {
+                await updateCurrentRecord();
+                printReport(getFormData());
+            }
+        } else {
+            printReport(getFormData());
+        }
+    };
+
+    directPrintBtn.oncontextmenu = (e) => {
+        e.preventDefault();
+        // Hiçbir kontrol yapmadan doğrudan önizleme sayfasına gönder
+        printReport(getFormData());
+    };
+
+    // --- PASSWORD MODAL SETUP ---
+    const pwModal = document.getElementById('password-modal');
+    const pwInput = document.getElementById('pw-modal-input');
+    const pwClose = document.getElementById('pw-modal-close');
+    const pwCancel = document.getElementById('pw-modal-cancel');
+    const pwConfirm = document.getElementById('pw-modal-confirm');
+
+    if (pwClose) pwClose.onclick = () => { pwModal.style.display = 'none'; };
+    if (pwCancel) pwCancel.onclick = () => { pwModal.style.display = 'none'; };
+
     // Listeners for inputs (Visual feedback)
     document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
         el.addEventListener('input', () => updateFilledState(el));
@@ -287,11 +345,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (outClose) outClose.onclick = hideOverdueModal;
     if (okClose) okClose.onclick = hideOverdueModal;
 
-    // Report Actions Listeners
-    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
-    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
-    document.getElementById('export-excel-btn').onclick = exportToExcel;
-
     // Principal Name (Shift + Right Click on Title)
     const mainTitle = document.getElementById('main-title');
     if (mainTitle) {
@@ -313,51 +366,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // History Toggle
-    historyBtn.onclick = () => { form.style.display = 'none'; savedReportsSection.style.display = 'block'; loadReports(); };
-    backToFormBtn.onclick = () => { savedReportsSection.style.display = 'none'; form.style.display = 'block'; };
-
-    // Modal Print
-    document.getElementById('modal-print-btn').onclick = () => {
-        printModalList(currentModalTitle, currentModalTasks);
-    };
-
-    // Direct Print (Sol Tık: Önizleme Sayfası / Sağ Tık: Doğrudan Yazdır)
-    directPrintBtn.onclick = async () => {
-        if (!validateForm()) return;
-        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.'); return; }
-
-        if (isFormDirty()) {
-            if (confirm('Kaydettiğiniz veri yaptığınız değişikliklere göre güncellenecektir. Onaylıyor musunuz?')) {
-                await updateCurrentRecord();
-                printReport(getFormData());
-            }
-        } else {
-            printReport(getFormData());
-        }
-    };
-
-    directPrintBtn.oncontextmenu = (e) => {
-        e.preventDefault();
-        // Hiçbir kontrol yapmadan doğrudan önizleme sayfasına gönder
-        printReport(getFormData());
-    };
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 
     // --- CLEAR ALL BUTTON ---
     const clearAllBtn = document.getElementById('clear-all-btn');
     if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
-
-
-    // --- PASSWORD MODAL SETUP ---
-    const pwModal = document.getElementById('password-modal');
-    const pwInput = document.getElementById('pw-modal-input');
-    const pwClose = document.getElementById('pw-modal-close');
-    const pwCancel = document.getElementById('pw-modal-cancel');
-    const pwConfirm = document.getElementById('pw-modal-confirm');
-
-    if (pwClose) pwClose.onclick = () => { pwModal.style.display = 'none'; };
-    if (pwCancel) pwCancel.onclick = () => { pwModal.style.display = 'none'; };
 
     // Confirm button handler set dynamically; see promptSavePassword / promptVerifyPassword
 });
@@ -1012,13 +1025,15 @@ function exportToExcel() {
 
 function loadReports() {
     if (!reportsList) {
-        console.error('reportsList element not found!');
-        return;
+        const el = document.getElementById('reports-list');
+        if (el) reportsList = el; else return;
     }
-    reportsList.innerHTML = '';
+    
+    reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Raporlar yükleniyor...</div>';
     
     if (!db) {
-        console.error('Database not initialized!');
+        console.warn('Database not ready yet, will retry in 500ms...');
+        setTimeout(loadReports, 500);
         return;
     }
 
@@ -1032,8 +1047,9 @@ function loadReports() {
             reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
             return;
         }
+        
+        reportsList.innerHTML = ''; // Clear loading message
 
-        // Sort by timestamp descending
         reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(r => {
             const card = document.createElement('div');
             card.className = 'report-card';
@@ -1087,10 +1103,6 @@ function loadReports() {
             card.appendChild(actions);
             reportsList.appendChild(card);
         });
-    };
-
-    request.onerror = (e) => {
-        console.error('loadReports error:', e.target.error);
     };
 }
 
