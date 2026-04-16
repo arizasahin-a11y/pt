@@ -1046,7 +1046,7 @@ function printReport(data) {
             #preview-container { 
                 width: 210mm; background: white; padding: 30px; margin: 0 auto; 
                 box-shadow: 0 10px 50px rgba(0,0,0,0.15); border-radius: 12px; 
-                position: relative; min-height: 297mm; 
+                position: relative; min-height: 290mm; 
                 transform-origin: top center;
             }
             .action-bar { 
@@ -1067,8 +1067,9 @@ function printReport(data) {
             .btn-download { background: linear-gradient(135deg, #6366f1, #a855f7); }
             @media print { 
                 .action-bar { display: none !important; } 
+                @page { margin: 0; }
                 body { background: white; padding: 0; margin: 0; } 
-                #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; margin:0; width: 210mm; max-width: 100%; box-sizing: border-box; } 
+                #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; margin:0; width: 210mm; max-width: 100%; box-sizing: border-box; min-height: auto !important; height: auto !important; page-break-after: avoid; } 
             }
         </style>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
