@@ -337,13 +337,108 @@ window.addEventListener('DOMContentLoaded', () => {
             printReport(getFormData());
         }
     };
-    directPrintBtn.oncontextmenu = (e) => { e.preventDefault(); };
+    directPrintBtn.oncontextmenu = (e) => {
+        e.preventDefault();
+        // Sağ tık özel menüsü
+        const menu = document.getElementById('print-context-menu');
+        if (!menu) return;
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.style.display = 'block';
+        // Dışarı tıklanınca kapat
+        setTimeout(() => {
+            document.addEventListener('click', function closeMenu() {
+                menu.style.display = 'none';
+                document.removeEventListener('click', closeMenu);
+            });
+        }, 0);
+    };
 
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 
     // --- CLEAR ALL BUTTON ---
     const clearAllBtn = document.getElementById('clear-all-btn');
     if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
+
+    // --- PRINT CONTEXT MENU BUTTONS ---
+    const ctxPrint = document.getElementById('ctx-print');
+    const ctxPdf = document.getElementById('ctx-pdf');
+
+    if (ctxPrint) ctxPrint.onclick = async () => {
+        if (!validateForm()) return;
+        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin!'); return; }
+        if (isFormDirty()) {
+            if (confirm('Değişiklikler kaydedilecek. Onaylıyor musunuz?')) {
+                await updateCurrentRecord();
+                printReport(getFormData());
+            }
+        } else {
+            printReport(getFormData());
+        }
+    };
+
+    if (ctxPdf) ctxPdf.onclick = async () => {
+        if (!validateForm()) return;
+        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin!'); return; }
+        if (isFormDirty()) {
+            if (confirm('Değişiklikler kaydedilecek. Onaylıyor musunuz?')) {
+                await updateCurrentRecord();
+            }
+        }
+        // Doğrudan PDF oluştur — önizleme penceresi açmadan
+        const pc = document.getElementById('print-content').cloneNode(true);
+        const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
+        const data = getFormData();
+        
+        fill('#p-edu-year', data.eduYear); 
+        fill('#p-type-area', data.projectType); 
+        fill('#p-name', data.activityName);
+        fill('#p-type', data.activityType); 
+        fill('#p-teacher', data.teacher); 
+        fill('#p-profile', data.participantProfile);
+        fill('#p-count', data.totalParticipants); 
+        fill('#p-location', data.location);
+        fill('#p-dates', formatDateRange(data.startDate, data.endDate)); 
+        fill('#p-duration', data.duration);
+        fill('#p-cost', data.cost); 
+        fill('#p-document-no', data.documentNo); 
+        fill('#p-purpose', data.purpose);
+        fill('#p-status', data.status);
+        fill('#p-difficulties', data.difficulties); 
+        fill('#p-suggestions', data.suggestions);
+        fill('#p-collaborations', data.collaborations); 
+        fill('#p-evaluation', data.evaluation); 
+        fill('#p-docs', data.docs);
+        
+        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+        fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
+        
+        const rawPrincipal = data.principalName || '';
+        const pp = rawPrincipal.trim().split(/\s+/);
+        if (pp.length > 0 && pc.querySelector('#p-principal-name')) {
+            const sn = pp.pop().toLocaleUpperCase('tr-TR');
+            const ns = pp.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
+            pc.querySelector('#p-principal-name').textContent = [...ns, sn].join(' ');
+        }
+        
+        const wrapper = document.createElement('div');
+        wrapper.id = 'pdf-temp-wrap';
+        wrapper.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;background:white;';
+        wrapper.appendChild(pc);
+        document.body.appendChild(wrapper);
+        
+        const opt = {
+            margin: 0,
+            filename: `Rapor_${data.activityName.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(wrapper).save().then(() => { 
+            document.body.removeChild(wrapper); 
+        });
+    };
+
 
     // --- PASSWORD MODAL SETUP ---
     const pwModal = document.getElementById('password-modal');
@@ -1024,21 +1119,8 @@ function _doLoadRecord(data) {
 }
 
 window.editRecord = (data) => {
-    if (!data.savePassword) {
-        // No password set — load directly
-        _doLoadRecord(data);
-        return;
-    }
-    // Password protected — verify
-    promptVerifyPassword((enteredPw) => {
-        if (enteredPw === null) return; // cancelled
-        const MASTER = hashPassword('21012012');
-        if (hashPassword(enteredPw) === data.savePassword || hashPassword(enteredPw) === MASTER) {
-            _doLoadRecord(data);
-        } else {
-            alert('❌ Hatalı şifre! Bu rapora erişim reddedildi.');
-        }
-    });
+    // Şifre kontrolü kaldırıldı — kayıtlar şifresiz yüklenir, şifre sadece kaydetme sırasında sorulur
+    _doLoadRecord(data);
 };
 
 function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
