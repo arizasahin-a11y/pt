@@ -364,28 +364,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const ctxPrint = document.getElementById('ctx-print');
     const ctxPdf = document.getElementById('ctx-pdf');
 
-    if (ctxPrint) ctxPrint.onclick = async () => {
-        if (!validateForm()) return;
-        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin!'); return; }
-        if (isFormDirty()) {
-            if (confirm('Değişiklikler kaydedilecek. Onaylıyor musunuz?')) {
-                await updateCurrentRecord();
-                printReport(getFormData());
-            }
-        } else {
-            printReport(getFormData());
-        }
+    if (ctxPrint) ctxPrint.onclick = () => {
+        // Kontrol yapmadan doğrudan yazdır
+        printReport(getFormData());
     };
 
-    if (ctxPdf) ctxPdf.onclick = async () => {
-        if (!validateForm()) return;
-        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin!'); return; }
-        if (isFormDirty()) {
-            if (confirm('Değişiklikler kaydedilecek. Onaylıyor musunuz?')) {
-                await updateCurrentRecord();
-            }
-        }
-        // Doğrudan PDF oluştur — önizleme penceresi açmadan
+    if (ctxPdf) ctxPdf.onclick = () => {
+        // Kontrol yapmadan doğrudan PDF oluştur ve indir
         const pc = document.getElementById('print-content').cloneNode(true);
         const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
         const data = getFormData();
