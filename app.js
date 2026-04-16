@@ -73,6 +73,65 @@ function updateFilledState(el) {
     } else {
         el.classList.remove('has-value');
     }
+    // Update field-wrapper state to show/hide × button
+    const wrapper = el.closest('.field-wrapper');
+    if (wrapper) {
+        if (hasValue) wrapper.classList.add('has-content');
+        else wrapper.classList.remove('has-content');
+    }
+}
+
+// --- CLEAR HELPERS ---
+function clearField(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = '';
+    updateFilledState(el);
+    el.dispatchEvent(new Event('input'));
+}
+
+function clearCheckboxGroup(name, otherCheckId, otherTextId) {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(c => { c.checked = false; });
+    const oc = document.getElementById(otherCheckId);
+    const ot = document.getElementById(otherTextId);
+    if (oc) oc.checked = false;
+    if (ot) ot.value = '';
+}
+
+function clearRadioGroup(name, defaultValue) {
+    const radios = document.querySelectorAll(`input[name="${name}"]`);
+    radios.forEach(r => { r.checked = (r.value === defaultValue); });
+    // Trigger change event on the default
+    const def = document.querySelector(`input[name="${name}"][value="${defaultValue}"]`);
+    if (def) def.dispatchEvent(new Event('change'));
+}
+
+function clearAllForm() {
+    if (!confirm('Formdaki TÜM veriler silinecek. Emin misiniz?')) return;
+    // Text / number / date / textarea
+    const textIds = [
+        'activity-name', 'responsible-teacher', 'total-participants', 'activity-location',
+        'activity-start', 'activity-end', 'total-duration', 'cost', 'purpose',
+        'difficulties', 'suggestions', 'collaborations', 'evaluation',
+        'filler-name', 'filler-role', 'document-no', 'filler-date'
+    ];
+    textIds.forEach(id => clearField(id));
+
+    // Checkbox groups
+    clearCheckboxGroup('activity-type', 'type-other-check', 'type-other-text');
+    clearCheckboxGroup('participant-profile', 'participant-other-check', 'participant-other-text');
+    clearCheckboxGroup('docs', 'docs-other-check', 'docs-other-text');
+
+    // Reset radios to defaults
+    clearRadioGroup('project-type', 'OKUL GELİŞİM PROJESİ');
+    clearRadioGroup('report-status', 'Tamamlandı');
+
+    // Reset save state
+    currentRecordId = null;
+    lastSavedData = null;
+
+    document.querySelectorAll('input, textarea').forEach(updateFilledState);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Selectors
@@ -258,6 +317,22 @@ window.addEventListener('DOMContentLoaded', () => {
     directPrintBtn.oncontextmenu = (e) => { e.preventDefault(); };
 
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
+
+    // --- CLEAR ALL BUTTON ---
+    const clearAllBtn = document.getElementById('clear-all-btn');
+    if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
+
+    // --- PASSWORD MODAL SETUP ---
+    const pwModal = document.getElementById('password-modal');
+    const pwInput = document.getElementById('pw-modal-input');
+    const pwClose = document.getElementById('pw-modal-close');
+    const pwCancel = document.getElementById('pw-modal-cancel');
+    const pwConfirm = document.getElementById('pw-modal-confirm');
+
+    if (pwClose) pwClose.onclick = () => { pwModal.style.display = 'none'; };
+    if (pwCancel) pwCancel.onclick = () => { pwModal.style.display = 'none'; };
+
+    // Confirm button handler set dynamically; see promptSavePassword / promptVerifyPassword
 });
 
 // Helper to check if form was modified since last save
@@ -681,27 +756,42 @@ function getFormData() {
 
 saveBtn.addEventListener('click', async () => {
     if (!validateForm()) return;
-    const data = getFormData();
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    
+
     if (currentRecordId) {
+        // UPDATE existing record — no password prompt needed
+        const data = getFormData();
         data.id = currentRecordId;
-        store.put(data).onsuccess = () => {
+        // Preserve existing password
+        await new Promise(resolve => {
+            const tx = db.transaction([STORE_NAME], 'readonly');
+            tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => {
+                const existing = e.target.result;
+                if (existing && existing.savePassword) data.savePassword = existing.savePassword;
+                resolve();
+            };
+        });
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
             lastSavedData = JSON.parse(JSON.stringify(data));
             alert('Rapor güncellendi!');
             refreshCombinedData();
             syncSavedReportsCache();
         };
     } else {
-        const req = store.add(data);
-        req.onsuccess = (e) => {
-            currentRecordId = e.target.result;
-            lastSavedData = JSON.parse(JSON.stringify(data));
-            alert('Rapor kaydedildi!');
-            refreshCombinedData();
-            syncSavedReportsCache();
-        };
+        // NEW record — prompt for password
+        promptSavePassword((password) => {
+            const data = getFormData();
+            if (password) data.savePassword = hashPassword(password);
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const req = transaction.objectStore(STORE_NAME).add(data);
+            req.onsuccess = (e) => {
+                currentRecordId = e.target.result;
+                lastSavedData = JSON.parse(JSON.stringify(data));
+                alert('Rapor kaydedildi!');
+                refreshCombinedData();
+                syncSavedReportsCache();
+            };
+        });
     }
 });
 
@@ -868,11 +958,8 @@ function loadReports() {
     };
 }
 
-window.editRecord = (data) => {
-    // Populate simple fields
-    const directFields = ['edu-year', 'activity-name', 'responsible-teacher', 'total-participants', 'activity-location', 'activity-start', 'activity-end', 'total-duration', 'cost', 'document-no', 'purpose', 'difficulties', 'suggestions', 'collaborations', 'evaluation', 'filler-name', 'filler-role', 'filler-date'];
-    
-    // Map data keys to element IDs (handle hyphenation differences)
+function _doLoadRecord(data) {
+    // Map data keys to element IDs
     const map = {
         'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
         'totalParticipants': 'total-participants', 'location': 'activity-location',
@@ -881,32 +968,44 @@ window.editRecord = (data) => {
         'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
         'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
     };
-
     Object.keys(map).forEach(key => {
         const el = document.getElementById(map[key]);
         if (el) el.value = data[key] || '';
     });
-
     // Handle radios
     const typeRadio = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
     if (typeRadio) typeRadio.checked = true;
-
     const statusRadio = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
     if (statusRadio) statusRadio.checked = true;
-
     // Handle Checkbox Groups
     setCheckboxValues('activity-type', data.activityType, 'type-other-check', 'type-other-text');
     setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
     setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
-
     // Set state for update tracking
     currentRecordId = data.id;
     lastSavedData = JSON.parse(JSON.stringify(data));
-
     // Return to form view
     document.getElementById('back-to-form').click();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
+}
+
+window.editRecord = (data) => {
+    if (!data.savePassword) {
+        // No password set — load directly
+        _doLoadRecord(data);
+        return;
+    }
+    // Password protected — verify
+    promptVerifyPassword((enteredPw) => {
+        if (enteredPw === null) return; // cancelled
+        const MASTER = hashPassword('21012012');
+        if (hashPassword(enteredPw) === data.savePassword || hashPassword(enteredPw) === MASTER) {
+            _doLoadRecord(data);
+        } else {
+            alert('❌ Hatalı şifre! Bu rapora erişim reddedildi.');
+        }
+    });
 };
 
 function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
@@ -1096,3 +1195,74 @@ function debounce(f, w) { let t; return (...a) => { clearTimeout(t); t = setTime
 const debounceAudit = debounce(checkOverdueActivities, 1000);
 function formatDateRange(s, e) { return `${s ? new Date(s).toLocaleDateString('tr-TR') : ''} - ${e ? new Date(e).toLocaleDateString('tr-TR') : ''}`; }
 
+// --- PASSWORD UTILITIES ---
+function hashPassword(pw) {
+    // Simple but consistent deterministic hash (not crypto-safe, sufficient for this use-case)
+    if (!pw) return '';
+    let h = 0x811c9dc5;
+    for (let i = 0; i < pw.length; i++) {
+        h ^= pw.charCodeAt(i);
+        h = (h * 0x01000193) >>> 0;
+    }
+    return h.toString(16);
+}
+
+function _showPwModal({ title, desc, btnLabel, onConfirm }) {
+    const modal = document.getElementById('password-modal');
+    const pwInput = document.getElementById('pw-modal-input');
+    const confirmBtn = document.getElementById('pw-modal-confirm');
+    const cancelBtn = document.getElementById('pw-modal-cancel');
+    const closeBtn = document.getElementById('pw-modal-close');
+
+    document.getElementById('pw-modal-title').textContent = title;
+    document.getElementById('pw-modal-desc').textContent = desc;
+    document.getElementById('pw-modal-btn-label').textContent = btnLabel;
+    pwInput.value = '';
+    modal.style.display = 'flex';
+    setTimeout(() => pwInput.focus(), 100);
+
+    const cleanup = () => { modal.style.display = 'none'; };
+
+    // Remove old listeners by cloning
+    const newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+    const newClose = closeBtn.cloneNode(true);
+    closeBtn.parentNode.replaceChild(newClose, closeBtn);
+
+    document.getElementById('pw-modal-confirm').onclick = () => {
+        const val = document.getElementById('pw-modal-input').value.trim();
+        cleanup();
+        onConfirm(val);
+    };
+    document.getElementById('pw-modal-cancel').onclick = () => { cleanup(); onConfirm(null); };
+    document.getElementById('pw-modal-close').onclick = () => { cleanup(); onConfirm(null); };
+
+    // Enter key
+    const keyHandler = (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('pw-modal-confirm').click();
+            document.getElementById('pw-modal-input').removeEventListener('keydown', keyHandler);
+        }
+    };
+    document.getElementById('pw-modal-input').addEventListener('keydown', keyHandler);
+}
+
+function promptSavePassword(onConfirm) {
+    _showPwModal({
+        title: 'Kayıt Şifresi Belirle',
+        desc: 'Bu raporu korumak için bir şifre belirleyin. Raporu daha sonra düzenlemek istediğinizde bu şifre sorulacaktır. (Boş bırakırsanız şifre uygulanmaz.)',
+        btnLabel: 'Şifreyi Kaydet',
+        onConfirm
+    });
+}
+
+function promptVerifyPassword(onConfirm) {
+    _showPwModal({
+        title: 'Rapor Şifresi',
+        desc: 'Bu rapor şifre korumalıdır. Lütfen kayıt şifresini girin. (Yetkili için master şifre geçerlidir.)',
+        btnLabel: 'Doğrula & Yükle',
+        onConfirm
+    });
+}

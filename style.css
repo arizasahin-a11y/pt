@@ -684,3 +684,141 @@ input:checked ~ .other-input {
     transform: translateY(-50%) scale(1.1); 
 }
 #responsible-teacher:not(:placeholder-shown) + .clear-btn { display: flex; }
+
+/* Field wrapper for × button positioning */
+.field-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.field-wrapper input,
+.field-wrapper textarea {
+    padding-right: 2.4rem;
+}
+
+/* × button on individual fields */
+.field-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-muted);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    line-height: 1;
+    z-index: 5;
+    flex: none;
+    padding: 0;
+}
+.field-clear-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: scale(1.15);
+}
+.field-wrapper:focus-within .field-clear-btn,
+.field-wrapper.has-content .field-clear-btn {
+    display: flex;
+}
+/* Date inputs: centre the × vertically */
+.field-wrapper input[type="date"] ~ .field-clear-btn,
+.field-wrapper input[type="number"] ~ .field-clear-btn,
+.field-wrapper input[type="text"] ~ .field-clear-btn {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.field-wrapper input[type="date"] ~ .field-clear-btn:hover,
+.field-wrapper input[type="number"] ~ .field-clear-btn:hover,
+.field-wrapper input[type="text"] ~ .field-clear-btn:hover {
+    transform: translateY(-50%) scale(1.15);
+}
+
+/* × button on checkbox/radio groups */
+.group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.group-clear-btn {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: #fca5a5;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    flex: none;
+    padding: 0;
+    line-height: 1;
+}
+.group-clear-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: scale(1.15);
+}
+
+/* Top-level clear-all button */
+.btn-clear-all {
+    flex: 0 1 auto;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.btn-clear-all:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Password Modal */
+#password-modal .modal-content {
+    max-width: 420px;
+}
+#password-modal .modal-header h3 {
+    color: #fbbf24;
+}
+.pw-input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+}
+.pw-input-wrap label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.pw-input-wrap input {
+    width: 100%;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+}
+.pw-modal-footer {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+}

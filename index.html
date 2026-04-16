@@ -22,12 +22,16 @@
                 <p>İstanbul Atatürk Anadolu Lisesi | Veri Giriş Portalı</p>
             </div>
             <div class="header-actions" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
-                <div class="header-btn-row" style="display: flex; gap: 0.5rem;">
+                <div class="header-btn-row" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button type="button" class="btn-secondary btn-header-special" id="unreported-actions-btn" title="Hiç rapor girilmemiş eylemleri listele">
                         <i class="fas fa-clipboard-list"></i> Hiç rapor girilmemiş eylemler
                     </button>
                     <button type="button" class="btn-secondary btn-header-special" id="reported-actions-btn" title="Rapor girilmiş faaliyetleri listele">
                         <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
+                    </button>
+                    <!-- TÜM FORMU TEMİZLE -->
+                    <button type="button" class="btn-clear-all" id="clear-all-btn" title="Formdaki tüm verileri sıfırla">
+                        <i class="fas fa-trash-alt"></i> Tüm Formu Temizle
                     </button>
                 </div>
                 <div class="status-badge" id="app-status">Sistem Hazır</div>
@@ -49,7 +53,12 @@
                     <input type="text" id="edu-year" placeholder="Otomatik hesaplanıyor..." readonly>
                 </div>
                 <div class="field-group">
-                    <label>Proje Türü</label>
+                    <label>
+                        <span class="group-header">
+                            Proje Türü
+                            <button type="button" class="group-clear-btn" title="Proje Türü seçimini sıfırla" onclick="clearRadioGroup('project-type','OKUL GELİŞİM PROJESİ')">&#x2715;</button>
+                        </span>
+                    </label>
                     <div class="checkbox-grid">
                         <label class="checkbox-item">
                             <input type="radio" name="project-type" value="OKUL GELİŞİM PROJESİ" checked> Okul Gelişim
@@ -72,22 +81,26 @@
             
             <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
                 <label>Faaliyet Adı</label>
-                <div class="input-wrapper" style="position: relative;">
-                    <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off" style="width: 100%;">
+                <div class="field-wrapper">
+                    <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off">
+                    <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-name')">&#x2715;</button>
                 </div>
                 <div id="activity-suggestions-panel" class="suggestions-panel"></div>
             </div>
 
             <!-- Faaliyet Türü -->
             <div class="checkbox-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Faaliyetin Türü</label>
+                <div class="group-header">
+                    <label>Faaliyetin Türü</label>
+                    <button type="button" class="group-clear-btn" title="Faaliyet Türü seçimlerini sıfırla" onclick="clearCheckboxGroup('activity-type','type-other-check','type-other-text')">&#x2715;</button>
+                </div>
                 <div class="checkbox-grid" id="activity-type-container">
                     <label class="checkbox-item"><input type="checkbox" name="activity-type" value="Seminer"> Seminer</label>
                     <label class="checkbox-item"><input type="checkbox" name="activity-type" value="Atölye"> Atölye</label>
                     <label class="checkbox-item"><input type="checkbox" name="activity-type" value="Gezi"> Gezi</label>
                     <label class="checkbox-item"><input type="checkbox" name="activity-type" value="Kulüp Çalışması"> Kulüp Çalışması</label>
                     <label class="checkbox-item">
-                        <input type="checkbox" name="activity-type" value="Diğer" id="type-other-check"> Diğer 
+                        <input type="checkbox" name="activity-type" value="Diğer" id="type-other-check"> Diğer 
                         <input type="text" class="other-input" id="type-other-text" placeholder="...">
                     </label>
                 </div>
@@ -96,13 +109,16 @@
 
             <!-- Katılımcı Profili -->
             <div class="checkbox-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Katılımcı Profili</label>
+                <div class="group-header">
+                    <label>Katılımcı Profili</label>
+                    <button type="button" class="group-clear-btn" title="Katılımcı Profili seçimlerini sıfırla" onclick="clearCheckboxGroup('participant-profile','participant-other-check','participant-other-text')">&#x2715;</button>
+                </div>
                 <div class="checkbox-grid">
                     <label class="checkbox-item"><input type="checkbox" name="participant-profile" value="Öğrenci"> Öğrenci</label>
                     <label class="checkbox-item"><input type="checkbox" name="participant-profile" value="Öğretmen"> Öğretmen</label>
                     <label class="checkbox-item"><input type="checkbox" name="participant-profile" value="Veli"> Veli</label>
                     <label class="checkbox-item">
-                        <input type="checkbox" name="participant-profile" value="Diğer" id="participant-other-check"> Diğer 
+                        <input type="checkbox" name="participant-profile" value="Diğer" id="participant-other-check"> Diğer 
                         <input type="text" class="other-input" id="participant-other-text" placeholder="...">
                     </label>
                 </div>
@@ -111,57 +127,93 @@
             <div class="grid">
                 <div class="field-group">
                     <label>Toplam Kişi Sayısı</label>
-                    <input type="number" id="total-participants" placeholder="0">
+                    <div class="field-wrapper">
+                        <input type="number" id="total-participants" placeholder="0">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('total-participants')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Faaliyet Yeri</label>
-                    <input type="text" id="activity-location" placeholder="Örn: Konferans Salonu">
+                    <div class="field-wrapper">
+                        <input type="text" id="activity-location" placeholder="Örn: Konferans Salonu">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-location')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Başlangıç Tarihi</label>
-                    <input type="date" id="activity-start" placeholder=" ">
+                    <div class="field-wrapper">
+                        <input type="date" id="activity-start" placeholder=" ">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-start')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Bitiş Tarihi</label>
-                    <input type="date" id="activity-end" placeholder=" ">
+                    <div class="field-wrapper">
+                        <input type="date" id="activity-end" placeholder=" ">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-end')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Toplam Süre (Saat)</label>
-                    <input type="number" id="total-duration" placeholder="0">
+                    <div class="field-wrapper">
+                        <input type="number" id="total-duration" placeholder="0">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('total-duration')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Maliyeti</label>
-                    <input type="number" id="cost" placeholder="0">
+                    <div class="field-wrapper">
+                        <input type="number" id="cost" placeholder="0">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('cost')">&#x2715;</button>
+                    </div>
                 </div>
             </div>
 
             <div class="field-group full-width" style="margin-bottom: 1.5rem;">
                 <label id="purpose-label">Faaliyetin Amaç ve Kapsamı</label>
-                <textarea id="purpose" rows="3" placeholder="..."></textarea>
+                <div class="field-wrapper">
+                    <textarea id="purpose" rows="3" placeholder="..."></textarea>
+                    <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('purpose')">&#x2715;</button>
+                </div>
             </div>
 
             <div class="grid">
                 <div class="field-group">
                     <label>Karşılaşılan Güçlükler</label>
-                    <textarea id="difficulties" rows="2" placeholder="..."></textarea>
+                    <div class="field-wrapper">
+                        <textarea id="difficulties" rows="2" placeholder="..."></textarea>
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('difficulties')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label id="suggestions-label">İyileştirme Önerileri</label>
-                    <textarea id="suggestions" rows="2" placeholder="..."></textarea>
+                    <div class="field-wrapper">
+                        <textarea id="suggestions" rows="2" placeholder="..."></textarea>
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('suggestions')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>İşbirlikleri</label>
-                    <textarea id="collaborations" rows="2" placeholder="..."></textarea>
+                    <div class="field-wrapper">
+                        <textarea id="collaborations" rows="2" placeholder="..."></textarea>
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('collaborations')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Değerlendirme</label>
-                    <textarea id="evaluation" rows="2" placeholder="..."></textarea>
+                    <div class="field-wrapper">
+                        <textarea id="evaluation" rows="2" placeholder="..."></textarea>
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('evaluation')">&#x2715;</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Teslim Edilen Belgeler -->
             <div class="checkbox-group full-width" style="margin-bottom: 1.5rem;">
-                <label>Teslim Edilen Belgeler</label>
+                <div class="group-header">
+                    <label>Teslim Edilen Belgeler</label>
+                    <button type="button" class="group-clear-btn" title="Belge seçimlerini sıfırla" onclick="clearCheckboxGroup('docs','docs-other-check','docs-other-text')">&#x2715;</button>
+                </div>
                 <div class="checkbox-grid">
                     <label class="checkbox-item"><input type="checkbox" name="docs" value="Fotoğraf"> Fotoğraf</label>
                     <label class="checkbox-item"><input type="checkbox" name="docs" value="Fatura"> Fatura</label>
@@ -169,7 +221,7 @@
                     <label class="checkbox-item"><input type="checkbox" name="docs" value="Anket"> Anket</label>
                     <label class="checkbox-item"><input type="checkbox" name="docs" value="İzin Kağıtları"> İzin Kağıtları</label>
                     <label class="checkbox-item">
-                        <input type="checkbox" name="docs" value="Diğer" id="docs-other-check"> Diğer 
+                        <input type="checkbox" name="docs" value="Diğer" id="docs-other-check"> Diğer 
                         <input type="text" class="other-input" id="docs-other-text" placeholder="...">
                     </label>
                 </div>
@@ -179,7 +231,10 @@
 
             <!-- Etkinlik Durumu Seçimi -->
             <div class="field-group full-width" style="margin-bottom: 2rem;">
-                <label>Etkinlik Durumu</label>
+                <div class="group-header">
+                    <label>Etkinlik Durumu</label>
+                    <button type="button" class="group-clear-btn" title="Etkinlik Durumu seçimini sıfırla" onclick="clearRadioGroup('report-status','Tamamlandı')">&#x2715;</button>
+                </div>
                 <div class="checkbox-grid">
                     <label class="checkbox-item">
                         <input type="radio" name="report-status" value="Tamamlandı" checked> Tamamlandı
@@ -195,20 +250,32 @@
 
             <div class="grid" style="border: 1px solid var(--border); padding: 1.5rem; border-radius: 16px;">
                 <div class="field-group">
-                    <label>Formu Dolduran Ad & Soyad</label>
-                    <input type="text" id="filler-name" placeholder="...">
+                    <label>Formu Dolduran Ad &amp; Soyad</label>
+                    <div class="field-wrapper">
+                        <input type="text" id="filler-name" placeholder="...">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('filler-name')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Görevi</label>
-                    <input type="text" id="filler-role" placeholder="Örn: Öğretmen">
+                    <div class="field-wrapper">
+                        <input type="text" id="filler-role" placeholder="Örn: Öğretmen">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('filler-role')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Evrak No (İsteğe Bağlı)</label>
-                    <input type="text" id="document-no" placeholder="Sayı / No">
+                    <div class="field-wrapper">
+                        <input type="text" id="document-no" placeholder="Sayı / No">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('document-no')">&#x2715;</button>
+                    </div>
                 </div>
                 <div class="field-group">
                     <label>Doldurulma Tarihi</label>
-                    <input type="date" id="filler-date" placeholder=" ">
+                    <div class="field-wrapper">
+                        <input type="date" id="filler-date" placeholder=" ">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('filler-date')">&#x2715;</button>
+                    </div>
                 </div>
             </div>
 
@@ -353,6 +420,29 @@
                     <i class="fas fa-print"></i> Listeyi Yazdır
                 </button>
                 <button class="btn-primary" id="overdue-ok-btn">Anladım</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ŞİFRE MODALI -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-lock"></i> <span id="pw-modal-title">Kayıt Şifresi</span></h3>
+                <button class="close-modal" id="pw-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="pw-modal-desc">Bu raporu korumak için bir şifre belirleyin. Raporu daha sonra yüklemek istediğinizde bu şifre sorulacaktır.</p>
+                <div class="pw-input-wrap">
+                    <label for="pw-modal-input">Şifre</label>
+                    <input type="password" id="pw-modal-input" placeholder="Şifrenizi girin..." autocomplete="new-password">
+                </div>
+            </div>
+            <div class="pw-modal-footer">
+                <button type="button" class="btn-secondary" id="pw-modal-cancel" style="flex:1;">İptal</button>
+                <button type="button" class="btn-primary" id="pw-modal-confirm" style="flex:2;">
+                    <i class="fas fa-check"></i> <span id="pw-modal-btn-label">Şifreyi Kaydet</span>
+                </button>
             </div>
         </div>
     </div>
