@@ -1245,9 +1245,11 @@ function checkUnreportedActivities() {
     let results = [];
 
     list.forEach(item => {
-        const name = isOG ? item.eylem_adi : item.eylem_gorev;
-        if (!name) return;
-        if (savedReportsCache.some(r => r.activityName === name)) return;
+        const name = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
+        const cleanName = name.trim();
+        if (!cleanName) return;
+        
+        if (savedReportsCache.some(r => (r.activityName || "").trim() === cleanName)) return;
 
         const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
         const dt = parseDBDate(dStr);
@@ -1281,8 +1283,11 @@ function checkReportedActivities() {
     let results = [];
 
     list.forEach(item => {
-        const name = isOG ? item.eylem_adi : item.eylem_gorev;
-        const report = savedReportsCache.find(r => r.activityName === name);
+        const name = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
+        const cleanName = name.trim();
+        if (!cleanName) return;
+
+        const report = savedReportsCache.find(r => (r.activityName || "").trim() === cleanName);
         if (!report) return;
 
         const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
@@ -1329,27 +1334,28 @@ function showStatusModal(title, tasks) {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
         
-        // Always show Ignore for status modals as requested, but logic handles it
-        const ignoreBtn = `
-            <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
-                <i class="fas fa-trash-alt"></i> Listeden Kaldır
-            </button>`;
-
-        const actionBtn = !t.isReported ? `
-            <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
-        ` : '';
+        let statusBadge = '';
+        if (t.isReported && t.status) {
+            const s = t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
+            const type = (s === 'iptal') ? 'iptal' : (s === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
+            statusBadge = `<div style="margin-top:4px;"><span class="status-badge status-${type}" style="padding: 1px 6px; font-size: 0.65rem;">${t.status}</span></div>`;
+        }
 
         li.innerHTML = `
             <span class="overdue-name">${t.name}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
-                ${t.reported ? `<div style="margin-top:4px;"><span class="status-badge status-${t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}" style="padding: 1px 6px; font-size: 0.65rem;">${t.status}</span></div>` : ''}
+                ${statusBadge}
                 ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${formatNameTR(t.filler)}</div>` : ''}
             </div>
             <div class="overdue-actions">
-                ${ignoreBtn}
-                ${actionBtn}
+                <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
+                    <i class="fas fa-trash-alt"></i> Listeden Kaldır
+                </button>
+                ${!t.isReported ? `
+                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
+                ` : ''}
             </div>
         `;
         list.appendChild(li);
