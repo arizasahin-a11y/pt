@@ -1,9 +1,26 @@
 // Database Configuration
-const DB_NAME = 'PFDS_Database';
-const DB_VERSION = 1;
 const STORE_NAME = 'reports';
 
-let db;
+// Firebase Setup
+const firebaseConfig = {
+  apiKey: "AIzaSyBoScB63OHNIPZ2y1Eo9LWa3ynSRPG6xYU",
+  authDomain: "okulpt.firebaseapp.com",
+  projectId: "okulpt",
+  storageBucket: "okulpt.firebasestorage.app",
+  messagingSenderId: "715714176883",
+  appId: "1:715714176883:web:a1a125314f834f61b60706"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// Enable offline persistence to keep it working without internet!
+db.enablePersistence().catch(err => {
+    console.warn('Firebase persistence error:', err);
+});
 let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
 let currentReportingPerson = null; 
@@ -126,41 +143,30 @@ function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
     });
 }
 
-// Initialize IndexedDB
-const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-request.onupgradeneeded = (event) => {
-    const db = event.target.result;
-    if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-    }
-};
-
-request.onsuccess = (event) => {
-    db = event.target.result;
-    console.log('Database initialized successfully');
-    syncSavedReportsCache();
-    
-    // If user is already on the history page, refresh the list
-    if (savedReportsSection && savedReportsSection.style.display === 'block') {
-        loadReports();
-    }
-};
-
-request.onerror = (event) => {
-    console.error('Database error:', event.target.error);
-};
+// Initial connection triggers the snapshot
+console.log('Firebase initialized successfully');
+syncSavedReportsCache();
 
 async function syncSavedReportsCache() {
     if (!db) return;
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        savedReportsCache = getAllRequest.result;
-        console.log(`Cache updated: ${savedReportsCache.length} reports.`);
-    };
+    
+    // Listen to live changes
+    db.collection(STORE_NAME).onSnapshot((snapshot) => {
+        savedReportsCache = [];
+        snapshot.forEach((doc) => {
+            savedReportsCache.push({ id: doc.id, ...doc.data() });
+        });
+        
+        console.log(`Cache updated from Firebase: ${savedReportsCache.length} reports.`);
+        
+        // Refresh UI if user is on history page
+        if (typeof savedReportsSection !== 'undefined' && savedReportsSection && savedReportsSection.style.display === 'block') {
+            loadReports();
+        }
+        
+        if (typeof checkUnreportedActivities === 'function') checkUnreportedActivities();
+        if (typeof checkReportedActivities === 'function') checkReportedActivities();
+    });
 }
 
 // Automatic Academic Year Calculation
@@ -399,19 +405,19 @@ window.addEventListener('DOMContentLoaded', () => {
             if (currentRecordId) {
                 // UPDATE existing record
                 data.id = currentRecordId;
-                const existing = await new Promise(resolve => {
-                    const tx = db.transaction([STORE_NAME], 'readonly');
-                    tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => resolve(e.target.result);
-                });
+                const docRef = db.collection(STORE_NAME).doc(currentRecordId);
+                const existingDoc = await docRef.get();
+                const existing = existingDoc.exists ? existingDoc.data() : null;
 
                 const doSaveAction = () => {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
+                    docRef.set(data).then(() => {
                         lastSavedData = JSON.parse(JSON.stringify(data));
                         alert('✅ Rapor başarıyla güncellendi!');
                         refreshCombinedData();
-                        syncSavedReportsCache();
-                    };
+                        // syncSavedReportsCache() handled automatically via onSnapshot!
+                    }).catch(e => {
+                        alert('❌ Kayıt hatası: ' + e.message);
+                    });
                 };
 
                 if (existing && existing.savePassword) {
@@ -434,15 +440,17 @@ window.addEventListener('DOMContentLoaded', () => {
                 // NEW record
                 promptSavePassword((password) => {
                     if (password) data.savePassword = hashPassword(password);
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    const req = transaction.objectStore(STORE_NAME).add(data);
-                    req.onsuccess = (e) => {
-                        currentRecordId = e.target.result;
+                    const newDocRef = db.collection(STORE_NAME).doc();
+                    data.id = newDocRef.id;
+                    
+                    newDocRef.set(data).then(() => {
+                        currentRecordId = data.id;
                         lastSavedData = JSON.parse(JSON.stringify(data));
                         alert('✅ Rapor başarıyla kaydedildi!');
                         refreshCombinedData();
-                        syncSavedReportsCache();
-                    };
+                    }).catch(e => {
+                        alert('❌ Yeni kayıt hatası: ' + e.message);
+                    });
                 });
             }
         });
@@ -568,14 +576,15 @@ async function updateCurrentRecord() {
     if (!currentRecordId) return;
     const data = getFormData();
     data.id = currentRecordId;
-    return new Promise((resolve) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
+    return new Promise((resolve, reject) => {
+        db.collection(STORE_NAME).doc(currentRecordId).set(data).then(() => {
             lastSavedData = JSON.parse(JSON.stringify(data));
             refreshCombinedData();
-            syncSavedReportsCache();
             resolve();
-        };
+        }).catch(err => {
+            console.error("Firebase update error:", err);
+            reject(err);
+        });
     });
 }
 
@@ -588,17 +597,12 @@ async function refreshCombinedData() {
     // Safety check: if DB isn't ready yet, skip the update part
     if (!db) return;
 
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        const reports = getAllRequest.result;
-        reports.sort((a, b) => a.timestamp - b.timestamp).forEach(report => {
-            if (report.status === 'Güncellendi') applyOverlayUpdate(combinedData, report);
-        });
-        console.log('Data synchronization complete.');
-    };
+    // Use the live cache instead of querying DB again
+    const reports = [...savedReportsCache];
+    reports.sort((a, b) => a.timestamp - b.timestamp).forEach(report => {
+        if (report.status === 'Güncellendi') applyOverlayUpdate(combinedData, report);
+    });
+    console.log('Data synchronization complete.');
 }
 
 function applyOverlayUpdate(targetDb, report) {
@@ -1120,12 +1124,8 @@ function downloadMasterJson() {
 
 function exportToExcel() {
     if (!combinedData) { alert('Veri henüz hazır değil.'); return; }
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-        const reports = getAllRequest.result;
+    
+    const reports = [...savedReportsCache];
         const matchedIds = new Set();
         
         const clean = (t) => t ? t.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : "";
@@ -1173,7 +1173,6 @@ function exportToExcel() {
         if (unmatched.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(unmatched), "Diğer");
         
         XLSX.writeFile(wb, `IAAL_PTS_Rapor_${new Date().getTime()}.xlsx`);
-    };
 }
 
 function loadReports() {
@@ -1190,12 +1189,7 @@ function loadReports() {
         return;
     }
 
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll();
-
-    request.onsuccess = (e) => {
-        const reports = e.target.result;
+    const reports = [...savedReportsCache];
         if (!reports || reports.length === 0) {
             reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
             return;
@@ -1278,7 +1272,6 @@ function loadReports() {
             card.appendChild(actions);
             reportsList.appendChild(card);
         });
-    };
 }
 
 
@@ -1642,22 +1635,14 @@ function _executeDelete(data) {
         alert("Veritabanı bağlantısı yok.");
         return;
     }
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.delete(data.id);
-    
-    request.onsuccess = () => {
-        // Remove from cache
-        savedReportsCache = savedReportsCache.filter(r => r.id !== data.id);
+    db.collection(STORE_NAME).doc(data.id).delete().then(() => {
+        // syncSavedReportsCache array automatic sync via onSnapshot will handle cache removal
         if (currentRecordId === data.id) {
             clearAllForm();
         }
-        loadReports();
         alert("Kayıt başarıyla silindi.");
-    };
-    
-    request.onerror = (e) => {
+    }).catch((e) => {
         console.error("Delete failed:", e);
         alert("Silme işlemi başarısız oldu.");
-    };
+    });
 }
