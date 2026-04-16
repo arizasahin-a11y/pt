@@ -871,9 +871,7 @@ saveBtn.addEventListener('click', async () => {
             tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => resolve(e.target.result);
         });
 
-        const doSave = (pw) => {
-            if (pw) data.savePassword = hashPassword(pw);
-            else if (existing && existing.savePassword) data.savePassword = existing.savePassword;
+        const doSaveAction = () => {
             const transaction = db.transaction([STORE_NAME], 'readwrite');
             transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
                 lastSavedData = JSON.parse(JSON.stringify(data));
@@ -884,11 +882,25 @@ saveBtn.addEventListener('click', async () => {
         };
 
         if (existing && existing.savePassword) {
-            // Already has password — preserve it
-            doSave(null);
+            // Ask for verification before update
+            promptVerifyPassword((enteredPw) => {
+                if (enteredPw === null) return; // cancelled
+                const MASTER = hashPassword('21012012');
+                if (hashPassword(enteredPw) === existing.savePassword || hashPassword(enteredPw) === MASTER) {
+                    // Update the password if they entered a new one? No, usually keep same.
+                    data.savePassword = existing.savePassword;
+                    doSaveAction();
+                } else {
+                    alert('❌ Hatalı şifre! Güncelleme reddedildi.');
+                }
+            });
         } else {
-            // No password yet — prompt to set one
-            promptSavePassword((pw) => doSave(pw));
+            // No password yet (legacy record) — prompt to set one
+            promptSavePassword((pw) => {
+                if (pw === null) return; // cancelled
+                if (pw) data.savePassword = hashPassword(pw);
+                doSaveAction();
+            });
         }
     } else {
         // NEW record — prompt for password
