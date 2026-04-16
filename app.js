@@ -1272,8 +1272,11 @@ function loadReports() {
             header.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;';
 
             const title = document.createElement('h3');
-            title.style.cssText = 'margin:0; font-size:1rem;';
-            title.textContent = r.activityName || 'İsimsiz Rapor';
+            title.style.cssText = 'margin:0; font-size:1rem; display:flex; align-items:center; flex-wrap:wrap; gap:8px;';
+            title.innerHTML = `<span>${r.activityName || 'İsimsiz Rapor'}</span>`;
+            if (r.fillerName) {
+                title.innerHTML += `<span style="font-size:0.75rem; background:#ecfdf5; color:#10b981; padding:2px 8px; border-radius:12px; font-weight:600; border:1px solid #a7f3d0;"><i class="fas fa-pencil-alt" style="margin-right:4px;"></i>${formatNameTR(r.fillerName)}</span>`;
+            }
 
             const badge = document.createElement('span');
             const statusStr = (r.status || 'Tamamlandı');
@@ -1557,15 +1560,17 @@ function showStatusModal(title, tasks) {
         }
 
         li.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span class="overdue-name">${t.name}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span class="overdue-name">${t.name}</span>
+                    ${t.filler ? `<span style="font-size:0.7rem; background:#ecfdf5; color:#10b981; padding:2px 6px; border-radius:10px; font-weight:600; border:1px solid #a7f3d0;"><i class="fas fa-pencil-alt" style="margin-right:4px;"></i>${formatNameTR(t.filler)}</span>` : ''}
+                </div>
                 <span style="font-size:0.75rem; background:#f1f5f9; padding:2px 8px; border-radius:12px; color:#64748b; font-weight:600;">${t.eduYear}</span>
             </div>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
                 ${statusBadge}
-                ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${formatNameTR(t.filler)}</div>` : ''}
             </div>
             <div class="task-actions" style="display:flex; gap:10px; margin-top:5px;">
                 <button class="btn-secondary btn-action-sm btn-delete" onclick="handleIgnoreTask(event, '${t.person.replace(/'/g, "\\'")}', '${t.id}')">
