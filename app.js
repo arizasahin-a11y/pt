@@ -297,24 +297,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
     calculateEduYear();
     
-    // Toggle logic for "Diğer" checkboxes
+    // CSS handles `.other-input` visibility through `:checked ~ .other-input`
+    // We only need to clear the field if it's unchecked.
     document.querySelectorAll('input[type="checkbox"][id$="-other-check"]').forEach(chk => {
         chk.addEventListener('change', (e) => {
-            const inputId = e.target.id.replace('-check', '-text');
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.style.display = e.target.checked ? 'block' : 'none';
-                if (!e.target.checked) input.value = '';
+            if (!e.target.checked) {
+                const inputId = e.target.id.replace('-check', '-text');
+                const input = document.getElementById(inputId);
+                if (input) input.value = '';
             }
         });
-    });
-    // Set initial display based on HTML state
-    document.querySelectorAll('.other-input').forEach(input => {
-        const checkId = input.id.replace('-text', '-check');
-        const chk = document.getElementById(checkId);
-        if (chk) {
-            input.style.display = chk.checked ? 'block' : 'none';
-        }
     });
     
     // Recovery of last state
