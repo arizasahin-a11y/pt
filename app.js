@@ -289,6 +289,12 @@ window.addEventListener('DOMContentLoaded', () => {
     savedReportsSection = document.getElementById('saved-reports');
     reportsList = document.getElementById('reports-list');
 
+    const downloadMasterBtn = document.getElementById('download-master-btn');
+    if (downloadMasterBtn) downloadMasterBtn.addEventListener('click', downloadMasterJson);
+
+    const exportExcelBtn = document.getElementById('export-excel-btn');
+    if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
+
     calculateEduYear();
     
     // Toggle logic for "Diğer" checkboxes
