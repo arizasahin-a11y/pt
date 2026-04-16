@@ -12,21 +12,24 @@ let currentRecordId = null;
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
-console.log("%cPFDS v1.2.6 Initializing...", "color: #6366f1; font-weight: bold; font-size: 14px;");
-
 let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
 
 // --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
 
-window.PFDS_DoLoadRecordInternal = function(data) {
-    if (!data) return;
+window.PFDS_LoadDataIntoForm = function(data) {
+    if (!data) {
+        alert("Hata: Yüklenecek veri bulunamadı.");
+        return;
+    }
+
     try {
-        console.log("Loading record into form:", data.id);
+        console.group('[PFDS] Loading record into form:', data.id);
+
         
-        // Force Switch Views using global references if available
-        const f = mainForm || document.getElementById('activity-form');
-        const s = savedReportsSection || document.getElementById('saved-reports');
+        // Force Switch Views
+        const f = document.getElementById('activity-form');
+        const s = document.getElementById('saved-reports');
         if (f) f.style.display = 'block';
         if (s) s.style.display = 'none';
         
@@ -80,32 +83,27 @@ window.PFDS_DoLoadRecordInternal = function(data) {
         });
         
         console.log("Record loaded successfully:", data.id);
+        console.groupEnd();
     } catch (err) {
-        console.error("Error in _doLoadRecord:", err);
+        console.error("Error in PFDS_LoadDataIntoForm:", err);
+        console.groupEnd();
         alert("Kayıt yüklenirken teknik bir hata oluştu: " + err.message);
     }
 };
 
-window.PFDS_LoadRecordToForm = function(data) {
-    if (!data) {
-        alert("Hata: Yüklenecek veri bulunamadı.");
-        return;
-    }
-    console.log("PFDS_LoadRecordToForm triggered", data.id);
-    window.PFDS_DoLoadRecordInternal(data);
+window.PFDS_EditRecord = function(data) {
+    console.log("window.PFDS_EditRecord triggered", data ? data.id : 'null');
+    window.PFDS_LoadDataIntoForm(data);
 };
-window.editRecord = window.PFDS_LoadRecordToForm; // Backward compatibility
 
-window.PFDS_PrintRecord = function(data) {
-    if (!data) return;
-    console.log("PFDS_PrintRecord triggered", data.id);
+window.printRecord = function(data) {
+    console.log("window.printRecord triggered", data ? data.id : 'null');
     if (typeof printReport === 'function') {
         printReport(data);
     } else {
         alert("Yazdırma fonksiyonu henüz yüklenmedi!");
     }
 };
-window.printRecord = window.PFDS_PrintRecord; // Backward compatibility
 
 function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
     if (!csvValue) return;
@@ -154,32 +152,16 @@ request.onerror = (event) => {
     console.error('Database error:', event.target.error);
 };
 
-/**
- * Synchronizes the global cache with IndexedDB.
- * Returns a Promise that resolves when the cache is updated.
- */
-function syncSavedReportsCache() {
-    return new Promise((resolve) => {
-        if (!db) { resolve([]); return; }
-        try {
-            const transaction = db.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-            const getAllRequest = store.getAll();
-    
-            getAllRequest.onsuccess = () => {
-                savedReportsCache = getAllRequest.result || [];
-                console.log(`Cache updated: ${savedReportsCache.length} reports.`);
-                resolve(savedReportsCache);
-            };
-            getAllRequest.onerror = () => {
-                console.error("Cache sync failed.");
-                resolve(savedReportsCache);
-            };
-        } catch (e) {
-            console.error("Transaction failed during sync:", e);
-            resolve(savedReportsCache);
-        }
-    });
+async function syncSavedReportsCache() {
+    if (!db) return;
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = () => {
+        savedReportsCache = getAllRequest.result;
+        console.log(`Cache updated: ${savedReportsCache.length} reports.`);
+    };
 }
 
 // Automatic Academic Year Calculation
@@ -482,8 +464,8 @@ window.addEventListener('DOMContentLoaded', () => {
     // Modal Controls
     const reportedBtn = document.getElementById('reported-actions-btn');
     const unreportedBtn = document.getElementById('unreported-actions-btn');
-    if (reportedBtn) reportedBtn.onclick = async () => { await syncSavedReportsCache(); checkReportedActivities(); };
-    if (unreportedBtn) unreportedBtn.onclick = async () => { await syncSavedReportsCache(); checkUnreportedActivities(); };
+    if (reportedBtn) reportedBtn.onclick = checkReportedActivities;
+    if (unreportedBtn) unreportedBtn.onclick = checkUnreportedActivities;
     
     // Fix: "Anladım" and "Close" buttons for overdue modal
     const closeBtn = document.getElementById('close-overdue');
@@ -764,8 +746,7 @@ function renderActivitySuggestions(fragment) {
     panel.style.display = 'block';
 }
 
-async function checkOverdueActivities() {
-    await syncSavedReportsCache();
+function checkOverdueActivities() {
     if (!combinedData) return;
     const names = document.getElementById('responsible-teacher').value.split(',').map(n => n.trim()).filter(n => n.length >= 3);
     if (names.length === 0) return;
@@ -796,17 +777,18 @@ async function checkOverdueActivities() {
                         if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
                         const aName = isOG ? item.eylem_adi : item.eylem_gorev;
-                        const report = savedReportsCache.find(r => r.activityName === aName && (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))));
-                        const hasRep = !!report;
+                        const report = savedReportsCache.find(r => r.projectType === selectedType && normalizeString(r.activityName) === normalizeString(aName) && (r.teacher && normalizeString(r.teacher).includes(normalizeString(name))));
+                        if (report) return; // Kullanıcının isteği: raporlanmışsa listeden düş
                         
                         modalTasks.push({ 
+
                             id: tid, 
                             name: aName, 
                             start: isOG ? item.y1_bas : item.baslangic_1, 
                             end: isOG ? item.y1_bit : item.bitis_1, 
                             person: resp, 
-                            isReported: hasRep,
-                            status: report ? report.status : null
+                            isReported: false,
+                            status: null
                         });
                     }
                 }
@@ -1218,7 +1200,7 @@ function loadReports() {
             editBtn.textContent = 'Formda Göster';
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                window.PFDS_LoadRecordToForm(r);
+                window.PFDS_EditRecord(r);
             });
 
             const printBtn = document.createElement('button');
@@ -1227,7 +1209,7 @@ function loadReports() {
             printBtn.textContent = 'Yazdır';
             printBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                window.PFDS_PrintRecord(r);
+                window.printRecord(r);
             });
 
             actions.appendChild(editBtn);
@@ -1287,7 +1269,7 @@ function checkUnreportedActivities() {
         if (!cleanName) return;
         
         // Check if reported in cache
-        const isReported = savedReportsCache.some(r => normalizeString(r.activityName) === cleanName);
+        const isReported = savedReportsCache.some(r => r.projectType === typeVal && normalizeString(r.activityName) === cleanName);
         if (isReported) return;
 
         // Dynamic date lookup based on year index
@@ -1323,23 +1305,14 @@ function checkUnreportedActivities() {
 // Utility for extremely robust string comparison (ignoring case, spaces, and special Turkish differences)
 function normalizeString(s) {
     if (!s) return "";
-    let str = s.toString().trim();
-    
-    // Manual Turkish Lowercasing to bypass locale issues in Chrome
-    const trMap = {
-        'İ': 'i', 'I': 'ı', 'Ş': 'ş', 'Ğ': 'ğ', 'Ü': 'ü', 'Ö': 'ö', 'Ç': 'ç'
-    };
-    for (let char in trMap) {
-        str = str.split(char).join(trMap[char]);
-    }
-    
-    return str.toLowerCase()
+    return s.toString()
+        .trim()
+        .toLocaleLowerCase('tr-TR')
         .replace(/\s+/g, '') // Remove ALL spaces
-        .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove all non-alphanumeric noise
+        .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove non-alphanumeric
 }
 
-async function checkReportedActivities() {
-    await syncSavedReportsCache();
+function checkReportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
     const statusRadio = document.querySelector('input[name="activity-status"]:checked');
     const typeRadio = document.querySelector('input[name="project-type"]:checked');
@@ -1359,20 +1332,10 @@ async function checkReportedActivities() {
         if (report.projectType !== typeVal) return;
 
         const normReportName = normalizeString(report.activityName);
-        let planItem = planList.find(p => {
+        const planItem = planList.find(p => {
             const planName = (isOG ? p.eylem_adi : p.eylem_gorev) || "";
             return normalizeString(planName) === normReportName;
         });
-
-        // --- NAME REPAIR LOGIC (For 'Untitled' reports in Chrome) ---
-        if (!planItem && !report.activityName) {
-            // If name is missing, try to find a plan item that matches by date and person
-            planItem = planList.find(p => {
-                const planStart = isOG ? p[`y${yearIdx}_bas`] : p[`baslangic_${yearIdx}`];
-                const planEnd = isOG ? p[`y${yearIdx}_bit`] : p[`bitis_${yearIdx}`];
-                return planStart === report.startDate && planEnd === report.endDate;
-            });
-        }
 
         const currentEduYear = document.getElementById('edu-year').value;
         const isCurrentYear = report.eduYear === currentEduYear;
@@ -1449,9 +1412,8 @@ function showStatusModal(title, tasks) {
         
         let statusBadge = '';
         if (t.isReported) {
-        const badge = getReportStatusBadge(t.status);
-        const fillerInfo = t.fillerName ? `<div style="font-size:0.7rem; color:var(--accent); margin-top:4px;">Dolduran: ${t.fillerName}</div>` : '';
-            statusBadge = `<div style="margin-top:4px;">${badge}${fillerInfo}</div>`;
+            const badge = getReportStatusBadge(t.status);
+            statusBadge = `<div style="margin-top:4px;">${badge}</div>`;
         }
 
         li.innerHTML = `
