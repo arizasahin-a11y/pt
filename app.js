@@ -1041,6 +1041,7 @@ function printReport(data) {
     const styles = `
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
+            * { box-sizing: border-box; }
             body { background: #f0f2f5; margin: 0; padding: 40px 20px; font-family: 'Times New Roman', serif; }
             #preview-container { 
                 width: 210mm; background: white; padding: 30px; margin: 0 auto; 
@@ -1066,8 +1067,8 @@ function printReport(data) {
             .btn-download { background: linear-gradient(135deg, #6366f1, #a855f7); }
             @media print { 
                 .action-bar { display: none !important; } 
-                body { background: white; padding: 0; } 
-                #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; margin:0; width: 100%; } 
+                body { background: white; padding: 0; margin: 0; } 
+                #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; margin:0; width: 210mm; max-width: 100%; box-sizing: border-box; } 
             }
         </style>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
