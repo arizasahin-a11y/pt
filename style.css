@@ -342,69 +342,46 @@ button {
     display: none;
 }
 
-@media print {
-    body { background: white !important; color: black !important; padding: 0 !important; }
-    .container { 
-        box-shadow: none !important; border: none !important; margin: 0 !important; max-width: none !important; 
-        background: white !important; backdrop-filter: none !important;
-    }
-    .no-print { display: none !important; }
-    #print-template { display: block !important; }
-    
-    * {
-        font-size: 10px !important;
-    }
-    #print-content {
-        padding: 5mm !important;
-    }
-    #p-purpose, #p-difficulties, #p-suggestions, #p-collaborations, #p-evaluation {
-        min-height: 30px !important;
-        font-size: 10px !important;
-    }
+/* Modern Scrollbar for lists (Chrome/Edge/Safari & Firefox) */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
 }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
 
-/* Custom "Other" Input */
-.other-input {
-    margin-top: 0.5rem;
-    border: none !important;
-    border-bottom: 1px solid var(--primary) !important;
-    border-radius: 0 !important;
-    padding: 0.2rem !important;
-    width: 100% !important;
-    background: transparent !important;
-    font-size: 0.9em !important;
-    display: none; /* Hidden by default */
-}
-
-input:checked ~ .other-input {
-    display: block;
-}
-
-/* Hide print section on screen */
-#print-section {
-    display: none;
-}
-
-/* Print Media Queries */
+/* Print Media Queries - Unified for Cross-Browser Stability */
 @media print {
     @page {
-        size: A4;
+        size: A4 portrait;
         margin: 5mm;
     }
-    body {
-        background: white !important;
+    body { 
+        background: white !important; 
+        color: black !important; 
+        padding: 0 !important; 
+        margin: 0 !important;
     }
-    .no-print, .container, .btn-group, header, #saved-reports, form {
+    .no-print, .container, .btn-group, header, #saved-reports, form, .header-actions {
         display: none !important;
     }
     #print-section {
         display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     #print-content {
         width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        padding: 5mm !important;
         box-shadow: none !important;
+        font-family: 'Times New Roman', serif !important;
+    }
+    #print-content * {
+        font-size: 10.5pt !important;
+        color: black !important;
     }
 }
 

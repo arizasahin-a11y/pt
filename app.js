@@ -1318,29 +1318,25 @@ function checkReportedActivities() {
     let results = [];
 
     // --- REPORT-CENTRIC LOGIC ---
-    // Instead of looping through plan, we loop through what the user ACTUALLY saved.
     savedReportsCache.forEach(report => {
-        // 1. Filter by Project Type (As requested by user)
         if (report.projectType !== typeVal) return;
 
-        // 2. Normalize report name for matching
         const normReportName = normalizeString(report.activityName);
-        
-        // 3. Try to find its original plan item to get "Planned Date" for status filtering
         const planItem = planList.find(p => {
             const planName = (isOG ? p.eylem_adi : p.eylem_gorev) || "";
             return normalizeString(planName) === normReportName;
         });
 
+        const isCurrentYear = report.eduYear === eduYear;
         let showItem = true;
         let planDates = "";
 
-        if (planItem) {
+        // Only apply date filtering (Expired/Ongoing) for the CURRENT year
+        if (isCurrentYear && planItem) {
             const dStr = isOG ? (planItem[`y${yearIdx}_bit`] || planItem[`y${yearIdx}_bas`]) : (planItem[`bitis_${yearIdx}`] || planItem[`baslangic_${yearIdx}`]);
             const dt = parseDBDate(dStr);
             if (dt) {
                 const d = new Date(dt);
-                // Respect the Expired/Ongoing filter
                 if (statusVal === 'expired' && d >= today) showItem = false;
                 if (statusVal === 'ongoing' && d < today) showItem = false;
                 planDates = `${isOG ? planItem[`y${yearIdx}_bas`] : planItem[`baslangic_${yearIdx}`]} — ${isOG ? planItem[`y${yearIdx}_bit`] : planItem[`bitis_${yearIdx}`]}`;
@@ -1351,13 +1347,14 @@ function checkReportedActivities() {
             results.push({ 
                 id: planItem ? (isOG ? `og-${planItem.no}` : `oo-${planItem.sira}`) : 'manual', 
                 name: report.activityName || 'İsimsiz Rapor', 
+                eduYear: report.eduYear || 'Bilinmiyor',
                 start: report.startDate || (planDates ? planDates.split('—')[0].trim() : ''), 
                 end: report.endDate || (planDates ? planDates.split('—')[1].trim() : ''), 
                 person: report.teacher || (planItem ? (isOG ? planItem.sorumlu : planItem.sorumlu_verisi) : ''), 
                 filler: report.fillerName, 
                 isReported: true, 
                 status: report.status,
-                isManual: !planItem
+                isManual: !planItem || !isCurrentYear
             });
         }
     });
@@ -1403,7 +1400,10 @@ function showStatusModal(title, tasks) {
         }
 
         li.innerHTML = `
-            <span class="overdue-name">${t.name}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span class="overdue-name">${t.name}</span>
+                <span style="font-size:0.75rem; background:#f1f5f9; padding:2px 8px; border-radius:12px; color:#64748b; font-weight:600;">${t.eduYear}</span>
+            </div>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
