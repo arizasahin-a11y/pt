@@ -17,15 +17,14 @@ let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs 
 
 // --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
 
-window.PFDS_LoadDataIntoForm = function(data) {
+window._doLoadRecord = function(data) {
     if (!data) {
         alert("Hata: Yüklenecek veri bulunamadı.");
         return;
     }
 
     try {
-        console.group('[PFDS] Loading record into form:', data.id);
-
+        console.log("Loading record into form:", data.id);
         
         // Force Switch Views
         const f = document.getElementById('activity-form');
@@ -83,17 +82,15 @@ window.PFDS_LoadDataIntoForm = function(data) {
         });
         
         console.log("Record loaded successfully:", data.id);
-        console.groupEnd();
     } catch (err) {
-        console.error("Error in PFDS_LoadDataIntoForm:", err);
-        console.groupEnd();
+        console.error("Error in _doLoadRecord:", err);
         alert("Kayıt yüklenirken teknik bir hata oluştu: " + err.message);
     }
 };
 
-window.PFDS_EditRecord = function(data) {
-    console.log("window.PFDS_EditRecord triggered", data ? data.id : 'null');
-    window.PFDS_LoadDataIntoForm(data);
+window.editRecord = function(data) {
+    console.log("window.editRecord triggered", data ? data.id : 'null');
+    window._doLoadRecord(data);
 };
 
 window.printRecord = function(data) {
@@ -777,18 +774,17 @@ function checkOverdueActivities() {
                         if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
                         const aName = isOG ? item.eylem_adi : item.eylem_gorev;
-                        const report = savedReportsCache.find(r => r.projectType === selectedType && normalizeString(r.activityName) === normalizeString(aName) && (r.teacher && normalizeString(r.teacher).includes(normalizeString(name))));
-                        if (report) return; // Kullanıcının isteği: raporlanmışsa listeden düş
+                        const report = savedReportsCache.find(r => r.activityName === aName && (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))));
+                        const hasRep = !!report;
                         
                         modalTasks.push({ 
-
                             id: tid, 
                             name: aName, 
                             start: isOG ? item.y1_bas : item.baslangic_1, 
                             end: isOG ? item.y1_bit : item.bitis_1, 
                             person: resp, 
-                            isReported: false,
-                            status: null
+                            isReported: hasRep,
+                            status: report ? report.status : null
                         });
                     }
                 }
@@ -1195,19 +1191,23 @@ function loadReports() {
             actions.style.cssText = 'display:flex; gap:10px;';
 
             const editBtn = document.createElement('button');
+            editBtn.type = 'button';
             editBtn.className = 'btn-secondary';
             editBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             editBtn.textContent = 'Formda Göster';
             editBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                window.PFDS_EditRecord(r);
+                window.editRecord(r);
             });
 
             const printBtn = document.createElement('button');
+            printBtn.type = 'button';
             printBtn.className = 'btn-primary';
             printBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             printBtn.textContent = 'Yazdır';
             printBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 window.printRecord(r);
             });
@@ -1263,13 +1263,19 @@ function checkUnreportedActivities() {
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
+    const eduYearVal = document.getElementById('edu-year').value;
     list.forEach(item => {
         const nameText = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
-        const cleanName = normalizeString(nameText);
-        if (!cleanName) return;
+        const normName = normalizeString(nameText);
+        if (!normName) return;
         
-        // Check if reported in cache
-        const isReported = savedReportsCache.some(r => r.projectType === typeVal && normalizeString(r.activityName) === cleanName);
+        // Sadece İLGİLİ TÜR ve YIL için kontrol et, ayrıca tam metin eşleştirmesinde normalizeString kullan.
+        const isReported = savedReportsCache.some(r => {
+            return r.projectType === typeVal &&
+                   r.eduYear === eduYearVal &&
+                   normalizeString(r.activityName) === normName;
+        });
+        
         if (isReported) return;
 
         // Dynamic date lookup based on year index
