@@ -12,7 +12,7 @@ let currentRecordId = null;
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
-let form, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
+let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
 
 // --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
@@ -33,10 +33,11 @@ window._doLoadRecord = function(data) {
         if (s) s.style.display = 'none';
         
         window.scrollTo(0, 0);
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'auto' }), 10);
 
         // State update
         currentRecordId = data.id;
-        lastSavedData = JSON.parse(JSON.stringify(data));
+        lastSavedData = { ...data };
 
         // Field mapping
         const map = {
@@ -276,7 +277,7 @@ function clearAllForm() {
 // Initialize Core Application
 window.addEventListener('DOMContentLoaded', () => {
     // Selection of UI Elements
-    form = document.getElementById('activity-form');
+    mainForm = document.getElementById('activity-form');
     saveBtn = document.getElementById('save-btn');
     directPrintBtn = document.getElementById('direct-print-btn');
     historyBtn = document.getElementById('history-btn');
@@ -444,15 +445,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (historyBtn) {
         historyBtn.onclick = () => { 
-            form.style.display = 'none'; 
-            savedReportsSection.style.display = 'block'; 
+            if (mainForm) mainForm.style.display = 'none'; 
+            if (savedReportsSection) savedReportsSection.style.display = 'block'; 
             loadReports(); 
         };
     }
     if (backToFormBtn) {
         backToFormBtn.onclick = () => { 
-            savedReportsSection.style.display = 'none'; 
-            form.style.display = 'block'; 
+            if (savedReportsSection) savedReportsSection.style.display = 'none'; 
+            if (mainForm) mainForm.style.display = 'block'; 
         };
     }
 
@@ -866,8 +867,9 @@ function showOverdueModal(tasks) {
                 <i class="fas fa-trash-alt"></i> Listeden Kaldır
             </button>`;
 
+        const statusBadge = t.isReported ? getReportStatusBadge(t.status) : '';
         li.innerHTML = `
-            <span class="overdue-name">${t.name} ${t.isReported ? `<span class="status-badge status-${t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}" style="padding: 1px 6px; font-size: 0.6rem; vertical-align: middle; margin-left: 5px;">${t.status}</span>` : ''}</span>
+            <span class="overdue-name">${t.name} ${statusBadge ? `<span style="vertical-align: middle; margin-left: 5px;">${statusBadge}</span>` : ''}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
@@ -1192,19 +1194,19 @@ function loadReports() {
             editBtn.className = 'btn-secondary';
             editBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             editBtn.textContent = 'Formda Göster';
-            editBtn.onclick = (e) => {
+            editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 window.editRecord(r);
-            };
+            });
 
             const printBtn = document.createElement('button');
             printBtn.className = 'btn-primary';
             printBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             printBtn.textContent = 'Yazdır';
-            printBtn.onclick = (e) => {
+            printBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 window.printRecord(r);
-            };
+            });
 
             actions.appendChild(editBtn);
             actions.appendChild(printBtn);
@@ -1227,7 +1229,10 @@ function getCheckboxValues(name, otherCheckId, otherTextId) {
     const cbs = document.querySelectorAll(`input[name="${name}"]:checked`);
     let vals = Array.from(cbs).map(c => c.value);
     const oc = document.getElementById(otherCheckId);
-    if (oc && oc.checked) { vals = vals.filter(v=>v!=='Diğer'); vals.push(document.getElementById(otherTextId).value); }
+    if (oc && oc.checked) { 
+        vals = vals.filter(v => v !== 'Diğer'); 
+        vals.push(document.getElementById(otherTextId).value); 
+    }
     return vals.join(', ');
 }
 
@@ -1273,6 +1278,7 @@ function checkUnreportedActivities() {
                 results.push({ 
                     id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
                     name: nameText.trim(), 
+                    eduYear: document.getElementById('edu-year').value,
                     start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`], 
                     end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`], 
                     person: isOG ? item.sorumlu : item.sorumlu_verisi, 
@@ -1327,7 +1333,8 @@ function checkReportedActivities() {
             return normalizeString(planName) === normReportName;
         });
 
-        const isCurrentYear = report.eduYear === eduYear;
+        const currentEduYear = document.getElementById('edu-year').value;
+        const isCurrentYear = report.eduYear === currentEduYear;
         let showItem = true;
         let planDates = "";
 
@@ -1368,6 +1375,13 @@ function checkReportedActivities() {
 }
 
 // --- HELPERS & IGNORE LOGIC ---
+function getReportStatusBadge(status) {
+    const s = (status || 'Tamamlandı').toString();
+    const clean = s.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
+    const type = (clean === 'iptal') ? 'iptal' : (clean === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
+    return `<span class="status-badge status-${type}" style="padding: 1px 6px; font-size: 0.65rem;">${s}</span>`;
+}
+
 function getIgnoredTasks() { return JSON.parse(localStorage.getItem('pfds_ignored_tasks') || '{}'); }
 function ignoreTask(person, taskId) {
     const ignored = getIgnoredTasks();
@@ -1393,10 +1407,9 @@ function showStatusModal(title, tasks) {
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
         
         let statusBadge = '';
-        if (t.isReported && t.status) {
-            const s = t.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
-            const type = (s === 'iptal') ? 'iptal' : (s === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
-            statusBadge = `<div style="margin-top:4px;"><span class="status-badge status-${type}" style="padding: 1px 6px; font-size: 0.65rem;">${t.status}</span></div>`;
+        if (t.isReported) {
+            const badge = getReportStatusBadge(t.status);
+            statusBadge = `<div style="margin-top:4px;">${badge}</div>`;
         }
 
         li.innerHTML = `
