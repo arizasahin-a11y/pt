@@ -1245,6 +1245,16 @@ function checkUnreportedActivities() {
     else alert('Kriterlere uygun raporlanmamış faaliyet bulunamadı.');
 }
 
+// Utility for extremely robust string comparison (ignoring case, spaces, and special Turkish differences)
+function normalizeString(s) {
+    if (!s) return "";
+    return s.toString()
+        .trim()
+        .toLocaleLowerCase('tr-TR')
+        .replace(/\s+/g, '') // Remove ALL spaces
+        .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove non-alphanumeric
+}
+
 function checkReportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
     const statusRadio = document.querySelector('input[name="activity-status"]:checked');
@@ -1257,50 +1267,60 @@ function checkReportedActivities() {
     const today = new Date(); today.setHours(0,0,0,0);
     const yearIdx = getYearIndexForReport();
 
-    let list = isOG ? combinedData.og_db : combinedData.oo_db;
+    let planList = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
-    list.forEach(item => {
-        const nameText = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
-        const cleanName = nameText.trim().toLocaleLowerCase('tr-TR');
-        if (!cleanName) return;
+    // --- REPORT-CENTRIC LOGIC ---
+    // Instead of looping through plan, we loop through what the user ACTUALLY saved.
+    savedReportsCache.forEach(report => {
+        // 1. Filter by Project Type (As requested by user)
+        if (report.projectType !== typeVal) return;
 
-        const report = savedReportsCache.find(r => (r.activityName || "").trim().toLocaleLowerCase('tr-TR') === cleanName);
-        if (!report) return;
-
-        // Dynamic date lookup based on year index
-        const dStr = isOG ? (item[`y${yearIdx}_bit`] || item[`y${yearIdx}_bas`]) : (item[`bitis_${yearIdx}`] || item[`baslangic_${yearIdx}`]);
-        const dt = parseDBDate(dStr);
+        // 2. Normalize report name for matching
+        const normReportName = normalizeString(report.activityName);
         
-        let showItem = false;
-        if (dt) {
-            const d = new Date(dt);
-            if (statusVal === 'expired' ? d < today : d >= today) showItem = true;
-        } else {
-            // Fallback: If no date exists in plan but report exists, always show it to user
-            showItem = true;
+        // 3. Try to find its original plan item to get "Planned Date" for status filtering
+        const planItem = planList.find(p => {
+            const planName = (isOG ? p.eylem_adi : p.eylem_gorev) || "";
+            return normalizeString(planName) === normReportName;
+        });
+
+        let showItem = true;
+        let planDates = "";
+
+        if (planItem) {
+            const dStr = isOG ? (planItem[`y${yearIdx}_bit`] || planItem[`y${yearIdx}_bas`]) : (planItem[`bitis_${yearIdx}`] || planItem[`baslangic_${yearIdx}`]);
+            const dt = parseDBDate(dStr);
+            if (dt) {
+                const d = new Date(dt);
+                // Respect the Expired/Ongoing filter
+                if (statusVal === 'expired' && d >= today) showItem = false;
+                if (statusVal === 'ongoing' && d < today) showItem = false;
+                planDates = `${isOG ? planItem[`y${yearIdx}_bas`] : planItem[`baslangic_${yearIdx}`]} — ${isOG ? planItem[`y${yearIdx}_bit`] : planItem[`bitis_${yearIdx}`]}`;
+            }
         }
 
         if (showItem) {
             results.push({ 
-                id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
-                name: nameText.trim(), 
-                start: report.startDate || (isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`]), 
-                end: report.endDate || (isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`]), 
-                person: isOG ? item.sorumlu : item.sorumlu_verisi, 
+                id: planItem ? (isOG ? `og-${planItem.no}` : `oo-${planItem.sira}`) : 'manual', 
+                name: report.activityName || 'İsimsiz Rapor', 
+                start: report.startDate || (planDates ? planDates.split('—')[0].trim() : ''), 
+                end: report.endDate || (planDates ? planDates.split('—')[1].trim() : ''), 
+                person: report.teacher || (planItem ? (isOG ? planItem.sorumlu : planItem.sorumlu_verisi) : ''), 
                 filler: report.fillerName, 
                 isReported: true, 
-                status: report.status 
+                status: report.status,
+                isManual: !planItem
             });
         }
     });
 
     if (results.length > 0) {
         currentModalTasks = results;
-        currentModalTitle = 'Raporu Girilmiş Faaliyetler';
+        currentModalTitle = `Raporu Girilmiş ${typeVal === 'OKUL GELİŞİM PROJESİ' ? 'Gelişim' : 'Özel'} Faaliyetler`;
         showStatusModal(currentModalTitle, results);
     }
-    else alert('Kriterlere uygun raporlanmış faaliyet bulunamadı.');
+    else alert('Seçili türde ve kriterlerde raporlanmış faaliyet bulunamadı.');
 }
 
 // --- HELPERS & IGNORE LOGIC ---
