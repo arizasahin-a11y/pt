@@ -299,163 +299,112 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     // Initial load through database overlay
-    if (typeof COMBINED_DB !== 'undefined') {
-        const checkInterval = setInterval(() => {
-            if (db) {
-                clearInterval(checkInterval);
-                refreshCombinedData();
-            }
-        }, 100);
-    }
-    
-    // Master Download Button
-    const downloadMasterBtn = document.getElementById('download-master-btn');
-    if (downloadMasterBtn) downloadMasterBtn.onclick = downloadMasterJson;
-
-    const exportExcelBtn = document.getElementById('export-excel-btn');
-    if (exportExcelBtn) exportExcelBtn.onclick = exportToExcel;
-
-    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
-    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
-
-    // History Toggle
-    historyBtn.onclick = () => { 
-        form.style.display = 'none'; 
-        savedReportsSection.style.display = 'block'; 
-        loadReports(); 
-    };
-    backToFormBtn.onclick = () => { 
-        savedReportsSection.style.display = 'none'; 
-        form.style.display = 'block'; 
-    };
-
-    // Modal Print
-    document.getElementById('modal-print-btn').onclick = () => {
-        printModalList(currentModalTitle, currentModalTasks);
-    };
-
-    // Direct Print (Sol Tık: Önizleme Sayfası / Sağ Tık: Doğrudan Yazdır)
-    directPrintBtn.onclick = async () => {
-        if (!validateForm()) return;
-        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.'); return; }
-
-        if (isFormDirty()) {
-            if (confirm('Kaydettiğiniz veri yaptığınız değişikliklere göre güncellenecektir. Onaylıyor musunuz?')) {
-                await updateCurrentRecord();
-                printReport(getFormData());
-            }
-        } else {
-            printReport(getFormData());
+    const checkInterval = setInterval(() => {
+        if (db) {
+            clearInterval(checkInterval);
+            refreshCombinedData();
+            syncSavedReportsCache();
         }
-    };
-
-    directPrintBtn.oncontextmenu = (e) => {
-        e.preventDefault();
-        // Hiçbir kontrol yapmadan doğrudan önizleme sayfasına gönder
-        printReport(getFormData());
-    };
-
-    // --- PASSWORD MODAL SETUP ---
-    const pwModal = document.getElementById('password-modal');
-    const pwInput = document.getElementById('pw-modal-input');
-    const pwClose = document.getElementById('pw-modal-close');
-    const pwCancel = document.getElementById('pw-modal-cancel');
-    const pwConfirm = document.getElementById('pw-modal-confirm');
-
-    if (pwClose) pwClose.onclick = () => { pwModal.style.display = 'none'; };
-    if (pwCancel) pwCancel.onclick = () => { pwModal.style.display = 'none'; };
-
-    // Listeners for inputs (Visual feedback)
-    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
-        el.addEventListener('input', () => updateFilledState(el));
-        el.addEventListener('change', () => updateFilledState(el));
-        el.addEventListener('blur', () => updateFilledState(el));
-        updateFilledState(el);
-    });
+    }, 200);
     
-    // Listen for project type changes
-    document.querySelectorAll('input[name="project-type"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            localStorage.setItem('lastProjectType', e.target.value);
-            checkOverdueActivities();
+    // --- Master Control Listeners ---
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            if (!validateForm()) return;
             
-            // Handle label update for Okul Özel Projesi
-            const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-            const suggestionsLabel = document.getElementById('suggestions-label');
-            const pSuggestionsLabel = document.getElementById('p-suggestions-label');
-            
-            if (selectedType === 'OKUL ÖZEL PROJESİ') {
-                if (suggestionsLabel) suggestionsLabel.textContent = 'Gerçekleşen Değer';
-                if (pSuggestionsLabel) pSuggestionsLabel.textContent = 'Gerçekleşen Değer:';
+            const data = getFormData();
+            if (currentRecordId) {
+                // UPDATE existing record
+                data.id = currentRecordId;
+                const existing = await new Promise(resolve => {
+                    const tx = db.transaction([STORE_NAME], 'readonly');
+                    tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => resolve(e.target.result);
+                });
+
+                const doSaveAction = () => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
+                        lastSavedData = JSON.parse(JSON.stringify(data));
+                        alert('✅ Rapor başarıyla güncellendi!');
+                        refreshCombinedData();
+                        syncSavedReportsCache();
+                    };
+                };
+
+                if (existing && existing.savePassword) {
+                    promptVerifyPassword((enteredPw) => {
+                        if (enteredPw === null) return; 
+                        const MASTER = hashPassword('21012012');
+                        if (hashPassword(enteredPw) === existing.savePassword || hashPassword(enteredPw) === MASTER) {
+                            data.savePassword = existing.savePassword;
+                            doSaveAction();
+                        } else { alert('❌ Hatalı şifre! Güncelleme reddedildi.'); }
+                    });
+                } else {
+                    promptSavePassword((pw) => {
+                        if (pw === null) return;
+                        if (pw) data.savePassword = hashPassword(pw);
+                        doSaveAction();
+                    });
+                }
             } else {
-                if (suggestionsLabel) suggestionsLabel.textContent = 'İyileştirme Önerileri';
-                if (pSuggestionsLabel) pSuggestionsLabel.textContent = 'İyileştirme Önerileri:';
+                // NEW record
+                promptSavePassword((password) => {
+                    if (password) data.savePassword = hashPassword(password);
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const req = transaction.objectStore(STORE_NAME).add(data);
+                    req.onsuccess = (e) => {
+                        currentRecordId = e.target.result;
+                        lastSavedData = JSON.parse(JSON.stringify(data));
+                        alert('✅ Rapor başarıyla kaydedildi!');
+                        refreshCombinedData();
+                        syncSavedReportsCache();
+                    };
+                });
             }
-        });
-    });
-    
-    // Initial State Dispatch
-    const initialType = document.querySelector('input[name="project-type"]:checked');
-    if (initialType) initialType.dispatchEvent(new Event('change'));
-
-    // Status changes listener
-    document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            localStorage.setItem('lastActivityStatus', e.target.value);
-            checkOverdueActivities();
-        });
-    });
-
-    // --- SUGGESTIONS SYSTEM ---
-    const respInput = document.getElementById('responsible-teacher');
-    const suggestionsPanel = document.getElementById('suggestions-panel');
-    const activityInput = document.getElementById('activity-name');
-    const activityPanel = document.getElementById('activity-suggestions-panel');
-
-    respInput.addEventListener('input', (e) => {
-        const val = e.target.value;
-        const lastCommaIndex = val.lastIndexOf(',');
-        const currentFragment = val.substring(lastCommaIndex + 1).trim();
-        if (currentFragment.length >= 2) renderSuggestions(currentFragment);
-        else suggestionsPanel.style.display = 'none';
-        debounceAudit();
-    });
-
-    respInput.addEventListener('focus', () => renderSuggestions(respInput.value.substring(respInput.value.lastIndexOf(',') + 1).trim()));
-    respInput.addEventListener('click', () => renderSuggestions(respInput.value.substring(respInput.value.lastIndexOf(',') + 1).trim()));
-
-    // Activity Suggestions with filtering by Responsible
-    activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
-    activityInput.addEventListener('focus', () => renderActivitySuggestions(activityInput.value));
-    activityInput.addEventListener('click', () => renderActivitySuggestions(activityInput.value));
-
-    // Close suggestions on outside click
-    document.addEventListener('click', (e) => {
-        if (!respInput.contains(e.target) && !suggestionsPanel.contains(e.target)) suggestionsPanel.style.display = 'none';
-        if (!activityInput.contains(e.target) && !activityPanel.contains(e.target)) activityPanel.style.display = 'none';
-    });
-
-    // Clear Button logic
-    const clearRespBtn = document.getElementById('clear-responsible');
-    if (clearRespBtn) {
-        clearRespBtn.addEventListener('click', () => {
-            respInput.value = '';
-            suggestionsPanel.style.display = 'none';
-            respInput.focus();
-            updateFilledState(respInput);
         });
     }
 
-    // Modal listeners
-    const outClose = document.getElementById('close-overdue');
-    const okClose = document.getElementById('overdue-ok-btn');
-    if (outClose) outClose.onclick = hideOverdueModal;
-    if (okClose) okClose.onclick = hideOverdueModal;
+    if (directPrintBtn) {
+        directPrintBtn.onclick = async () => {
+            if (!validateForm()) return;
+            if (!lastSavedData) { alert('⚠️ Lütfen önce raporu kaydedin!'); return; }
+            if (isFormDirty()) {
+                if (confirm('Fomda kaydedilmemiş değişiklikler var. Kaydedip devam edilsin mi?')) {
+                    await updateCurrentRecord();
+                    printReport(getFormData());
+                }
+            } else { printReport(getFormData()); }
+        };
+        directPrintBtn.oncontextmenu = (e) => {
+            e.preventDefault();
+            printReport(getFormData());
+        };
+    }
 
-    // Principal Name (Shift + Right Click on Title)
+    if (historyBtn) {
+        historyBtn.onclick = () => { 
+            form.style.display = 'none'; 
+            savedReportsSection.style.display = 'block'; 
+            loadReports(); 
+        };
+    }
+    if (backToFormBtn) {
+        backToFormBtn.onclick = () => { 
+            savedReportsSection.style.display = 'none'; 
+            form.style.display = 'block'; 
+        };
+    }
+
+    // Modal Controls
+    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
+    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
+    document.getElementById('modal-close-btn').onclick = hideOverdueModal;
+    document.getElementById('modal-print-btn').onclick = () => printModalList(currentModalTitle, currentModalTasks);
+    
+    // School Principal Control (Shift + Right Click on Title)
     const mainTitle = document.getElementById('main-title');
     if (mainTitle) {
-        mainTitle.title = "Okul müdürünü değiştirmek için Shift+Sağ Tık yapın";
         mainTitle.addEventListener('mousedown', (e) => {
             if (e.shiftKey && e.button === 2) {
                 e.preventDefault();
@@ -467,19 +416,66 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-        // Also suppress context menu to avoid overlap
-        mainTitle.addEventListener('contextmenu', (e) => {
-            if (e.shiftKey) e.preventDefault();
-        });
+        mainTitle.addEventListener('contextmenu', (e) => { if (e.shiftKey) e.preventDefault(); });
     }
 
-    setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
+    // Input Visual Feedback
+    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
+        el.addEventListener('input', () => updateFilledState(el));
+        el.addEventListener('change', () => updateFilledState(el));
+        el.addEventListener('blur', () => updateFilledState(el));
+        updateFilledState(el);
+    });
 
-    // --- CLEAR ALL BUTTON ---
+    // Project Type changes listeners
+    document.querySelectorAll('input[name="project-type"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            localStorage.setItem('lastProjectType', e.target.value);
+            checkOverdueActivities();
+            const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+            const sug = document.getElementById('suggestions-label');
+            const psug = document.getElementById('p-suggestions-label');
+            if (selectedType === 'OKUL ÖZEL PROJESİ') {
+                if (sug) sug.textContent = 'Gerçekleşen Değer';
+                if (psug) psug.textContent = 'Gerçekleşen Değer:';
+            } else {
+                if (sug) sug.textContent = 'İyileştirme Önerileri';
+                if (psug) psug.textContent = 'İyileştirme Önerileri:';
+            }
+        });
+    });
+
+    // Activity Status changes listeners
+    document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            localStorage.setItem('lastActivityStatus', e.target.value);
+            checkOverdueActivities();
+        });
+    });
+
+    // Suggestions Logic
+    const respInput = document.getElementById('responsible-teacher');
+    const activityInput = document.getElementById('activity-name');
+    const suggestionsPanel = document.getElementById('suggestions-panel');
+    const activityPanel = document.getElementById('activity-suggestions-panel');
+
+    respInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const lastCommaIndex = val.lastIndexOf(',');
+        const currentFragment = val.substring(lastCommaIndex + 1).trim();
+        if (currentFragment.length >= 2) renderSuggestions(currentFragment);
+        else suggestionsPanel.style.display = 'none';
+        debounceAudit();
+    });
+
+    activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
+    
+    // Clear All Logic
     const clearAllBtn = document.getElementById('clear-all-btn');
     if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
 
-    // Confirm button handler set dynamically; see promptSavePassword / promptVerifyPassword
+    // Initialization check
+    setTimeout(() => document.querySelectorAll('input, textarea').forEach(updateFilledState), 500);
 });
 
 // Helper to check if form was modified since last save
@@ -871,9 +867,12 @@ function validateForm() {
 }
 
 function getFormData() {
+    const typeChecked = document.querySelector('input[name="project-type"]:checked');
+    const statusChecked = document.querySelector('input[name="report-status"]:checked');
+    
     return {
         eduYear: document.getElementById('edu-year').value,
-        projectType: document.querySelector('input[name="project-type"]:checked').value,
+        projectType: typeChecked ? typeChecked.value : 'OKUL GELİŞİM PROJESİ',
         activityName: document.getElementById('activity-name').value,
         activityType: getCheckboxValues('activity-type', 'type-other-check', 'type-other-text'),
         teacher: document.getElementById('responsible-teacher').value,
@@ -885,7 +884,7 @@ function getFormData() {
         duration: document.getElementById('total-duration').value,
         cost: document.getElementById('cost').value,
         documentNo: document.getElementById('document-no').value,
-        status: document.querySelector('input[name="report-status"]:checked').value,
+        status: statusChecked ? statusChecked.value : 'Tamamlandı',
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
         suggestions: document.getElementById('suggestions').value,
@@ -901,68 +900,7 @@ function getFormData() {
     };
 }
 
-saveBtn.addEventListener('click', async () => {
-    if (!validateForm()) return;
-
-    if (currentRecordId) {
-        // UPDATE existing record
-        const data = getFormData();
-        data.id = currentRecordId;
-
-        // Check if existing record has a password
-        const existing = await new Promise(resolve => {
-            const tx = db.transaction([STORE_NAME], 'readonly');
-            tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => resolve(e.target.result);
-        });
-
-        const doSaveAction = () => {
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
-                lastSavedData = JSON.parse(JSON.stringify(data));
-                alert('Rapor güncellendi!');
-                refreshCombinedData();
-                syncSavedReportsCache();
-            };
-        };
-
-        if (existing && existing.savePassword) {
-            // Ask for verification before update
-            promptVerifyPassword((enteredPw) => {
-                if (enteredPw === null) return; // cancelled
-                const MASTER = hashPassword('21012012');
-                if (hashPassword(enteredPw) === existing.savePassword || hashPassword(enteredPw) === MASTER) {
-                    // Update the password if they entered a new one? No, usually keep same.
-                    data.savePassword = existing.savePassword;
-                    doSaveAction();
-                } else {
-                    alert('❌ Hatalı şifre! Güncelleme reddedildi.');
-                }
-            });
-        } else {
-            // No password yet (legacy record) — prompt to set one
-            promptSavePassword((pw) => {
-                if (pw === null) return; // cancelled
-                if (pw) data.savePassword = hashPassword(pw);
-                doSaveAction();
-            });
-        }
-    } else {
-        // NEW record — prompt for password
-        promptSavePassword((password) => {
-            const data = getFormData();
-            if (password) data.savePassword = hashPassword(password);
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const req = transaction.objectStore(STORE_NAME).add(data);
-            req.onsuccess = (e) => {
-                currentRecordId = e.target.result;
-                lastSavedData = JSON.parse(JSON.stringify(data));
-                alert('Rapor kaydedildi!');
-                refreshCombinedData();
-                syncSavedReportsCache();
-            };
-        });
-    }
-});
+// --- Listeners moved back into DOMContentLoaded ---
 
 function printReport(data) {
     const pc = document.getElementById('print-content').cloneNode(true);
@@ -1236,77 +1174,101 @@ function getCheckboxValues(name, otherCheckId, otherTextId) {
 
 function checkUnreportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
-    const status = document.querySelector('input[name="activity-status"]:checked').value;
-    const type = document.querySelector('input[name="project-type"]:checked').value;
-    const isOG = type === 'OKUL GELİŞİM PROJESİ';
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
+    const typeRadio = document.querySelector('input[name="project-type"]:checked');
+    if (!statusRadio || !typeRadio) return;
+    
+    const statusVal = statusRadio.value;
+    const typeVal = typeRadio.value;
+    const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
     
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
     list.forEach(item => {
-        const name = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
-        const cleanName = name.trim();
+        const nameText = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
+        const cleanName = nameText.trim().toLocaleLowerCase('tr-TR');
         if (!cleanName) return;
         
-        if (savedReportsCache.some(r => (r.activityName || "").trim() === cleanName)) return;
+        // Use Turkish aware lower case for matching cache
+        const isReported = savedReportsCache.some(r => (r.activityName || "").trim().toLocaleLowerCase('tr-TR') === cleanName);
+        if (isReported) return;
 
         const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
         const dt = parseDBDate(dStr);
         if (dt) {
             const d = new Date(dt);
-            if (status === 'expired' ? d < today : d >= today) {
-                const start = isOG ? item.y1_bas : item.baslangic_1;
-                const end = isOG ? item.y1_bit : item.bitis_1;
-                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
-                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start, end, person, type, isReported: false, status: null });
+            if (statusVal === 'expired' ? d < today : d >= today) {
+                results.push({ 
+                    id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
+                    name: nameText.trim(), 
+                    start: isOG ? item.y1_bas : item.baslangic_1, 
+                    end: isOG ? item.y1_bit : item.bitis_1, 
+                    person: isOG ? item.sorumlu : item.sorumlu_verisi, 
+                    type: typeVal, 
+                    isReported: false, 
+                    status: null 
+                });
             }
         }
     });
 
     if (results.length > 0) {
         currentModalTasks = results;
-        currentModalTitle = 'Hiç Rapor Girilmemiş Eylemler';
+        currentModalTitle = 'Hiç Rapor Girilmemiş Faaliyetler';
         showStatusModal(currentModalTitle, results);
     }
-    else alert('Kriterlere uygun eylem bulunamadı.');
+    else alert('Kriterlere uygun raporlanmamış faaliyet bulunamadı.');
 }
 
 function checkReportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
-    const status = document.querySelector('input[name="activity-status"]:checked').value;
-    const type = document.querySelector('input[name="project-type"]:checked').value;
-    const isOG = type === 'OKUL GELİŞİM PROJESİ';
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
+    const typeRadio = document.querySelector('input[name="project-type"]:checked');
+    if (!statusRadio || !typeRadio) return;
+
+    const statusVal = statusRadio.value;
+    const typeVal = typeRadio.value;
+    const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
 
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
     list.forEach(item => {
-        const name = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
-        const cleanName = name.trim();
+        const nameText = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
+        const cleanName = nameText.trim().toLocaleLowerCase('tr-TR');
         if (!cleanName) return;
 
-        const report = savedReportsCache.find(r => (r.activityName || "").trim() === cleanName);
+        const report = savedReportsCache.find(r => (r.activityName || "").trim().toLocaleLowerCase('tr-TR') === cleanName);
         if (!report) return;
 
         const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
         const dt = parseDBDate(dStr);
         if (dt) {
             const d = new Date(dt);
-            if (status === 'expired' ? d < today : d >= today) {
-                const person = isOG ? item.sorumlu : item.sorumlu_verisi;
-                results.push({ id: isOG ? `og-${item.no}` : `oo-${item.sira}`, name, start: report.startDate, end: report.endDate, person, filler: report.fillerName, isReported: true, status: report.status });
+            if (statusVal === 'expired' ? d < today : d >= today) {
+                results.push({ 
+                    id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
+                    name: nameText.trim(), 
+                    start: report.startDate, 
+                    end: report.endDate, 
+                    person: isOG ? item.sorumlu : item.sorumlu_verisi, 
+                    filler: report.fillerName, 
+                    isReported: true, 
+                    status: report.status 
+                });
             }
         }
     });
 
     if (results.length > 0) {
         currentModalTasks = results;
-        currentModalTitle = 'Raporu Girilmiş Eylemler';
+        currentModalTitle = 'Raporu Girilmiş Faaliyetler';
         showStatusModal(currentModalTitle, results);
     }
-    else alert('Kriterlere uygun eylem bulunamadı.');
+    else alert('Kriterlere uygun raporlanmış faaliyet bulunamadı.');
 }
 
 // --- HELPERS & IGNORE LOGIC ---
@@ -1362,7 +1324,7 @@ function showStatusModal(title, tasks) {
     });
     modal.style.display = 'flex';
     document.getElementById('modal-print-btn').style.display = 'block';
-} // ← DÜZELTME: showStatusModal kapanış parantezi eklendi
+}
 
 window.handleIgnoreTask = (e, person, tid) => {
     const pw = prompt('Bu eylemi listeden kaldırmak için yetkili şifresini giriniz:');
