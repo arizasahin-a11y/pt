@@ -35,9 +35,11 @@ window._doLoadRecord = function(data) {
         window.scrollTo(0, 0);
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'auto' }), 10);
 
-        // State update
         currentRecordId = data.id;
         lastSavedData = { ...data };
+        if (document.getElementById('plan-id')) {
+            document.getElementById('plan-id').value = data.planId || '';
+        }
 
         // Field mapping
         const map = {
@@ -267,6 +269,8 @@ function clearAllForm() {
     clearRadioGroup('report-status', 'Tamamlandı');
     const sp = document.getElementById('suggestions-panel');
     if (sp) sp.style.display = 'none';
+    const planIdObj = document.getElementById('plan-id');
+    if (planIdObj) planIdObj.value = '';
     currentRecordId = null;
     lastSavedData = null;
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
@@ -584,9 +588,25 @@ function applyOverlayUpdate(targetDb, report) {
     const list = targetDb[dbKey];
     if (!list) return;
 
+    let item = null;
+    if (report.planId) {
+        const idNum = parseInt(report.planId.split('-')[1]);
+        if (!isNaN(idNum)) {
+            item = list.find(i => (dbKey === 'og_db' ? i.no : i.sira) === idNum);
+        }
+    }
+
     const actionKey = dbKey === 'og_db' ? 'eylem_adi' : 'eylem_gorev';
-    const item = list.find(i => (i[actionKey] || "").toString().trim() === (report.activityName || "").toString().trim());
+    if (!item) {
+        item = list.find(i => normalizeString(i[actionKey]) === normalizeString(report.activityName));
+    }
+    
     if (!item) return;
+
+    // Güncellenen ismi ana veri tabanına da yaz (Kullanıcı eylem ismini değiştirmişse)
+    if (report.activityName) {
+        item[actionKey] = report.activityName;
+    }
 
     const n = (parseInt(report.eduYear.split('-')[0].trim()) - 2025) + 1;
     if (n < 1 || n > 4) return;
@@ -774,7 +794,10 @@ function checkOverdueActivities() {
                         if (isTaskIgnored(name, tid)) return; // Check ignore list
                         seen.add(tid);
                         const aName = isOG ? item.eylem_adi : item.eylem_gorev;
-                        const report = savedReportsCache.find(r => r.activityName === aName && (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr'))));
+                        const report = savedReportsCache.find(r => {
+                            if (r.planId && r.planId === tid) return true;
+                            return normalizeString(r.activityName) === normalizeString(aName) && (r.teacher && r.teacher.toLocaleLowerCase('tr').includes(name.toLocaleLowerCase('tr')));
+                        });
                         const hasRep = !!report;
                         
                         modalTasks.push({ 
@@ -908,6 +931,9 @@ function fillReportForm(taskId, selectedType) {
     const end = parseDBDate(isOG ? item.y1_bit : item.bitis_1);
     if (start) document.getElementById('activity-start').value = start;
     if (end) document.getElementById('activity-end').value = end;
+    
+    const planIdObj = document.getElementById('plan-id');
+    if (planIdObj) planIdObj.value = taskId;
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
@@ -932,6 +958,7 @@ function getFormData() {
     const statusChecked = document.querySelector('input[name="report-status"]:checked');
     
     return {
+        planId: document.getElementById('plan-id') ? document.getElementById('plan-id').value : '',
         eduYear: document.getElementById('edu-year').value,
         projectType: typeChecked ? typeChecked.value : 'OKUL GELİŞİM PROJESİ',
         activityName: document.getElementById('activity-name').value,
@@ -1269,11 +1296,12 @@ function checkUnreportedActivities() {
         const normName = normalizeString(nameText);
         if (!normName) return;
         
-        // Sadece İLGİLİ TÜR ve YIL için kontrol et, ayrıca tam metin eşleştirmesinde normalizeString kullan.
+        const itemId = isOG ? `og-${item.no}` : `oo-${item.sira}`;
+        // Sadece İLGİLİ TÜR ve YIL için kontrol et, id varsa id ile yoksa isimle eşleştir.
         const isReported = savedReportsCache.some(r => {
-            return r.projectType === typeVal &&
-                   r.eduYear === eduYearVal &&
-                   normalizeString(r.activityName) === normName;
+            if (r.projectType !== typeVal || r.eduYear !== eduYearVal) return false;
+            if (r.planId && r.planId === itemId) return true;
+            return normalizeString(r.activityName) === normName;
         });
         
         if (isReported) return;
@@ -1339,6 +1367,8 @@ function checkReportedActivities() {
 
         const normReportName = normalizeString(report.activityName);
         const planItem = planList.find(p => {
+            const itemId = isOG ? `og-${p.no}` : `oo-${p.sira}`;
+            if (report.planId && report.planId === itemId) return true;
             const planName = (isOG ? p.eylem_adi : p.eylem_gorev) || "";
             return normalizeString(planName) === normReportName;
         });
@@ -1438,9 +1468,9 @@ function showStatusModal(title, tasks) {
                     <i class="fas fa-trash-alt"></i> Listeden Kaldır
                 </button>
                 ${!t.isReported ? `
-                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person}', '${t.start}', '${t.end}')">Rapor Doldur</button>
+                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person}', '${t.start}', '${t.end}', '${t.id}')">Rapor Doldur</button>
                 ` : ''}
-            </div>
+                </div>
         `;
         list.appendChild(li);
     });
@@ -1459,11 +1489,15 @@ window.handleIgnoreTask = (e, person, tid) => {
     }
 };
 
-window.fillFromModal = (name, person, start, end) => {
+window.fillFromModal = (name, person, start, end, tid) => {
     document.getElementById('activity-name').value = name;
     document.getElementById('responsible-teacher').value = person + ', ';
     document.getElementById('activity-start').value = parseDBDate(start);
     document.getElementById('activity-end').value = parseDBDate(end);
+    if (tid) {
+        const planIdObj = document.getElementById('plan-id');
+        if (planIdObj) planIdObj.value = tid;
+    }
     hideOverdueModal();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
