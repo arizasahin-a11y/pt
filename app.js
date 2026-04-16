@@ -13,6 +13,7 @@ let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
 let form, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
+let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
 
 // --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
 
@@ -292,20 +293,78 @@ window.addEventListener('DOMContentLoaded', () => {
         if (typeRadio) typeRadio.checked = true;
     }
 
+    // Suggestions Logic Initialization
+    respInput = document.getElementById('responsible-teacher');
+    activityInput = document.getElementById('activity-name');
+    suggestionsPanel = document.getElementById('suggestions-panel');
+    activityPanel = document.getElementById('activity-suggestions-panel');
+
+    // Show suggestions on Focus/Click
+    const showSuggestionsOnFocus = (input, panel, renderFn) => {
+        if (!input || !panel) return;
+        input.addEventListener('focus', () => {
+            const val = input.value;
+            const lastComma = val.lastIndexOf(',');
+            const frag = val.substring(lastComma + 1).trim();
+            renderFn(frag || "");
+        });
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = input.value;
+            const lastComma = val.lastIndexOf(',');
+            const frag = val.substring(lastComma + 1).trim();
+            renderFn(frag || "");
+        });
+    };
+
+    showSuggestionsOnFocus(respInput, suggestionsPanel, renderSuggestions);
+    showSuggestionsOnFocus(activityInput, activityPanel, renderActivitySuggestions);
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', () => {
+        if (suggestionsPanel) suggestionsPanel.style.display = 'none';
+        if (activityPanel) activityPanel.style.display = 'none';
+    });
+    if (suggestionsPanel) suggestionsPanel.onclick = (e) => e.stopPropagation();
+    if (activityPanel) activityPanel.onclick = (e) => e.stopPropagation();
+
+    if (respInput) {
+        respInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const lastCommaIndex = val.lastIndexOf(',');
+            const currentFragment = val.substring(lastCommaIndex + 1).trim();
+            renderSuggestions(currentFragment);
+            debounceAudit();
+        });
+    }
+
+    if (activityInput) {
+        activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
+    }
+
     const lastStatus = localStorage.getItem('lastActivityStatus');
     if (lastStatus) {
-        const statusRadio = document.querySelector(`input[name="activity-status"][value="${lastStatus}"]`);
+        const statusRadio = document.querySelector(`input[name="report-status"][value="${lastStatus}"]`);
         if (statusRadio) statusRadio.checked = true;
     }
     
-    // Initial load through database overlay
+    // Initial data load - DO NOT WAIT for DB for suggestions
+    if (typeof COMBINED_DB !== 'undefined') {
+        refreshCombinedData();
+    }
+
     const checkInterval = setInterval(() => {
         if (db) {
             clearInterval(checkInterval);
-            refreshCombinedData();
             syncSavedReportsCache();
         }
     }, 200);
+
+    // Modal Binding Stability
+    const cm = document.getElementById('close-overdue');
+    const ok = document.getElementById('overdue-ok-btn');
+    if (cm) cm.onclick = hideOverdueModal;
+    if (ok) ok.onclick = hideOverdueModal;
     
     // --- Master Control Listeners ---
     if (saveBtn) {
@@ -516,7 +575,7 @@ async function updateCurrentRecord() {
 // --- CORE LOGIC FUNCTIONS ---
 
 async function refreshCombinedData() {
-    if (typeof COMBINED_DB === 'undefined' || !db) return;
+    if (typeof COMBINED_DB === 'undefined') return;
     combinedData = JSON.parse(JSON.stringify(COMBINED_DB));
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
