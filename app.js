@@ -518,29 +518,12 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Activity Status changes listeners
-    document.querySelectorAll('input[name="activity-status"]').forEach(radio => {
+    document.querySelectorAll('input[name="report-status"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             localStorage.setItem('lastActivityStatus', e.target.value);
             checkOverdueActivities();
         });
     });
-
-    // Suggestions Logic
-    const respInput = document.getElementById('responsible-teacher');
-    const activityInput = document.getElementById('activity-name');
-    const suggestionsPanel = document.getElementById('suggestions-panel');
-    const activityPanel = document.getElementById('activity-suggestions-panel');
-
-    respInput.addEventListener('input', (e) => {
-        const val = e.target.value;
-        const lastCommaIndex = val.lastIndexOf(',');
-        const currentFragment = val.substring(lastCommaIndex + 1).trim();
-        if (currentFragment.length >= 2) renderSuggestions(currentFragment);
-        else suggestionsPanel.style.display = 'none';
-        debounceAudit();
-    });
-
-    activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
     
     // Clear All Logic
     const clearAllBtn = document.getElementById('clear-all-btn');
