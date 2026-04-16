@@ -902,11 +902,11 @@ function printReport(data) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     `;
 
-    win.document.write(\`
+    win.document.write(`
         <html>
         <head>
-            <title>Rapor Önizleme - \${data.activityName}</title>
-            \${styles}
+            <title>Rapor Önizleme - ${data.activityName}</title>
+            ${styles}
             <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
         </head>
         <body>
@@ -919,16 +919,16 @@ function printReport(data) {
                 </button>
             </div>
             <div id="preview-container">
-                \${pc.innerHTML}
+                ${pc.innerHTML}
             </div>
             <script>
                 window.downloadPDF = function() {
                     const element = document.getElementById('preview-container');
                     const opt = {
                         margin: 0,
-                        filename: 'Rapor_\${data.activityName.substring(0,30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf',
+                        filename: 'Rapor_${data.activityName.substring(0,30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf',
                         image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2, useCORS: true },
+                        html2canvas: { scale: 2, useCORS: true, logging: false },
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                     };
                     html2pdf().set(opt).from(element).save();
@@ -936,7 +936,7 @@ function printReport(data) {
             </script>
         </body>
         </html>
-    \`);
+    `);
     win.document.close();
 }
 
