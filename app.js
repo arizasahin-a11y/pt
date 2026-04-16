@@ -356,6 +356,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const checkInterval = setInterval(() => {
         if (db) {
             clearInterval(checkInterval);
+            refreshCombinedData(); // Re-run to pick up DB updates
             syncSavedReportsCache();
         }
     }, 200);
@@ -577,6 +578,10 @@ async function updateCurrentRecord() {
 async function refreshCombinedData() {
     if (typeof COMBINED_DB === 'undefined') return;
     combinedData = JSON.parse(JSON.stringify(COMBINED_DB));
+    
+    // Safety check: if DB isn't ready yet, skip the update part
+    if (!db) return;
+
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
     const getAllRequest = store.getAll();
