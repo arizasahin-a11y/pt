@@ -397,10 +397,22 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // Modal Controls
-    document.getElementById('reported-actions-btn').onclick = checkReportedActivities;
-    document.getElementById('unreported-actions-btn').onclick = checkUnreportedActivities;
-    document.getElementById('modal-close-btn').onclick = hideOverdueModal;
-    document.getElementById('modal-print-btn').onclick = () => printModalList(currentModalTitle, currentModalTasks);
+    // Modal Controls
+    const reportedBtn = document.getElementById('reported-actions-btn');
+    const unreportedBtn = document.getElementById('unreported-actions-btn');
+    if (reportedBtn) reportedBtn.onclick = checkReportedActivities;
+    if (unreportedBtn) unreportedBtn.onclick = checkUnreportedActivities;
+    
+    // Fix: "Anladım" and "Close" buttons for overdue modal
+    const closeBtn = document.getElementById('close-overdue');
+    const okBtn = document.getElementById('overdue-ok-btn');
+    if (closeBtn) closeBtn.onclick = hideOverdueModal;
+    if (okBtn) okBtn.onclick = hideOverdueModal;
+    
+    const printModalBtn = document.getElementById('modal-print-btn');
+    if (printModalBtn) {
+        printModalBtn.onclick = () => printModalList(currentModalTitle, currentModalTasks);
+    }
     
     // School Principal Control (Shift + Right Click on Title)
     const mainTitle = document.getElementById('main-title');
@@ -1172,6 +1184,14 @@ function getCheckboxValues(name, otherCheckId, otherTextId) {
     return vals.join(', ');
 }
 
+function getYearIndexForReport() {
+    const eduYearVal = document.getElementById('edu-year').value;
+    if (!eduYearVal) return 1;
+    const startYear = parseInt(eduYearVal.split('-')[0].trim());
+    const index = (startYear - 2025) + 1; // 2025 -> 1, 2026 -> 2...
+    return (index >= 1 && index <= 4) ? index : 1;
+}
+
 function checkUnreportedActivities() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
     const statusRadio = document.querySelector('input[name="activity-status"]:checked');
@@ -1182,6 +1202,7 @@ function checkUnreportedActivities() {
     const typeVal = typeRadio.value;
     const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
+    const yearIdx = getYearIndexForReport();
     
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
@@ -1191,20 +1212,22 @@ function checkUnreportedActivities() {
         const cleanName = nameText.trim().toLocaleLowerCase('tr-TR');
         if (!cleanName) return;
         
-        // Use Turkish aware lower case for matching cache
+        // Check if reported in cache
         const isReported = savedReportsCache.some(r => (r.activityName || "").trim().toLocaleLowerCase('tr-TR') === cleanName);
         if (isReported) return;
 
-        const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
+        // Dynamic date lookup based on year index
+        const dStr = isOG ? (item[`y${yearIdx}_bit`] || item[`y${yearIdx}_bas`]) : (item[`bitis_${yearIdx}`] || item[`baslangic_${yearIdx}`]);
         const dt = parseDBDate(dStr);
+        
         if (dt) {
             const d = new Date(dt);
             if (statusVal === 'expired' ? d < today : d >= today) {
                 results.push({ 
                     id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
                     name: nameText.trim(), 
-                    start: isOG ? item.y1_bas : item.baslangic_1, 
-                    end: isOG ? item.y1_bit : item.bitis_1, 
+                    start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`], 
+                    end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`], 
                     person: isOG ? item.sorumlu : item.sorumlu_verisi, 
                     type: typeVal, 
                     isReported: false, 
@@ -1232,6 +1255,7 @@ function checkReportedActivities() {
     const typeVal = typeRadio.value;
     const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
     const today = new Date(); today.setHours(0,0,0,0);
+    const yearIdx = getYearIndexForReport();
 
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
@@ -1244,22 +1268,30 @@ function checkReportedActivities() {
         const report = savedReportsCache.find(r => (r.activityName || "").trim().toLocaleLowerCase('tr-TR') === cleanName);
         if (!report) return;
 
-        const dStr = isOG ? (item.y1_bit || item.y1_bas) : (item.bitis_1 || item.baslangic_1);
+        // Dynamic date lookup based on year index
+        const dStr = isOG ? (item[`y${yearIdx}_bit`] || item[`y${yearIdx}_bas`]) : (item[`bitis_${yearIdx}`] || item[`baslangic_${yearIdx}`]);
         const dt = parseDBDate(dStr);
+        
+        let showItem = false;
         if (dt) {
             const d = new Date(dt);
-            if (statusVal === 'expired' ? d < today : d >= today) {
-                results.push({ 
-                    id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
-                    name: nameText.trim(), 
-                    start: report.startDate, 
-                    end: report.endDate, 
-                    person: isOG ? item.sorumlu : item.sorumlu_verisi, 
-                    filler: report.fillerName, 
-                    isReported: true, 
-                    status: report.status 
-                });
-            }
+            if (statusVal === 'expired' ? d < today : d >= today) showItem = true;
+        } else {
+            // Fallback: If no date exists in plan but report exists, always show it to user
+            showItem = true;
+        }
+
+        if (showItem) {
+            results.push({ 
+                id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
+                name: nameText.trim(), 
+                start: report.startDate || (isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`]), 
+                end: report.endDate || (isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`]), 
+                person: isOG ? item.sorumlu : item.sorumlu_verisi, 
+                filler: report.fillerName, 
+                isReported: true, 
+                status: report.status 
+            });
         }
     });
 
