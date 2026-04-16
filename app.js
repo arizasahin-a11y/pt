@@ -319,14 +319,10 @@ window.addEventListener('DOMContentLoaded', () => {
         printModalList(currentModalTitle, currentModalTasks);
     };
 
-    // Direct Print
+    // Direct Print (Sol Tık: Önizleme Sayfası / Sağ Tık: Doğrudan Yazdır)
     directPrintBtn.onclick = async () => {
         if (!validateForm()) return;
-        
-        if (!lastSavedData) {
-            alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.');
-            return;
-        }
+        if (!lastSavedData) { alert('Lütfen önce raporu kaydedin! Kaydedilmemiş veriler yazdırılamaz.'); return; }
 
         if (isFormDirty()) {
             if (confirm('Kaydettiğiniz veri yaptığınız değişikliklere göre güncellenecektir. Onaylıyor musunuz?')) {
@@ -336,6 +332,46 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             printReport(getFormData());
         }
+    };
+
+    directPrintBtn.oncontextmenu = (e) => {
+        e.preventDefault();
+        // Hiçbir kontrol yapmadan doğrudan tarayıcı yazdırma menüsüne gönder
+        const data = getFormData();
+        const pc = document.getElementById('print-content').cloneNode(true);
+        const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
+        
+        fill('#p-edu-year', data.eduYear); fill('#p-type-area', data.projectType); fill('#p-name', data.activityName);
+        fill('#p-type', data.activityType); fill('#p-teacher', data.teacher); fill('#p-profile', data.participantProfile);
+        fill('#p-count', data.totalParticipants); fill('#p-location', data.location); 
+        fill('#p-dates', formatDateRange(data.startDate, data.endDate)); fill('#p-duration', data.duration);
+        fill('#p-cost', data.cost); fill('#p-document-no', data.documentNo); fill('#p-purpose', data.purpose);
+        fill('#p-status', data.status);
+        fill('#p-difficulties', data.difficulties); fill('#p-suggestions', data.suggestions);
+        fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
+        
+        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
+        fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
+        
+        if (pc.querySelector('#p-principal-name')) {
+            const rawName = data.principalName || '';
+            const parts = rawName.trim().split(/\s+/);
+            if (parts.length > 0) {
+                const surname = parts.pop().toLocaleUpperCase('tr-TR');
+                const names = parts.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
+                pc.querySelector('#p-principal-name').textContent = [...names, surname].join(' ');
+            }
+        }
+
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html>
+            <head><title>Hızlı Yazdır</title><style>body{margin:0;padding:20px;font-family:serif;}</style></head>
+            <body>${pc.innerHTML}</body>
+            <script>window.onload = function(){ window.print(); window.close(); };</script>
+            </html>
+        `);
+        win.document.close();
     };
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 
