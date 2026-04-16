@@ -12,8 +12,115 @@ let currentRecordId = null;
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
-// UI Element References (Initialized on DOM load)
 let form, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
+
+// --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
+
+window._doLoadRecord = function(data) {
+    if (!data) {
+        alert("Hata: Yüklenecek veri bulunamadı.");
+        return;
+    }
+
+    try {
+        console.log("Loading record into form:", data.id);
+        
+        // Force Switch Views
+        const f = document.getElementById('activity-form');
+        const s = document.getElementById('saved-reports');
+        if (f) f.style.display = 'block';
+        if (s) s.style.display = 'none';
+        
+        window.scrollTo(0, 0);
+
+        // State update
+        currentRecordId = data.id;
+        lastSavedData = JSON.parse(JSON.stringify(data));
+
+        // Field mapping
+        const map = {
+            'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
+            'totalParticipants': 'total-participants', 'location': 'activity-location',
+            'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
+            'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
+            'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
+            'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
+        };
+
+        for (const key in map) {
+            const el = document.getElementById(map[key]);
+            if (el) {
+                el.value = data[key] || '';
+                if (typeof updateFilledState === 'function') updateFilledState(el);
+            }
+        }
+
+        // Project Type Radio
+        if (data.projectType) {
+            const r = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
+            if (r) r.checked = true;
+        }
+
+        // Status Radio
+        if (data.status) {
+            const r = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
+            if (r) r.checked = true;
+        }
+
+        // Multi-select Checkboxes
+        if (typeof setCheckboxValues === 'function') {
+            setCheckboxValues('activity-type', data.activityType, 'type-other-check', 'type-other-text');
+            setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
+            setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
+        }
+
+        // Refresh all filled states
+        document.querySelectorAll('input, textarea').forEach(el => {
+            if (typeof updateFilledState === 'function') updateFilledState(el);
+        });
+        
+        console.log("Record loaded successfully:", data.id);
+    } catch (err) {
+        console.error("Error in _doLoadRecord:", err);
+        alert("Kayıt yüklenirken teknik bir hata oluştu: " + err.message);
+    }
+};
+
+window.editRecord = function(data) {
+    console.log("window.editRecord triggered", data ? data.id : 'null');
+    window._doLoadRecord(data);
+};
+
+window.printRecord = function(data) {
+    console.log("window.printRecord triggered", data ? data.id : 'null');
+    if (typeof printReport === 'function') {
+        printReport(data);
+    } else {
+        alert("Yazdırma fonksiyonu henüz yüklenmedi!");
+    }
+};
+
+function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
+    if (!csvValue) return;
+    const vals = csvValue.split(',').map(v => v.trim());
+    const checks = document.querySelectorAll(`input[name="${name}"]`);
+    const otherCheck = document.getElementById(otherCheckId);
+    const otherText = document.getElementById(otherTextId);
+
+    checks.forEach(c => c.checked = false);
+    if (otherCheck) otherCheck.checked = false;
+
+    vals.forEach(val => {
+        let found = false;
+        checks.forEach(c => {
+            if (c.value === val) { c.checked = true; found = true; }
+        });
+        if (!found && otherCheck) {
+            otherCheck.checked = true;
+            if (otherText) otherText.value = val;
+        }
+    });
+}
 
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -1090,19 +1197,17 @@ function loadReports() {
             editBtn.textContent = 'Formda Göster';
             editBtn.onclick = (e) => {
                 e.stopPropagation();
-                console.log('Edit clicked for:', r.id);
-                if (typeof window.editRecord === 'function') {
-                    window.editRecord(r);
-                } else {
-                    alert('Hata: editRecord fonksiyonu bulunamadı!');
-                }
+                window.editRecord(r);
             };
 
             const printBtn = document.createElement('button');
             printBtn.className = 'btn-primary';
             printBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             printBtn.textContent = 'Yazdır';
-            printBtn.onclick = () => window.printRecord(r);
+            printBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.printRecord(r);
+            };
 
             actions.appendChild(editBtn);
             actions.appendChild(printBtn);
@@ -1114,106 +1219,7 @@ function loadReports() {
     };
 }
 
-function _doLoadRecord(data) {
-    if (!data) {
-        alert("Hata: Yüklenecek veri bulunamadı.");
-        return;
-    }
-
-    try {
-        console.log("Loading record into form:", data.id);
-        
-        // Switch Views immediately
-        const f = document.getElementById('activity-form');
-        const s = document.getElementById('saved-reports');
-        
-        if (f) f.style.display = 'block';
-        if (s) s.style.display = 'none';
-        
-        window.scrollTo(0, 0);
-
-        // State update
-        currentRecordId = data.id;
-        lastSavedData = JSON.parse(JSON.stringify(data));
-
-        // Field mapping
-        const map = {
-            'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
-            'totalParticipants': 'total-participants', 'location': 'activity-location',
-            'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
-            'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
-            'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
-            'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
-        };
-
-        for (const key in map) {
-            const id = map[key];
-            const el = document.getElementById(id);
-            if (el) {
-                el.value = data[key] || '';
-                updateFilledState(el);
-            }
-        }
-
-        // Project Type Radio
-        if (data.projectType) {
-            const r = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
-            if (r) r.checked = true;
-        }
-
-        // Status Radio
-        if (data.status) {
-            const r = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
-            if (r) r.checked = true;
-        }
-
-        // Multi-select Checkboxes
-        setCheckboxValues('activity-type', data.activityType, 'type-other-check', 'type-other-text');
-        setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
-        setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
-
-        // Refresh all filled states
-        document.querySelectorAll('input, textarea').forEach(el => updateFilledState(el));
-        
-        console.log("Record loaded successfully:", data.id);
-
-    } catch (err) {
-        console.error("Error in _doLoadRecord:", err);
-        alert("Kayıt yüklenirken teknik bir hata oluştu: " + err.message);
-    }
-}
-
-window._doLoadRecord = _doLoadRecord;
-
-window.editRecord = (data) => {
-    console.log("Window.editRecord called with:", data);
-    _doLoadRecord(data);
-};
-
-function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
-    if (!csvValue) return;
-    const vals = csvValue.split(',').map(v => v.trim());
-    const checks = document.querySelectorAll(`input[name="${name}"]`);
-    const otherCheck = document.getElementById(otherCheckId);
-    const otherText = document.getElementById(otherTextId);
-
-    // Uncheck all first
-    checks.forEach(c => c.checked = false);
-    if (otherCheck) otherCheck.checked = false;
-
-    vals.forEach(val => {
-        let found = false;
-        checks.forEach(c => {
-            if (c.value === val) { c.checked = true; found = true; }
-        });
-        if (!found && otherCheck) {
-            otherCheck.checked = true;
-            if (otherText) otherText.value = val;
-        }
-    });
-}
-
-window.printRecord = (data) => printReport(data);
+// --- End of History Functions ---
 
 function parseDBDate(s) { 
     if (!s || s.indexOf('.') === -1) return null;
