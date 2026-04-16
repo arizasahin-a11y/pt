@@ -1165,8 +1165,19 @@ function downloadMasterJson() {
 function exportToExcel() {
     if (!combinedData) { alert('Veri henüz hazır değil.'); return; }
     
-    const reports = [...savedReportsCache];
-        const matchedIds = new Set();
+    const rawReports = [...savedReportsCache];
+    const uniqueReports = [];
+    const seenKeys = new Set();
+    rawReports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(r => {
+        const dupKey = r.timestamp ? `${r.timestamp}` : `${r.activityName}_${r.fillerName}`;
+        if (!seenKeys.has(dupKey)) {
+            seenKeys.add(dupKey);
+            uniqueReports.push(r);
+        }
+    });
+    
+    const reports = uniqueReports;
+    const matchedIds = new Set();
         
         const clean = (t) => t ? t.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : "";
 
@@ -1237,7 +1248,20 @@ function loadReports() {
         
         reportsList.innerHTML = ''; // Clear loading message
 
+        // ----------------------------------------------------
+        // DEDUPLICATION (Aynı timestamp/isime sahip JSON kopyalarını ele)
+        // ----------------------------------------------------
+        const uniqueReports = [];
+        const seenKeys = new Set();
         reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(r => {
+            const dupKey = r.timestamp ? `${r.timestamp}` : `${r.activityName}_${r.fillerName}`;
+            if (!seenKeys.has(dupKey)) {
+                seenKeys.add(dupKey);
+                uniqueReports.push(r);
+            }
+        });
+
+        uniqueReports.forEach(r => {
             const card = document.createElement('div');
             card.className = 'report-card';
 
