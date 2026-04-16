@@ -337,8 +337,8 @@ button {
 .status-guncellendi { background-color: var(--primary); }
 .status-iptal { background-color: #ef4444; }
 
-/* PRINT TEMPLATE (Hidden) */
-#print-template {
+/* PRINT TEMPLATE (Hidden on screen) */
+#print-template, #print-section {
     display: none;
 }
 
