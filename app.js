@@ -1289,31 +1289,7 @@ function loadReports() {
     };
 }
 
-// --- End of History Functions ---
 
-window.deleteRecord = function(report) {
-    const pw = prompt('Bu raporu kalıcı olarak silmek için oluştururken kullandığınız şifreyi giriniz:');
-    if (!pw) return;
-
-    if (hashPassword(pw) === report.passwordHash || pw === '21012012') {
-        if (confirm('Bu rapor geri döndürülemez şekilde silinecektir. Onaylıyor musunuz?')) {
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const req = store.delete(report.id);
-            req.onsuccess = () => {
-                alert('Rapor başarıyla silindi.');
-                loadSavedReportsCache().then(() => {
-                    loadReports();
-                    if (typeof checkUnreportedActivities === 'function') checkUnreportedActivities();
-                    if (typeof checkReportedActivities === 'function') checkReportedActivities();
-                });
-            };
-            req.onerror = () => alert('Rapor silinirken bir hata oluştu.');
-        }
-    } else {
-        alert('Hatalı şifre! Rapor silinemedi.');
-    }
-};
 
 function parseDBDate(s) { 
     if (!s || s.indexOf('.') === -1) return null;
@@ -1651,25 +1627,22 @@ function promptVerifyPassword(onConfirm) {
 window.deleteRecord = function(data) {
     if (!data || !data.id) return;
     
-    // Check if it has password protection
-    if (data.passwordHash && data.passwordHash !== hashPassword('')) {
-        promptVerifyPassword((enteredPw) => {
-            if (enteredPw === null) return; // User cancelled
-            const masterHash = hashPassword('21012012'); // E-okul master
-            const enteredHash = hashPassword(enteredPw);
-            
-            if (enteredHash !== data.passwordHash && enteredHash !== masterHash) {
-                alert("Hatalı şifre! Kayıt silinemedi.");
-                return;
+    promptVerifyPassword((enteredPw) => {
+        if (enteredPw === null) return; // User cancelled
+        
+        const isMaster = enteredPw === '21012012';
+        const isCorrectHash = data.passwordHash && hashPassword(enteredPw) === data.passwordHash;
+        const isEmptyPasswordHash = !data.passwordHash || data.passwordHash === hashPassword('');
+        
+        // Always require password. If record has an empty password, either enter empty or master.
+        if (isMaster || isCorrectHash || (isEmptyPasswordHash && enteredPw === '')) {
+            if (confirm(`'${data.activityName || "İsimsiz Rapor"}' kalıcı olarak silinecek. Onaylıyor musunuz?`)) {
+                _executeDelete(data);
             }
-            // Proceed to delete
-            _executeDelete(data);
-        });
-    } else {
-        if (confirm(`'${data.activityName || "İsimsiz Rapor"}' silinecek. Onaylıyor musunuz?`)) {
-            _executeDelete(data);
+        } else {
+            alert("Hatalı şifre! Kayıt silinemedi. Yetkili değilseniz master şifreyi girmelisiniz.");
         }
-    }
+    });
 };
 
 function _executeDelete(data) {
