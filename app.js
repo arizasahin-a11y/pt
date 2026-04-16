@@ -12,6 +12,9 @@ let currentRecordId = null;
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
+// UI Element References (Initialized on DOM load)
+let form, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
+
 // Initialize IndexedDB
 const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -157,17 +160,17 @@ function clearAllForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Selectors
-const form = document.getElementById('activity-form');
-const saveBtn = document.getElementById('save-btn');
-const directPrintBtn = document.getElementById('direct-print-btn');
-const historyBtn = document.getElementById('history-btn');
-const backToFormBtn = document.getElementById('back-to-form');
-const savedReportsSection = document.getElementById('saved-reports');
-const reportsList = document.getElementById('reports-list');
-
 // Initialize Core Application
 window.addEventListener('DOMContentLoaded', () => {
+    // Selection of UI Elements
+    form = document.getElementById('activity-form');
+    saveBtn = document.getElementById('save-btn');
+    directPrintBtn = document.getElementById('direct-print-btn');
+    historyBtn = document.getElementById('history-btn');
+    backToFormBtn = document.getElementById('back-to-form');
+    savedReportsSection = document.getElementById('saved-reports');
+    reportsList = document.getElementById('reports-list');
+
     calculateEduYear();
     
     // Recovery of last state
@@ -1008,19 +1011,30 @@ function exportToExcel() {
 }
 
 function loadReports() {
+    if (!reportsList) {
+        console.error('reportsList element not found!');
+        return;
+    }
     reportsList.innerHTML = '';
+    
+    if (!db) {
+        console.error('Database not initialized!');
+        return;
+    }
+
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.getAll();
 
     request.onsuccess = (e) => {
         const reports = e.target.result;
-        if (reports.length === 0) {
+        if (!reports || reports.length === 0) {
             reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
             return;
         }
 
-        reports.sort((a, b) => b.timestamp - a.timestamp).forEach(r => {
+        // Sort by timestamp descending
+        reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(r => {
             const card = document.createElement('div');
             card.className = 'report-card';
 
@@ -1032,20 +1046,21 @@ function loadReports() {
 
             const title = document.createElement('h3');
             title.style.cssText = 'margin:0; font-size:1rem;';
-            title.textContent = r.activityName;
+            title.textContent = r.activityName || 'İsimsiz Rapor';
 
             const badge = document.createElement('span');
-            const cleanStatus = r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
+            const statusStr = (r.status || 'Tamamlandı');
+            const cleanStatus = statusStr.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
             const badgeType = cleanStatus === 'iptal' ? 'iptal' : (cleanStatus === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
             badge.className = `status-badge status-${badgeType}`;
-            badge.textContent = r.status;
+            badge.textContent = statusStr;
 
             header.appendChild(title);
             header.appendChild(badge);
 
             const teacher = document.createElement('p');
             teacher.style.cssText = 'margin:0; font-size:0.85rem; color:#64748b;';
-            teacher.textContent = formatNameTR(r.teacher);
+            teacher.textContent = r.teacher ? formatNameTR(r.teacher) : '';
 
             info.appendChild(header);
             info.appendChild(teacher);
@@ -1072,6 +1087,10 @@ function loadReports() {
             card.appendChild(actions);
             reportsList.appendChild(card);
         });
+    };
+
+    request.onerror = (e) => {
+        console.error('loadReports error:', e.target.error);
     };
 }
 
