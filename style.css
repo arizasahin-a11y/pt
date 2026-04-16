@@ -800,3 +800,20 @@ button {
     gap: 0.8rem;
     margin-top: 1.2rem;
 }
+
+/* Other Input Field Toggles */
+.other-input {
+    display: none;
+    margin-top: 8px;
+    width: calc(100% - 10px);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+}
+
+input[type="checkbox"]:checked ~ .other-input {
+    display: block;
+}

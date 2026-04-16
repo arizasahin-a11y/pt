@@ -291,6 +291,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
     calculateEduYear();
     
+    // Toggle logic for "Diğer" checkboxes
+    document.querySelectorAll('input[type="checkbox"][id$="-other-check"]').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+            const inputId = e.target.id.replace('-check', '-text');
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.style.display = e.target.checked ? 'block' : 'none';
+                if (!e.target.checked) input.value = '';
+            }
+        });
+    });
+    // Set initial display based on HTML state
+    document.querySelectorAll('.other-input').forEach(input => {
+        const checkId = input.id.replace('-text', '-check');
+        const chk = document.getElementById(checkId);
+        if (chk) {
+            input.style.display = chk.checked ? 'block' : 'none';
+        }
+    });
+    
     // Recovery of last state
     const lastType = localStorage.getItem('lastProjectType');
     if (lastType) {
@@ -1239,8 +1259,20 @@ function loadReports() {
                 window.printRecord(r);
             });
 
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn-secondary';
+            deleteBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem; color: #ef4444; border-color: #ef4444;';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Sil';
+            deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.deleteRecord(r);
+            });
+
             actions.appendChild(editBtn);
             actions.appendChild(printBtn);
+            actions.appendChild(deleteBtn);
 
             card.appendChild(info);
             card.appendChild(actions);
@@ -1250,6 +1282,30 @@ function loadReports() {
 }
 
 // --- End of History Functions ---
+
+window.deleteRecord = function(report) {
+    const pw = prompt('Bu raporu kalıcı olarak silmek için oluştururken kullandığınız şifreyi giriniz:');
+    if (!pw) return;
+
+    if (hashPassword(pw) === report.passwordHash || pw === '21012012') {
+        if (confirm('Bu rapor geri döndürülemez şekilde silinecektir. Onaylıyor musunuz?')) {
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const req = store.delete(report.id);
+            req.onsuccess = () => {
+                alert('Rapor başarıyla silindi.');
+                loadSavedReportsCache().then(() => {
+                    loadReports();
+                    if (typeof checkUnreportedActivities === 'function') checkUnreportedActivities();
+                    if (typeof checkReportedActivities === 'function') checkReportedActivities();
+                });
+            };
+            req.onerror = () => alert('Rapor silinirken bir hata oluştu.');
+        }
+    } else {
+        alert('Hatalı şifre! Rapor silinemedi.');
+    }
+};
 
 function parseDBDate(s) { 
     if (!s || s.indexOf('.') === -1) return null;
@@ -1422,18 +1478,23 @@ function getReportStatusBadge(status) {
     return `<span class="status-badge status-${type}" style="padding: 1px 6px; font-size: 0.65rem;">${s}</span>`;
 }
 
-function getIgnoredTasks() { return JSON.parse(localStorage.getItem('pfds_ignored_tasks') || '{}'); }
+function getIgnoredTasks() { 
+    try {
+        let v = JSON.parse(localStorage.getItem('pfds_ignored_tasks'));
+        if (!Array.isArray(v)) v = [];
+        return v;
+    } catch(e) { return []; } 
+}
 function ignoreTask(person, taskId) {
     const ignored = getIgnoredTasks();
-    if (!ignored[person]) ignored[person] = [];
-    if (!ignored[person].includes(taskId)) {
-        ignored[person].push(taskId);
+    if (!ignored.includes(taskId)) {
+        ignored.push(taskId);
         localStorage.setItem('pfds_ignored_tasks', JSON.stringify(ignored));
     }
 }
 function isTaskIgnored(person, taskId) {
     const ignored = getIgnoredTasks();
-    return ignored[person] && ignored[person].includes(taskId);
+    return ignored.includes(taskId);
 }
 
 function showStatusModal(title, tasks) {
@@ -1463,14 +1524,14 @@ function showStatusModal(title, tasks) {
                 ${statusBadge}
                 ${t.filler ? `<div style="color:#10b981; font-size:0.75rem; margin-top:4px;">Dolduran: ${formatNameTR(t.filler)}</div>` : ''}
             </div>
-            <div class="overdue-actions">
-                <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
+            <div class="task-actions" style="display:flex; gap:10px; margin-top:5px;">
+                <button class="btn-secondary btn-action-sm btn-delete" onclick="handleIgnoreTask(event, '${t.person.replace(/'/g, "\\'")}', '${t.id}')">
                     <i class="fas fa-trash-alt"></i> Listeden Kaldır
                 </button>
                 ${!t.isReported ? `
-                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person}', '${t.start}', '${t.end}', '${t.id}')">Rapor Doldur</button>
+                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person.replace(/'/g, "\\'")}', '${t.start}', '${t.end}', '${t.id}')">Rapor Doldur</button>
                 ` : ''}
-                </div>
+            </div>
         `;
         list.appendChild(li);
     });
@@ -1577,4 +1638,53 @@ function promptVerifyPassword(onConfirm) {
         btnLabel: 'Doğrula & Yükle',
         onConfirm
     });
+}
+
+window.deleteRecord = function(data) {
+    if (!data || !data.id) return;
+    
+    // Check if it has password protection
+    if (data.passwordHash && data.passwordHash !== hashPassword('')) {
+        promptVerifyPassword((enteredPw) => {
+            if (enteredPw === null) return; // User cancelled
+            const masterHash = hashPassword('21012012'); // E-okul master
+            const enteredHash = hashPassword(enteredPw);
+            
+            if (enteredHash !== data.passwordHash && enteredHash !== masterHash) {
+                alert("Hatalı şifre! Kayıt silinemedi.");
+                return;
+            }
+            // Proceed to delete
+            _executeDelete(data);
+        });
+    } else {
+        if (confirm(`'${data.activityName || "İsimsiz Rapor"}' silinecek. Onaylıyor musunuz?`)) {
+            _executeDelete(data);
+        }
+    }
+};
+
+function _executeDelete(data) {
+    if (!db) {
+        alert("Veritabanı bağlantısı yok.");
+        return;
+    }
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.delete(data.id);
+    
+    request.onsuccess = () => {
+        // Remove from cache
+        savedReportsCache = savedReportsCache.filter(r => r.id !== data.id);
+        if (currentRecordId === data.id) {
+            clearAllForm();
+        }
+        loadReports();
+        alert("Kayıt başarıyla silindi.");
+    };
+    
+    request.onerror = (e) => {
+        console.error("Delete failed:", e);
+        alert("Silme işlemi başarısız oldu.");
+    };
 }
