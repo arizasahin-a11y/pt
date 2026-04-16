@@ -1009,24 +1009,68 @@ function exportToExcel() {
 
 function loadReports() {
     reportsList.innerHTML = '';
-    db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).getAll().onsuccess = (e) => {
-        e.target.result.sort((a,b)=>b.timestamp-a.timestamp).forEach(r => {
-            const div = document.createElement('div');
-            div.className = 'report-card';
-            div.innerHTML = `
-                <div style="flex-grow:1;">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
-                        <h3 style="margin:0; font-size:1rem;">${r.activityName}</h3>
-                        <span class="status-badge status-${r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'iptal' ? 'iptal' : r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g') === 'güncellendi' ? 'guncellendi' : 'tamamlandi'}">${r.status}</span>
-                    </div>
-                    <p style="margin:0; font-size:0.85rem; color:#64748b;">${formatNameTR(r.teacher)}</p>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;" onclick='window.editRecord(${JSON.stringify(r)})'>Formda Göster</button>
-                    <button class="btn-primary" style="font-size:0.8rem; padding:0.5rem 1rem;" onclick='window.printRecord(${JSON.stringify(r)})'>Yazdır</button>
-                </div>
-            `;
-            reportsList.appendChild(div);
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+
+    request.onsuccess = (e) => {
+        const reports = e.target.result;
+        if (reports.length === 0) {
+            reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
+            return;
+        }
+
+        reports.sort((a, b) => b.timestamp - a.timestamp).forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'report-card';
+
+            const info = document.createElement('div');
+            info.style.flexGrow = '1';
+
+            const header = document.createElement('div');
+            header.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;';
+
+            const title = document.createElement('h3');
+            title.style.cssText = 'margin:0; font-size:1rem;';
+            title.textContent = r.activityName;
+
+            const badge = document.createElement('span');
+            const cleanStatus = r.status.toLowerCase().replace('ü','u').replace('ö','o').replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g');
+            const badgeType = cleanStatus === 'iptal' ? 'iptal' : (cleanStatus === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
+            badge.className = `status-badge status-${badgeType}`;
+            badge.textContent = r.status;
+
+            header.appendChild(title);
+            header.appendChild(badge);
+
+            const teacher = document.createElement('p');
+            teacher.style.cssText = 'margin:0; font-size:0.85rem; color:#64748b;';
+            teacher.textContent = formatNameTR(r.teacher);
+
+            info.appendChild(header);
+            info.appendChild(teacher);
+
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex; gap:10px;';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn-secondary';
+            editBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
+            editBtn.textContent = 'Formda Göster';
+            editBtn.onclick = () => window.editRecord(r);
+
+            const printBtn = document.createElement('button');
+            printBtn.className = 'btn-primary';
+            printBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
+            printBtn.textContent = 'Yazdır';
+            printBtn.onclick = () => window.printRecord(r);
+
+            actions.appendChild(editBtn);
+            actions.appendChild(printBtn);
+
+            card.appendChild(info);
+            card.appendChild(actions);
+            reportsList.appendChild(card);
         });
     };
 }
