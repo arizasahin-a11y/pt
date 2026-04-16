@@ -12,6 +12,8 @@ let currentRecordId = null;
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 
+console.log("%cPFDS v1.2.6 Initializing...", "color: #6366f1; font-weight: bold; font-size: 14px;");
+
 let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
 
@@ -1321,11 +1323,19 @@ function checkUnreportedActivities() {
 // Utility for extremely robust string comparison (ignoring case, spaces, and special Turkish differences)
 function normalizeString(s) {
     if (!s) return "";
-    return s.toString()
-        .trim()
-        .toLocaleLowerCase('tr-TR')
+    let str = s.toString().trim();
+    
+    // Manual Turkish Lowercasing to bypass locale issues in Chrome
+    const trMap = {
+        'İ': 'i', 'I': 'ı', 'Ş': 'ş', 'Ğ': 'ğ', 'Ü': 'ü', 'Ö': 'ö', 'Ç': 'ç'
+    };
+    for (let char in trMap) {
+        str = str.split(char).join(trMap[char]);
+    }
+    
+    return str.toLowerCase()
         .replace(/\s+/g, '') // Remove ALL spaces
-        .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove non-alphanumeric
+        .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove all non-alphanumeric noise
 }
 
 async function checkReportedActivities() {
@@ -1349,10 +1359,20 @@ async function checkReportedActivities() {
         if (report.projectType !== typeVal) return;
 
         const normReportName = normalizeString(report.activityName);
-        const planItem = planList.find(p => {
+        let planItem = planList.find(p => {
             const planName = (isOG ? p.eylem_adi : p.eylem_gorev) || "";
             return normalizeString(planName) === normReportName;
         });
+
+        // --- NAME REPAIR LOGIC (For 'Untitled' reports in Chrome) ---
+        if (!planItem && !report.activityName) {
+            // If name is missing, try to find a plan item that matches by date and person
+            planItem = planList.find(p => {
+                const planStart = isOG ? p[`y${yearIdx}_bas`] : p[`baslangic_${yearIdx}`];
+                const planEnd = isOG ? p[`y${yearIdx}_bit`] : p[`bitis_${yearIdx}`];
+                return planStart === report.startDate && planEnd === report.endDate;
+            });
+        }
 
         const currentEduYear = document.getElementById('edu-year').value;
         const isCurrentYear = report.eduYear === currentEduYear;
