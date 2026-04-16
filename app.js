@@ -79,6 +79,33 @@ function updateFilledState(el) {
         if (hasValue) wrapper.classList.add('has-content');
         else wrapper.classList.remove('has-content');
     }
+    checkFormHasContent();
+}
+
+// Show/hide the top “Tüm Formu Temizle” bar based on form state
+function checkFormHasContent() {
+    const textIds = [
+        'activity-name', 'responsible-teacher', 'total-participants', 'activity-location',
+        'activity-start', 'activity-end', 'total-duration', 'cost', 'purpose',
+        'difficulties', 'suggestions', 'collaborations', 'evaluation',
+        'filler-name', 'filler-role', 'document-no', 'filler-date'
+    ];
+    const hasText = textIds.some(id => {
+        const el = document.getElementById(id);
+        return el && el.value.trim().length > 0;
+    });
+    const hasChecked = document.querySelectorAll(
+        '[name="activity-type"]:checked, [name="participant-profile"]:checked, [name="docs"]:checked'
+    ).length > 0;
+    const bar = document.getElementById('clear-all-bar');
+    if (bar) bar.style.display = (hasText || hasChecked) ? 'flex' : 'none';
+}
+
+// Clear SORUMLU field and close its suggestion panel
+function clearResponsible() {
+    clearField('responsible-teacher');
+    const sp = document.getElementById('suggestions-panel');
+    if (sp) sp.style.display = 'none';
 }
 
 // --- CLEAR HELPERS ---
@@ -96,6 +123,7 @@ function clearCheckboxGroup(name, otherCheckId, otherTextId) {
     const ot = document.getElementById(otherTextId);
     if (oc) oc.checked = false;
     if (ot) ot.value = '';
+    checkFormHasContent();
 }
 
 function clearRadioGroup(name, defaultValue) {
@@ -108,7 +136,6 @@ function clearRadioGroup(name, defaultValue) {
 
 function clearAllForm() {
     if (!confirm('Formdaki TÜM veriler silinecek. Emin misiniz?')) return;
-    // Text / number / date / textarea
     const textIds = [
         'activity-name', 'responsible-teacher', 'total-participants', 'activity-location',
         'activity-start', 'activity-end', 'total-duration', 'cost', 'purpose',
@@ -116,21 +143,17 @@ function clearAllForm() {
         'filler-name', 'filler-role', 'document-no', 'filler-date'
     ];
     textIds.forEach(id => clearField(id));
-
-    // Checkbox groups
     clearCheckboxGroup('activity-type', 'type-other-check', 'type-other-text');
     clearCheckboxGroup('participant-profile', 'participant-other-check', 'participant-other-text');
     clearCheckboxGroup('docs', 'docs-other-check', 'docs-other-text');
-
-    // Reset radios to defaults
     clearRadioGroup('project-type', 'OKUL GELİŞİM PROJESİ');
     clearRadioGroup('report-status', 'Tamamlandı');
-
-    // Reset save state
+    const sp = document.getElementById('suggestions-panel');
+    if (sp) sp.style.display = 'none';
     currentRecordId = null;
     lastSavedData = null;
-
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
+    checkFormHasContent();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -758,25 +781,35 @@ saveBtn.addEventListener('click', async () => {
     if (!validateForm()) return;
 
     if (currentRecordId) {
-        // UPDATE existing record — no password prompt needed
+        // UPDATE existing record
         const data = getFormData();
         data.id = currentRecordId;
-        // Preserve existing password
-        await new Promise(resolve => {
+
+        // Check if existing record has a password
+        const existing = await new Promise(resolve => {
             const tx = db.transaction([STORE_NAME], 'readonly');
-            tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => {
-                const existing = e.target.result;
-                if (existing && existing.savePassword) data.savePassword = existing.savePassword;
-                resolve();
-            };
+            tx.objectStore(STORE_NAME).get(currentRecordId).onsuccess = (e) => resolve(e.target.result);
         });
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
-            lastSavedData = JSON.parse(JSON.stringify(data));
-            alert('Rapor güncellendi!');
-            refreshCombinedData();
-            syncSavedReportsCache();
+
+        const doSave = (pw) => {
+            if (pw) data.savePassword = hashPassword(pw);
+            else if (existing && existing.savePassword) data.savePassword = existing.savePassword;
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            transaction.objectStore(STORE_NAME).put(data).onsuccess = () => {
+                lastSavedData = JSON.parse(JSON.stringify(data));
+                alert('Rapor güncellendi!');
+                refreshCombinedData();
+                syncSavedReportsCache();
+            };
         };
+
+        if (existing && existing.savePassword) {
+            // Already has password — preserve it
+            doSave(null);
+        } else {
+            // No password yet — prompt to set one
+            promptSavePassword((pw) => doSave(pw));
+        }
     } else {
         // NEW record — prompt for password
         promptSavePassword((password) => {

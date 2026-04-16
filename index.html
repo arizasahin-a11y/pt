@@ -29,10 +29,6 @@
                     <button type="button" class="btn-secondary btn-header-special" id="reported-actions-btn" title="Rapor girilmiş faaliyetleri listele">
                         <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
                     </button>
-                    <!-- TÜM FORMU TEMİZLE -->
-                    <button type="button" class="btn-clear-all" id="clear-all-btn" title="Formdaki tüm verileri sıfırla">
-                        <i class="fas fa-trash-alt"></i> Tüm Formu Temizle
-                    </button>
                 </div>
                 <div class="status-badge" id="app-status">Sistem Hazır</div>
 
@@ -46,6 +42,14 @@
                 </div>
             </div>
         </header>
+
+        <!-- Tüm Formu Temizle — satırı, form doldurulunca görünür -->
+        <div id="clear-all-bar" style="display:none; justify-content:center; margin: -1rem 0 1.5rem; position: sticky; top: 0; z-index: 100;">
+            <button type="button" id="clear-all-btn" class="btn-clear-all" style="padding: 0.6rem 2rem; font-size: 0.9rem; border-radius: 50px; box-shadow: 0 4px 20px rgba(239,68,68,0.3);">
+                <i class="fas fa-trash-alt"></i> Tüm Formu Temizle
+            </button>
+        </div>
+
         <form id="activity-form">
             <div class="grid">
                 <div class="field-group">
@@ -72,9 +76,9 @@
             
             <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
                 <label>SORUMLU</label>
-                <div class="input-wrapper" style="position: relative;">
-                    <input type="text" id="responsible-teacher" placeholder="Sorumlu seçin..." autocomplete="off" style="width: 100%; padding-right: 40px;">
-                    <button type="button" id="clear-responsible" class="clear-btn" title="Temizle">&times;</button>
+                <div class="field-wrapper">
+                    <input type="text" id="responsible-teacher" placeholder="Sorumlu seçin..." autocomplete="off">
+                    <button type="button" id="clear-responsible" class="field-clear-btn" title="Sorumluyu temizle" onclick="clearResponsible()">&#x2715;</button>
                 </div>
                 <div id="suggestions-panel" class="suggestions-panel"></div>
             </div>
