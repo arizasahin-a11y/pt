@@ -1088,7 +1088,15 @@ function loadReports() {
             editBtn.className = 'btn-secondary';
             editBtn.style.cssText = 'font-size:0.8rem; padding:0.5rem 1rem;';
             editBtn.textContent = 'Formda Göster';
-            editBtn.onclick = () => window.editRecord(r);
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                console.log('Edit clicked for:', r.id);
+                if (typeof window.editRecord === 'function') {
+                    window.editRecord(r);
+                } else {
+                    alert('Hata: editRecord fonksiyonu bulunamadı!');
+                }
+            };
 
             const printBtn = document.createElement('button');
             printBtn.className = 'btn-primary';
@@ -1108,19 +1116,20 @@ function loadReports() {
 
 function _doLoadRecord(data) {
     if (!data) {
-        console.error("LoadRecord: No data provided");
+        alert("Hata: Yüklenecek veri bulunamadı.");
         return;
     }
 
     try {
-        // Switch Views (Force selection if globals are missing)
-        const f = form || document.getElementById('activity-form');
-        const s = savedReportsSection || document.getElementById('saved-reports');
+        console.log("Loading record into form:", data.id);
         
-        if (f && s) {
-            f.style.display = 'block';
-            s.style.display = 'none';
-        }
+        // Switch Views immediately
+        const f = document.getElementById('activity-form');
+        const s = document.getElementById('saved-reports');
+        
+        if (f) f.style.display = 'block';
+        if (s) s.style.display = 'none';
+        
         window.scrollTo(0, 0);
 
         // State update
@@ -1137,9 +1146,13 @@ function _doLoadRecord(data) {
             'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
         };
 
-        for (const [key, id] of Object.entries(map)) {
+        for (const key in map) {
+            const id = map[key];
             const el = document.getElementById(id);
-            if (el) el.value = data[key] || '';
+            if (el) {
+                el.value = data[key] || '';
+                updateFilledState(el);
+            }
         }
 
         // Project Type Radio
@@ -1159,17 +1172,21 @@ function _doLoadRecord(data) {
         setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
         setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
 
-        // Refresh UI state
-        document.querySelectorAll('input, textarea').forEach(updateFilledState);
+        // Refresh all filled states
+        document.querySelectorAll('input, textarea').forEach(el => updateFilledState(el));
+        
+        console.log("Record loaded successfully:", data.id);
 
     } catch (err) {
         console.error("Error in _doLoadRecord:", err);
-        alert("Kayıt yüklenirken bir hata oluştu: " + err.message);
+        alert("Kayıt yüklenirken teknik bir hata oluştu: " + err.message);
     }
 }
 
+window._doLoadRecord = _doLoadRecord;
+
 window.editRecord = (data) => {
-    // Şifre kontrolü kaldırıldı — kayıtlar şifresiz yüklenir, şifre sadece kaydetme sırasında sorulur
+    console.log("Window.editRecord called with:", data);
     _doLoadRecord(data);
 };
 
