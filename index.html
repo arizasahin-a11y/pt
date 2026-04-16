@@ -451,40 +451,6 @@
         </div>
     </div>
 
-    <!-- SAĞ TIK BAĞLAM MENÜSÜ — Raporu Yazdır / PDF Yap butonu için -->
-    <div id="print-context-menu" style="
-        display: none;
-        position: fixed;
-        z-index: 99999;
-        background: #1e293b;
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 12px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        overflow: hidden;
-        min-width: 200px;
-        animation: fadeIn 0.15s ease;
-    ">
-        <button id="ctx-print" style="
-            display: flex; align-items: center; gap: 10px;
-            width: 100%; padding: 12px 18px;
-            background: transparent; border: none; color: #f8fafc;
-            font-family: inherit; font-size: 0.95rem; cursor: pointer;
-            transition: background 0.15s; text-align: left;
-        " onmouseover="this.style.background='rgba(99,102,241,0.25)'" onmouseout="this.style.background='transparent'">
-            <i class="fas fa-print" style="color: #ff7e5f; width:16px;"></i> Yazdır
-        </button>
-        <div style="height:1px; background: rgba(255,255,255,0.06); margin: 0 12px;"></div>
-        <button id="ctx-pdf" style="
-            display: flex; align-items: center; gap: 10px;
-            width: 100%; padding: 12px 18px;
-            background: transparent; border: none; color: #f8fafc;
-            font-family: inherit; font-size: 0.95rem; cursor: pointer;
-            transition: background 0.15s; text-align: left;
-        " onmouseover="this.style.background='rgba(99,102,241,0.25)'" onmouseout="this.style.background='transparent'">
-            <i class="fas fa-file-pdf" style="color: #6366f1; width:16px;"></i> Doğrudan PDF İndir
-        </button>
-    </div>
-
     <script src="db_data.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="app.js"></script>

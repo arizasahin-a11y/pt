@@ -337,92 +337,11 @@ window.addEventListener('DOMContentLoaded', () => {
             printReport(getFormData());
         }
     };
-    directPrintBtn.oncontextmenu = (e) => {
-        e.preventDefault();
-        // Sağ tık özel menüsü
-        const menu = document.getElementById('print-context-menu');
-        if (!menu) return;
-        menu.style.left = e.clientX + 'px';
-        menu.style.top = e.clientY + 'px';
-        menu.style.display = 'block';
-        // Dışarı tıklanınca kapat
-        setTimeout(() => {
-            document.addEventListener('click', function closeMenu() {
-                menu.style.display = 'none';
-                document.removeEventListener('click', closeMenu);
-            });
-        }, 0);
-    };
-
     setTimeout(() => { document.querySelectorAll('input, textarea').forEach(updateFilledState); }, 500);
 
     // --- CLEAR ALL BUTTON ---
     const clearAllBtn = document.getElementById('clear-all-btn');
     if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
-
-    // --- PRINT CONTEXT MENU BUTTONS ---
-    const ctxPrint = document.getElementById('ctx-print');
-    const ctxPdf = document.getElementById('ctx-pdf');
-
-    if (ctxPrint) ctxPrint.onclick = () => {
-        // Kontrol yapmadan doğrudan yazdır
-        printReport(getFormData());
-    };
-
-    if (ctxPdf) ctxPdf.onclick = () => {
-        // Kontrol yapmadan doğrudan PDF oluştur ve indir
-        const pc = document.getElementById('print-content').cloneNode(true);
-        const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
-        const data = getFormData();
-        
-        fill('#p-edu-year', data.eduYear); 
-        fill('#p-type-area', data.projectType); 
-        fill('#p-name', data.activityName);
-        fill('#p-type', data.activityType); 
-        fill('#p-teacher', data.teacher); 
-        fill('#p-profile', data.participantProfile);
-        fill('#p-count', data.totalParticipants); 
-        fill('#p-location', data.location);
-        fill('#p-dates', formatDateRange(data.startDate, data.endDate)); 
-        fill('#p-duration', data.duration);
-        fill('#p-cost', data.cost); 
-        fill('#p-document-no', data.documentNo); 
-        fill('#p-purpose', data.purpose);
-        fill('#p-status', data.status);
-        fill('#p-difficulties', data.difficulties); 
-        fill('#p-suggestions', data.suggestions);
-        fill('#p-collaborations', data.collaborations); 
-        fill('#p-evaluation', data.evaluation); 
-        fill('#p-docs', data.docs);
-        
-        const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
-        fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
-        
-        const rawPrincipal = data.principalName || '';
-        const pp = rawPrincipal.trim().split(/\s+/);
-        if (pp.length > 0 && pc.querySelector('#p-principal-name')) {
-            const sn = pp.pop().toLocaleUpperCase('tr-TR');
-            const ns = pp.map(n => n.charAt(0).toLocaleUpperCase('tr-TR') + n.slice(1).toLocaleLowerCase('tr-TR'));
-            pc.querySelector('#p-principal-name').textContent = [...ns, sn].join(' ');
-        }
-        
-        const wrapper = document.createElement('div');
-        wrapper.id = 'pdf-temp-wrap';
-        wrapper.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;background:white;';
-        wrapper.appendChild(pc);
-        document.body.appendChild(wrapper);
-        
-        const opt = {
-            margin: 0,
-            filename: `Rapor_${data.activityName.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(wrapper).save().then(() => { 
-            document.body.removeChild(wrapper); 
-        });
-    };
 
 
     // --- PASSWORD MODAL SETUP ---
@@ -950,37 +869,64 @@ function printReport(data) {
 
     const styles = `
         <style>
-            body { background: #f0f2f5; margin: 0; padding: 20px; font-family: 'Times New Roman', serif; }
-            #preview-container { width: 210mm; background: white; padding: 30px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; position: relative; min-height: 297mm; }
-            .action-bar { max-width: 210mm; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; gap: 10px; }
-            .btn-action { padding: 10px 20px; border-radius: 50px; cursor: pointer; border: none; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
-            .btn-print { background: #ff7e5f; }
-            .btn-download { background: #6366f1; }
-            @media print { .action-bar { display: none !important; } body { background: white; padding: 0; } #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; } }
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
+            body { background: #f0f2f5; margin: 0; padding: 40px 20px; font-family: 'Times New Roman', serif; }
+            #preview-container { 
+                width: 210mm; background: white; padding: 30px; margin: 0 auto; 
+                box-shadow: 0 10px 50px rgba(0,0,0,0.15); border-radius: 12px; 
+                position: relative; min-height: 297mm; 
+                transform-origin: top center;
+            }
+            .action-bar { 
+                position: sticky; top: 20px; z-index: 1000;
+                max-width: 210mm; margin: 0 auto 30px auto; 
+                display: flex; justify-content: flex-end; gap: 12px; 
+                background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+                padding: 10px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.05);
+            }
+            .btn-action { 
+                padding: 10px 24px; border-radius: 50px; cursor: pointer; border: none; 
+                font-weight: 600; color: white; display: flex; align-items: center; 
+                gap: 8px; font-family: 'Outfit', sans-serif; transition: transform 0.2s, box-shadow 0.2s;
+                font-size: 0.9rem;
+            }
+            .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+            .btn-print { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
+            .btn-download { background: linear-gradient(135deg, #6366f1, #a855f7); }
+            @media print { 
+                .action-bar { display: none !important; } 
+                body { background: white; padding: 0; } 
+                #preview-container { box-shadow: none; border-radius: 0; padding: 10mm; margin:0; width: 100%; } 
+            }
         </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     `;
 
-    win.document.write(`
+    win.document.write(\`
         <html>
         <head>
-            <title>Rapor Önizleme</title>
-            ${styles}
+            <title>Rapor Önizleme - \${data.activityName}</title>
+            \${styles}
             <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
         </head>
         <body>
             <div class="action-bar">
-                <button class="btn-action btn-download" onclick="window.downloadPDF()">PDF İndir</button>
-                <button class="btn-action btn-print" onclick="window.print()">Hemen Yazdır</button>
+                <button class="btn-action btn-download" onclick="window.downloadPDF()">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+                <button class="btn-action btn-print" onclick="window.print()">
+                    <i class="fas fa-print"></i> Yazdır
+                </button>
             </div>
             <div id="preview-container">
-                ${pc.innerHTML}
+                \${pc.innerHTML}
             </div>
             <script>
                 window.downloadPDF = function() {
                     const element = document.getElementById('preview-container');
                     const opt = {
                         margin: 0,
-                        filename: 'Rapor_${new Date().getTime()}.pdf',
+                        filename: 'Rapor_\${data.activityName.substring(0,30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf',
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: { scale: 2, useCORS: true },
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -990,7 +936,7 @@ function printReport(data) {
             </script>
         </body>
         </html>
-    `);
+    \`);
     win.document.close();
 }
 
