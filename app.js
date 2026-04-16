@@ -1107,34 +1107,63 @@ function loadReports() {
 }
 
 function _doLoadRecord(data) {
-    // Map data keys to element IDs
+    if (!data) return;
+
+    // Switch views immediately
+    if (form && savedReportsSection) {
+        form.style.display = 'block';
+        savedReportsSection.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Set record state
+    currentRecordId = data.id;
+    lastSavedData = JSON.parse(JSON.stringify(data));
+
+    // Map basic text fields
     const map = {
-        'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
-        'totalParticipants': 'total-participants', 'location': 'activity-location',
-        'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
-        'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
-        'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
-        'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
+        'eduYear': 'edu-year', 
+        'activityName': 'activity-name', 
+        'teacher': 'responsible-teacher',
+        'totalParticipants': 'total-participants', 
+        'location': 'activity-location',
+        'startDate': 'activity-start', 
+        'endDate': 'activity-end', 
+        'duration': 'total-duration',
+        'cost': 'cost', 
+        'documentNo': 'document-no', 
+        'purpose': 'purpose',
+        'difficulties': 'difficulties', 
+        'suggestions': 'suggestions', 
+        'collaborations': 'collaborations',
+        'evaluation': 'evaluation', 
+        'fillerName': 'filler-name', 
+        'fillerRole': 'filler-role', 
+        'fillerDate': 'filler-date'
     };
+
     Object.keys(map).forEach(key => {
         const el = document.getElementById(map[key]);
         if (el) el.value = data[key] || '';
     });
-    // Handle radios
-    const typeRadio = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
-    if (typeRadio) typeRadio.checked = true;
-    const statusRadio = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
-    if (statusRadio) statusRadio.checked = true;
+
+    // Handle radios with defensive checks
+    if (data.projectType) {
+        const typeRadio = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
+        if (typeRadio) typeRadio.checked = true;
+    }
+    
+    if (data.status) {
+        const statusRadio = document.querySelector(`input[name="report-status"][value="${data.status}"]`);
+        if (statusRadio) statusRadio.checked = true;
+    }
+
     // Handle Checkbox Groups
     setCheckboxValues('activity-type', data.activityType, 'type-other-check', 'type-other-text');
     setCheckboxValues('participant-profile', data.participantProfile, 'participant-other-check', 'participant-other-text');
     setCheckboxValues('docs', data.docs, 'docs-other-check', 'docs-other-text');
-    // Set state for update tracking
-    currentRecordId = data.id;
-    lastSavedData = JSON.parse(JSON.stringify(data));
-    // Return to form view
-    document.getElementById('back-to-form').click();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Update visual states
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
 }
 
