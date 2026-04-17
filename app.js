@@ -158,6 +158,7 @@ async function syncSavedReportsCache() {
         });
         
         console.log(`Cache updated from Firebase: ${savedReportsCache.length} reports.`);
+        refreshCombinedData();
         
         // Refresh UI if user is on history page
         if (typeof savedReportsSection !== 'undefined' && savedReportsSection && savedReportsSection.style.display === 'block') {
