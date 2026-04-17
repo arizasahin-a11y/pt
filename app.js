@@ -1102,7 +1102,7 @@ function printReport(data) {
     
     // Formatting Principal Name (First name Initial caps, Surname ALL CAPS)
     if (pc.querySelector('#p-principal-name')) {
-        const rawName = data.principalName || '';
+        const rawName = data.principalName || localStorage.getItem('schoolPrincipal') || '';
         const parts = rawName.trim().split(/\s+/);
         if (parts.length > 0) {
             const surname = parts.pop().toLocaleUpperCase('tr-TR');
