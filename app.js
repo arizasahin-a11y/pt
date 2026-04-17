@@ -214,7 +214,8 @@ function migrateOldDataToFirebase() {
                 });
             }
         };
-        request.onerror = (e) => {
+    };
+    request.onerror = (e) => {
             console.warn("Migration DB Access Error. Cannot read old data:", e);
         };
     } catch(err) {
