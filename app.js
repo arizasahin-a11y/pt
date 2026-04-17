@@ -164,8 +164,17 @@ async function syncSavedReportsCache() {
             loadReports();
         }
         
-        if (typeof checkUnreportedActivities === 'function') checkUnreportedActivities();
-        if (typeof checkReportedActivities === 'function') checkReportedActivities();
+        // Sadece modal halihazırda açıksa listeyi tazelemek için tetikle.
+        // Aksi takdirde kendi kendine kullanıcıya popup fırlatır!
+        const modal = document.getElementById('overdue-modal');
+        if (modal && modal.style.display === 'flex') {
+            const t = modal.querySelector('.modal-header h3').innerText;
+            if (t.includes('Eksik') && typeof checkUnreportedActivities === 'function') {
+                checkUnreportedActivities();
+            } else if (t.includes('Girilmiş') && typeof checkReportedActivities === 'function') {
+                checkReportedActivities();
+            }
+        }
     });
 }
 
