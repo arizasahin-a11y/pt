@@ -421,9 +421,14 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button class="btn-secondary" id="modal-print-btn" style="background: #10b981; color: white; display: none;">
-                    <i class="fas fa-print"></i> Listeyi Yazdır
-                </button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary" id="modal-print-btn" style="background: #10b981; color: white; display: none;">
+                        <i class="fas fa-print"></i> Listeyi Yazdır
+                    </button>
+                    <button class="btn-secondary" id="modal-restore-btn" style="color: #64748b; border: 1px solid #cbd5e1; display: none;" onclick="restoreIgnoredTasks()">
+                        <i class="fas fa-undo"></i> Gizlenenleri Geri Getir
+                    </button>
+                </div>
                 <button class="btn-primary" id="overdue-ok-btn">Anladım</button>
             </div>
         </div>

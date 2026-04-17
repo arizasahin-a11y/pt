@@ -898,6 +898,14 @@ function checkOverdueActivities() {
         currentModalTasks = modalTasks;
         currentModalTitle = `Görev Listesi (${statusRadio === 'expired' ? 'Süresi Dolan' : 'Devam Eden'})`;
         showOverdueModal(modalTasks);
+    } else {
+        const ignored = getIgnoredTasks();
+        if (ignored.length > 0) {
+            // Task kalmamış ama gizlenmiş tasklar var, sadece geri getirme butonunu göster
+            currentModalTasks = [];
+            currentModalTitle = 'Görev Listesi (Hepsi Gizlenmiş)';
+            showOverdueModal([]);
+        }
     }
 }
 
@@ -993,6 +1001,14 @@ function showOverdueModal(tasks) {
             hideOverdueModal();
         };
     });
+    
+    // Toggle gizlenenleri geri getir button
+    const rsBtn = document.getElementById('modal-restore-btn');
+    if (rsBtn) {
+        if (getIgnoredTasks().length > 0) rsBtn.style.display = 'block';
+        else rsBtn.style.display = 'none';
+    }
+
     modalEl.style.display = 'flex';
     document.getElementById('modal-print-btn').style.display = 'block';
 }
@@ -1541,6 +1557,13 @@ function getReportStatusBadge(status) {
     const type = (clean === 'iptal') ? 'iptal' : (clean === 'güncellendi' ? 'guncellendi' : 'tamamlandi');
     return `<span class="status-badge status-${type}" style="padding: 1px 6px; font-size: 0.65rem;">${s}</span>`;
 }
+
+window.restoreIgnoredTasks = function() {
+    if (confirm("Daha önce 'Listeden Kaldır' diyerek gizlediğiniz tüm faaliyetler tablolara geri getirilecektir. Onaylıyor musunuz?")) {
+        localStorage.removeItem('pfds_ignored_tasks');
+        checkOverdueActivities();
+    }
+};
 
 function getIgnoredTasks() { 
     try {
