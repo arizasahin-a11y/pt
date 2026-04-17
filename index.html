@@ -190,8 +190,15 @@
                         <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('difficulties')">&#x2715;</button>
                     </div>
                 </div>
+                <div class="field-group" id="realized-value-group" style="display: none;">
+                    <label>Gerçekleşen Değer</label>
+                    <div class="field-wrapper">
+                        <textarea id="realized-value" rows="2" placeholder="..."></textarea>
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('realized-value')">&#x2715;</button>
+                    </div>
+                </div>
                 <div class="field-group">
-                    <label id="suggestions-label">İyileştirme Önerileri</label>
+                    <label>İyileştirme Önerileri</label>
                     <div class="field-wrapper">
                         <textarea id="suggestions" rows="2" placeholder="..."></textarea>
                         <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('suggestions')">&#x2715;</button>
@@ -382,13 +389,19 @@
 
             <!-- Grid Boxes -->
             <div style="width: 100%; border-collapse: collapse; margin-top: 15px; display: table;">
+                <div style="display: table-row;" id="p-realized-value-row">
+                    <div style="display: table-cell; width: 100%; border: 1px solid black; padding: 10px;">
+                        <strong>Gerçekleşen Değer:</strong>
+                        <p id="p-realized-value" style="min-height: 40px; margin-top:5px; white-space: pre-wrap; font-size: 13px;"></p>
+                    </div>
+                </div>
                 <div style="display: table-row;">
                     <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px;">
                         <strong>Karşılaşılan Güçlükler:</strong>
                         <p id="p-difficulties" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                     <div style="display: table-cell; width: 50%; border: 1px solid black; padding: 10px; border-left: none;">
-                        <strong id="p-suggestions-label">İyileştirme Önerileri:</strong>
+                        <strong>İyileştirme Önerileri:</strong>
                         <p id="p-suggestions" style="min-height: 60px; white-space: pre-wrap; font-size: 13px;"></p>
                     </div>
                 </div>

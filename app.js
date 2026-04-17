@@ -64,7 +64,7 @@ window._doLoadRecord = function(data) {
             'totalParticipants': 'total-participants', 'location': 'activity-location',
             'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
             'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
-            'difficulties': 'difficulties', 'suggestions': 'suggestions', 'collaborations': 'collaborations',
+            'difficulties': 'difficulties', 'suggestions': 'suggestions', 'realizedValue': 'realized-value', 'collaborations': 'collaborations',
             'evaluation': 'evaluation', 'fillerName': 'filler-name', 'fillerRole': 'filler-role', 'fillerDate': 'filler-date'
         };
 
@@ -79,7 +79,10 @@ window._doLoadRecord = function(data) {
         // Project Type Radio
         if (data.projectType) {
             const r = document.querySelector(`input[name="project-type"][value="${data.projectType}"]`);
-            if (r) r.checked = true;
+            if (r) {
+                r.checked = true;
+                r.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         }
 
         // Status Radio
@@ -323,7 +326,7 @@ function clearAllForm() {
         'activity-name', 'responsible-teacher', 'total-participants', 'activity-location',
         'activity-start', 'activity-end', 'total-duration', 'cost', 'purpose',
         'difficulties', 'suggestions', 'collaborations', 'evaluation',
-        'filler-name', 'filler-role', 'document-no', 'filler-date'
+        'filler-name', 'filler-role', 'document-no', 'filler-date', 'realized-value'
     ];
     textIds.forEach(id => clearField(id));
     clearCheckboxGroup('activity-type', 'type-other-check', 'type-other-text');
@@ -594,14 +597,12 @@ window.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('lastProjectType', e.target.value);
             checkOverdueActivities();
             const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-            const sug = document.getElementById('suggestions-label');
-            const psug = document.getElementById('p-suggestions-label');
+            const rGroup = document.getElementById('realized-value-group');
             if (selectedType === 'OKUL ÖZEL PROJESİ') {
-                if (sug) sug.textContent = 'Gerçekleşen Değer';
-                if (psug) psug.textContent = 'Gerçekleşen Değer:';
+                if (rGroup) rGroup.style.display = 'block';
             } else {
-                if (sug) sug.textContent = 'İyileştirme Önerileri';
-                if (psug) psug.textContent = 'İyileştirme Önerileri:';
+                if (rGroup) rGroup.style.display = 'none';
+                clearField('realized-value');
             }
         });
     });
@@ -1045,6 +1046,13 @@ function hideOverdueModal() {
 }
 function validateForm() {
     const ids = ['activity-name', 'total-participants', 'activity-location', 'activity-start', 'activity-end', 'total-duration', 'cost', 'filler-name', 'filler-role', 'filler-date', 'responsible-teacher'];
+    
+    // Sadece Okul Özel Projesi seçiliyse 'Gerçekleşen Değer' de dolu olmalı
+    const selectedType = document.querySelector('input[name="project-type"]:checked').value;
+    if (selectedType === 'OKUL ÖZEL PROJESİ') {
+        ids.push('realized-value');
+    }
+    
     for (const id of ids) { const el = document.getElementById(id); if (!el || !el.value.trim()) { alert('Tüm alanları doldurun!'); el.focus(); return false; } }
     return true;
 }
@@ -1072,6 +1080,7 @@ function getFormData() {
         purpose: document.getElementById('purpose').value,
         difficulties: document.getElementById('difficulties').value,
         suggestions: document.getElementById('suggestions').value,
+        realizedValue: document.getElementById('realized-value') ? document.getElementById('realized-value').value : '',
         collaborations: document.getElementById('collaborations').value,
         evaluation: document.getElementById('evaluation').value,
         docs: getCheckboxValues('docs', 'docs-other-check', 'docs-other-text'),
@@ -1096,6 +1105,14 @@ function printReport(data) {
     fill('#p-cost', data.cost); fill('#p-document-no', data.documentNo); fill('#p-purpose', data.purpose);
     fill('#p-status', data.status); // Populating activity status
     fill('#p-difficulties', data.difficulties); fill('#p-suggestions', data.suggestions);
+    fill('#p-realized-value', data.realizedValue); 
+    
+    const prRow = pc.querySelector('#p-realized-value-row');
+    if (prRow) {
+        if (data.projectType === 'OKUL ÖZEL PROJESİ') prRow.style.display = 'table-row';
+        else prRow.style.display = 'none';
+    }
+
     fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
     const fDate = data.fillerDate ? new Date(data.fillerDate).toLocaleDateString('tr-TR') : '';
     fill('#p-filler', `${data.fillerName}\n${data.fillerRole}\n${fDate}`);
