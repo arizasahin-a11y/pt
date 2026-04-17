@@ -606,6 +606,10 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    
+    // Trigger initial UI state for Project Type
+    const initialTypeRadio = document.querySelector('input[name="project-type"]:checked');
+    if (initialTypeRadio) initialTypeRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
     // Activity Status changes listeners
     document.querySelectorAll('input[name="report-status"]').forEach(radio => {
