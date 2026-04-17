@@ -183,8 +183,10 @@ async function syncSavedReportsCache() {
 // (Eski cihazlardaki yerel verileri yakalayıp buluta fırlatır)
 // ----------------------------------------------------
 function migrateOldDataToFirebase() {
-    const request = indexedDB.open('PFDS_Database', 1);
-    request.onsuccess = (e) => {
+    try {
+        if (!window.indexedDB) return;
+        const request = indexedDB.open('PFDS_Database', 1);
+        request.onsuccess = (e) => {
         const localDb = e.target.result;
         if (!localDb.objectStoreNames.contains(STORE_NAME)) return;
         
@@ -212,7 +214,12 @@ function migrateOldDataToFirebase() {
                 });
             }
         };
-    };
+        request.onerror = (e) => {
+            console.warn("Migration DB Access Error. Cannot read old data:", e);
+        };
+    } catch(err) {
+        console.warn("IndexedDB not supported or blocked, skipping migration.", err);
+    }
 }
 // Göç ediciyi uygulamaya girilir girilmez çalıştır.
 migrateOldDataToFirebase();
