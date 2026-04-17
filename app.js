@@ -1680,8 +1680,12 @@ function _showPwModal({ title, desc, btnLabel, onConfirm }) {
     document.getElementById('pw-modal-desc').textContent = desc;
     document.getElementById('pw-modal-btn-label').textContent = btnLabel;
     pwInput.value = '';
+    pwInput.setAttribute('readonly', 'readonly');
     modal.style.display = 'flex';
-    setTimeout(() => pwInput.focus(), 100);
+    setTimeout(() => {
+        pwInput.removeAttribute('readonly');
+        pwInput.focus();
+    }, 100);
 
     const cleanup = () => { modal.style.display = 'none'; };
 

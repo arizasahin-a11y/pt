@@ -443,9 +443,12 @@
             </div>
             <div class="modal-body">
                 <p id="pw-modal-desc">Bu raporu korumak için bir şifre belirleyin. Raporu daha sonra yüklemek istediğinizde bu şifre sorulacaktır.</p>
+                <!-- Chrome Autofill Hack -->
+                <input type="text" style="display:none" name="fakeusernameremembered">
+                <input type="password" style="display:none" name="fakepasswordremembered">
                 <div class="pw-input-wrap">
                     <label for="pw-modal-input">Şifre</label>
-                    <input type="password" id="pw-modal-input" placeholder="Şifrenizi girin..." autocomplete="new-password">
+                    <input type="password" id="pw-modal-input" placeholder="Şifrenizi girin..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
             </div>
             <div class="pw-modal-footer">
