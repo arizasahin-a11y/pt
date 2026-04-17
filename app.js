@@ -1295,7 +1295,16 @@ function loadReports() {
             }
         });
 
-        uniqueReports.forEach(r => {
+        const filterRadio = document.querySelector('input[name="history-filter"]:checked');
+        const filterVal = filterRadio ? filterRadio.value : 'TÜMÜ';
+        const finalReports = filterVal === 'TÜMÜ' ? uniqueReports : uniqueReports.filter(r => r.projectType === filterVal);
+
+        if (finalReports.length === 0) {
+            reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Bu türe ait kaydedilmiş rapor bulunmuyor.</div>';
+            return;
+        }
+
+        finalReports.forEach(r => {
             const card = document.createElement('div');
             card.className = 'report-card';
 

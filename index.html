@@ -299,7 +299,7 @@
         </form>
 
         <div id="saved-reports">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2 style="margin: 0;">Kayıtlı Raporlar</h2>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
@@ -308,6 +308,20 @@
                     <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
                         <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
                     </button>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <div class="checkbox-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                    <label class="checkbox-item">
+                        <input type="radio" name="history-filter" value="TÜMÜ" checked onchange="if(typeof loadReports==='function') loadReports()"> Tümü
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="history-filter" value="OKUL GELİŞİM PROJESİ" onchange="if(typeof loadReports==='function') loadReports()"> Okul Gelişim
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="history-filter" value="OKUL ÖZEL PROJESİ" onchange="if(typeof loadReports==='function') loadReports()"> Okul Özel
+                    </label>
                 </div>
             </div>
             <div id="reports-list"></div>
