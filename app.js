@@ -1227,6 +1227,7 @@ function exportToExcel() {
         const dupKey = r.timestamp ? `${r.timestamp}` : `${r.activityName}_${r.fillerName}`;
         if (!seenKeys.has(dupKey)) {
             seenKeys.add(dupKey);
+            r._dupKey = dupKey;
             uniqueReports.push(r);
         }
     });
@@ -1236,47 +1237,100 @@ function exportToExcel() {
         
         const clean = (t) => t ? t.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : "";
 
-        const mapRow = (pItem, report, type) => ({
-            'ID': type === 'OG' ? `OG-${pItem.no}` : `OO-${pItem.sira}`,
-            'Kod': pItem.kod || '',
-            'Eylem/Görev Adı': type === 'OG' ? pItem.eylem_adi : pItem.eylem_gorev,
-            'Sorumlular (Plan)': type === 'OG' ? pItem.sorumlu : pItem.sorumlu_verisi,
-            'Başlangıç (Plan)': type === 'OG' ? pItem.y1_bas : pItem.baslangic_1,
-            'Bitiş (Plan)': type === 'OG' ? pItem.y1_bit : pItem.bitis_1,
+        const mapRowOG = (pItem, report) => ({
+            'Plana Göre ID': pItem ? `OG-${pItem.no}` : 'PLAN HARİCİ',
+            'Plana Göre Kod': pItem ? pItem.kod || '' : '',
+            'Plana Göre Eylem Adı': pItem ? pItem.eylem_adi : '',
+            'Plana Göre Sorumlu': pItem ? pItem.sorumlu : '',
+            'Plana Göre Başlangıç': pItem ? pItem.y1_bas : '',
+            'Plana Göre Bitiş': pItem ? pItem.y1_bit : '',
             'DURUM': report ? report.status : 'EKSİK',
-            'Raporlanan Faaliyet': report ? report.activityName : '',
+            'Eğitim Yılı': report ? report.eduYear : '',
+            'Proje Türü': report ? report.projectType : '',
+            'Faaliyet Adı': report ? report.activityName : '',
+            'Faaliyet Türü': report ? report.activityType : '',
+            'Faaliyet Sorumlusu': report ? report.teacher : '',
+            'Katılımcı Profili': report ? report.participantProfile : '',
+            'Toplam Katılımcı': report ? report.totalParticipants : '',
+            'Faaliyet Yeri': report ? report.location : '',
+            'Rapor Başlangıç': report ? report.startDate : '',
+            'Rapor Bitiş': report ? report.endDate : '',
             'Süre (Saat)': report ? report.duration : '',
-            'Maliyeti': report ? report.cost : '',
-            'Dolduran': report ? report.fillerName : '',
-            'Tarih': report ? report.fillerDate : ''
+            'Maliyet (TL)': report ? report.cost : '',
+            'Belge/Karar No': report ? report.documentNo : '',
+            'Faaliyetin Amacı': report ? report.purpose : '',
+            'Karşılaşılan Güçlükler': report ? report.difficulties : '',
+            'Çözüm Önerileri': report ? report.suggestions : '',
+            'İşbirliği Yapılan Kurumlar': report ? report.collaborations : '',
+            'Faaliyet Değerlendirmesi': report ? report.evaluation : '',
+            'Ekler': report ? report.docs : '',
+            'Dolduran Kişi': report ? report.fillerName : '',
+            'Dolduran Unvan': report ? report.fillerRole : '',
+            'Doldurulma Tarihi': report ? report.fillerDate : ''
         });
 
+        const mapRowOO = (pItem, report) => ({
+            'Plana Göre ID': pItem ? `OO-${pItem.sira}` : 'PLAN HARİCİ',
+            'Plana Göre Kod': pItem ? pItem.kod || '' : '',
+            'Plana Göre Görev Adı': pItem ? pItem.eylem_gorev : '',
+            'Plana Göre Sorumlu': pItem ? pItem.sorumlu_verisi : '',
+            'Plana Göre Başlangıç': pItem ? pItem.baslangic_1 : '',
+            'Plana Göre Bitiş': pItem ? pItem.bitis_1 : '',
+            'DURUM': report ? report.status : 'EKSİK',
+            'Eğitim Yılı': report ? report.eduYear : '',
+            'Proje Türü': report ? report.projectType : '',
+            'Faaliyet Adı': report ? report.activityName : '',
+            'Faaliyet Türü': report ? report.activityType : '',
+            'Faaliyet Sorumlusu': report ? report.teacher : '',
+            'Katılımcı Profili': report ? report.participantProfile : '',
+            'Toplam Katılımcı': report ? report.totalParticipants : '',
+            'Faaliyet Yeri': report ? report.location : '',
+            'Rapor Başlangıç': report ? report.startDate : '',
+            'Rapor Bitiş': report ? report.endDate : '',
+            'Süre (Saat)': report ? report.duration : '',
+            'Maliyet (TL)': report ? report.cost : '',
+            'Belge/Karar No': report ? report.documentNo : '',
+            'Faaliyetin Amacı': report ? report.purpose : '',
+            'Karşılaşılan Güçlükler': report ? report.difficulties : '',
+            'Çözüm Önerileri': report ? report.suggestions : '',
+            'Gerçekleşen Değer': report ? report.realizedValue : '',
+            'İşbirliği Yapılan Kurumlar': report ? report.collaborations : '',
+            'Faaliyet Değerlendirmesi': report ? report.evaluation : '',
+            'Ekler': report ? report.docs : '',
+            'Dolduran Kişi': report ? report.fillerName : '',
+            'Dolduran Unvan': report ? report.fillerRole : '',
+            'Doldurulma Tarihi': report ? report.fillerDate : ''
+        });
+
+        const ogRows = [];
+        const ooRows = [];
+
         // School Action Plan (OG)
-        const ogRows = combinedData.og_db.map(p => {
+        combinedData.og_db.forEach(p => {
             const m = reports.find(r => r.projectType === 'OKUL GELİŞİM PROJESİ' && clean(r.activityName) === clean(p.eylem_adi));
-            if (m) matchedIds.add(m.id);
-            return mapRow(p, m, 'OG');
+            if (m) matchedIds.add(m._dupKey);
+            ogRows.push(mapRowOG(p, m));
         });
 
         // Activity Calendar (OO)
-        const ooRows = combinedData.oo_db.map(p => {
+        combinedData.oo_db.forEach(p => {
             const m = reports.find(r => r.projectType === 'OKUL ÖZEL PROJESİ' && clean(r.activityName) === clean(p.eylem_gorev));
-            if (m) matchedIds.add(m.id);
-            return mapRow(p, m, 'OO');
+            if (m) matchedIds.add(m._dupKey);
+            ooRows.push(mapRowOO(p, m));
         });
 
-        // Unmatched
-        const unmatched = reports.filter(r => !matchedIds.has(r.id)).map(r => ({
-            'Rapor Adı': r.activityName,
-            'Tür': r.projectType,
-            'Durum': 'PLAN HARİCİ',
-            'Tarih': r.fillerDate
-        }));
+        // Unmatched reports pushed into their respective sheet
+        reports.filter(r => !matchedIds.has(r._dupKey)).forEach(r => {
+            if (r.projectType === 'OKUL GELİŞİM PROJESİ') {
+                ogRows.push(mapRowOG(null, r));
+            } else {
+                ooRows.push(mapRowOO(null, r));
+            }
+        });
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ogRows), "Okul Gelişim Projesi");
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ooRows), "Okul Özel Projesi");
-        if (unmatched.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(unmatched), "Diğer");
         
         XLSX.writeFile(wb, `IAAL_PTS_Rapor_${new Date().getTime()}.xlsx`);
 }
