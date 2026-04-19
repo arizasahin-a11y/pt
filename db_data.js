@@ -1,4 +1,4 @@
-﻿const COMBINED_DB = {
+const COMBINED_DB = {
   "og_db": [
     {
       "no": 1,
@@ -1574,6 +1574,27 @@
       "y4_bit": "31.03.2029",
       "butce": 0,
       "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
+    },
+    {
+      "no": 76,
+      "tema": 9,
+      "sh": 2,
+      "kod": "9.2.2",
+      "eylem_adi": "TÜBİTAK 2204-A ve 2204-B Lise Öğrencileri Araştırma Projelerine katılım sağlanması",
+      "tip": "C",
+      "tekrar": 4,
+      "genel_baslangic": "01.10.2025",
+      "genel_bitis": "30.05.2029",
+      "y1_bas": "01.10.2025",
+      "y1_bit": "30.05.2026",
+      "y2_bas": "01.10.2026",
+      "y2_bit": "30.05.2027",
+      "y3_bas": "01.10.2027",
+      "y3_bit": "30.05.2028",
+      "y4_bas": "01.10.2028",
+      "y4_bit": "30.05.2029",
+      "butce": 5000,
+      "sorumlu": "Kimya Zümresi, Fen Zümresi, Okul idaresi, Fizik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi"
     }
   ],
   "oo_db": [
