@@ -1050,24 +1050,24 @@ input[type="checkbox"]:checked ~ .other-input {
     font-size: 0.75rem;
 }
 
-/* Faaliyet Liderleri Butonu (Inline) */
-.btn-leader-inline {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.7rem;
-    border-radius: 8px;
-    background: rgba(251, 191, 36, 0.12);
-    border: 1px solid rgba(251, 191, 36, 0.3);
+/* Faaliyet Liderleri Butonu (Header/Inline Eski Görünüm) */
+.btn-leader-header {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.25);
     color: #fbbf24;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: var(--font);
+    white-space: nowrap;
     transition: all 0.2s;
+    cursor: pointer;
+    font-family: var(--font);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
-.btn-leader-inline:hover {
-    background: rgba(251, 191, 36, 0.25);
+.btn-leader-header:hover {
+    background: rgba(251, 191, 36, 0.2);
     border-color: #fbbf24;
     transform: translateY(-1px);
 }
