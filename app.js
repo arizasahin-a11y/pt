@@ -2315,7 +2315,7 @@ function printLeaderFullReport() {
 
     const html = `<!DOCTYPE html><html lang="tr"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Faaliyet Liderleri — ${typeLabel} / ${statusLabel}</title>
+<title>Faaliyet Liderleri — ${typeLabel} / Tüm Faaliyetler</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -2357,7 +2357,7 @@ tbody tr:hover{background:#fffbeb!important;}
     </div>
     <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
       <span class="bdg">${typeLabel}</span>
-      <span class="bdg ${statusVal==='expired'?'red':'grn'}">${statusLabel}</span>
+      <span class="bdg grn">Tüm Faaliyetler</span>
     </div>
   </div>
   <div class="abar">
