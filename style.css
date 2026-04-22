@@ -1052,6 +1052,8 @@ input[type="checkbox"]:checked ~ .other-input {
 
 /* Faaliyet Liderleri Butonu (Header/Inline Eski Görünüm) */
 .btn-leader-header {
+    width: fit-content;
+    flex: none;
     padding: 3px 8px;
     font-size: 0.72rem;
     border-radius: 8px;
