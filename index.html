@@ -29,10 +29,8 @@
                     <button type="button" class="btn-secondary btn-header-special" id="reported-actions-btn" title="Rapor girilmiş faaliyetleri listele">
                         <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
                     </button>
-                    <button type="button" class="btn-leader-header" id="all-leaders-btn" title="Faaliyet Liderlerini listele">
-                        <i class="fas fa-crown"></i> Faaliyet Liderleri
-                    </button>
                 </div>
+
                 <div class="status-badge" id="app-status">Sistem Hazır</div>
 
                 <div class="status-radio-group" style="display: flex; gap: 1rem; font-size: 0.85rem;">
@@ -88,7 +86,12 @@
                     <div id="suggestions-panel" class="suggestions-panel"></div>
                 </div>
                 <div class="leader-filter-wrap">
-                    <label>FAAALİYET LİDERİ</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span>FAAALİYET LİDERİ</span>
+                        <button type="button" class="btn-leader-inline" id="all-leaders-btn" title="Tüm Faaliyet Liderlerini listele">
+                            <i class="fas fa-crown"></i> Faaliyet Liderleri
+                        </button>
+                    </label>
                     <select id="leader-filter-select">
                         <option value="">-- Lider seçin... --</option>
                     </select>
