@@ -650,6 +650,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (rGroup) rGroup.style.display = 'none';
                 clearField('realized-value');
             }
+            // Proje türü değişince lider listesini de güncelle
+            updateLeaderDropdown();
         });
     });
     
@@ -2067,14 +2069,22 @@ function deleteLeaderAction(planId, idx, leaderName) {
     }
 }
 
-// Faaliyet Lideri dropdown'unu güncelle (tüm benzersiz liderler)
+// Faaliyet Lideri dropdown'unu güncelle (Seçili proje türünde faaliyeti olan liderler)
 function updateLeaderDropdown() {
     const sel = document.getElementById('leader-filter-select');
     if (!sel) return;
+
+    const typeRadio = document.querySelector('input[name="project-type"]:checked');
+    const typeVal = typeRadio ? typeRadio.value : 'OKUL GELİŞİM PROJESİ';
+    const prefix = typeVal === 'OKUL GELİŞİM PROJESİ' ? 'og-' : 'oo-';
+
     const allLeaders = new Set();
-    activityLeadersCache.forEach((leaders) => {
-        leaders.forEach(l => allLeaders.add(l));
+    activityLeadersCache.forEach((leaders, planId) => {
+        if (planId.startsWith(prefix)) {
+            leaders.forEach(l => allLeaders.add(l));
+        }
     });
+    
     const sorted = Array.from(allLeaders).sort((a, b) => a.localeCompare(b, 'tr'));
     sel.innerHTML = '<option value="">-- Lider seçin... --</option>';
     sorted.forEach(l => {
