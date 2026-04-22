@@ -2220,10 +2220,8 @@ function printLeaderFullReport() {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
 
     const typeVal = _almCurrentTypeVal;
-    const statusVal = _almCurrentStatusVal;
     const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
     const typeLabel = isOG ? 'Okul Gelişim Projesi' : 'Okul Özel Projesi';
-    const statusLabel = statusVal === 'expired' ? 'Süresi Dolan' : 'Devam Eden';
     const prefix = isOG ? 'og-' : 'oo-';
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const yearIdx = getYearIndexForReport();
@@ -2243,8 +2241,7 @@ function printLeaderFullReport() {
         const dt = parseDBDate(dStr);
         const endDate = dt ? new Date(dt) : null;
         const isExpired = endDate ? endDate < today : false;
-        const isMatch = statusVal === 'expired' ? isExpired : !isExpired;
-        if (!isMatch) return;
+        // Filtre yok — süresi dolsun ya da dolmasın tümü listelenir
 
         const startStr = isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`];
         const endStr   = isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`];
