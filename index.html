@@ -29,6 +29,9 @@
                     <button type="button" class="btn-secondary btn-header-special" id="reported-actions-btn" title="Rapor girilmiş faaliyetleri listele">
                         <i class="fas fa-check-circle"></i> Rapor girilmiş faaliyetler
                     </button>
+                    <button type="button" class="btn-leader-header" id="all-leaders-btn" title="Faaliyet Liderlerini listele">
+                        <i class="fas fa-crown"></i> Faaliyet Liderleri
+                    </button>
                 </div>
                 <div class="status-badge" id="app-status">Sistem Hazır</div>
 
@@ -75,15 +78,23 @@
                 </div>
             </div>
             
-            <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
-                <label>SORUMLU</label>
-                <div class="field-wrapper">
-                    <input type="text" id="responsible-teacher" placeholder="Sorumlu seçin..." autocomplete="off">
-                    <button type="button" id="clear-responsible" class="field-clear-btn" title="Sorumluyu temizle" onclick="clearResponsible()">&#x2715;</button>
+            <div class="full-width responsible-leader-row" style="margin-bottom: 1.5rem;">
+                <div class="resp-wrap" style="position: relative;">
+                    <label>SORUMLU</label>
+                    <div class="field-wrapper">
+                        <input type="text" id="responsible-teacher" placeholder="Sorumlu seçin..." autocomplete="off">
+                        <button type="button" id="clear-responsible" class="field-clear-btn" title="Sorumluyu temizle" onclick="clearResponsible()">&#x2715;</button>
+                    </div>
+                    <div id="suggestions-panel" class="suggestions-panel"></div>
                 </div>
-                <div id="suggestions-panel" class="suggestions-panel"></div>
+                <div class="leader-filter-wrap">
+                    <label>FAAALİYET LİDERİ</label>
+                    <select id="leader-filter-select">
+                        <option value="">-- Lider seçin... --</option>
+                    </select>
+                </div>
             </div>
-            
+
             <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
                 <label>Faaliyet Adı</label>
                 <div class="field-wrapper">
@@ -483,6 +494,48 @@
                 <button type="button" class="btn-primary" id="pw-modal-confirm" style="flex:2;">
                     <i class="fas fa-check"></i> <span id="pw-modal-btn-label">Şifreyi Kaydet</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAAALİYET LİDERİ MINI MODAL -->
+    <div id="leader-modal">
+        <div class="lm-box">
+            <div class="lm-header">
+                <h3 id="lm-title"><i class="fas fa-crown"></i> Faaliyet Lideri</h3>
+                <button class="close-modal" id="lm-close-btn">&times;</button>
+            </div>
+            <div class="lm-task-name" id="lm-task-name"></div>
+            <!-- Lider Ekle Satırı -->
+            <div class="lm-input-row" id="lm-add-row">
+                <input type="text" id="lm-name-input" placeholder="Lider Adı Soyadı..." autocomplete="off">
+                <button class="lm-add-btn" id="lm-add-btn"><i class="fas fa-plus"></i> Ekle</button>
+            </div>
+            <!-- Lider Listesi -->
+            <ul class="lm-leaders-list" id="lm-leaders-list"></ul>
+            <div class="lm-footer">
+                <button class="lm-close-btn" id="lm-close-footer-btn">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TÜM FAAALİYET LİDERLERİ MODAL -->
+    <div id="all-leaders-modal" style="
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(15,23,42,0.85); backdrop-filter:blur(12px);
+        display:none; align-items:center; justify-content:center;
+        z-index:99998; padding:20px;
+    ">
+        <div class="lm-box" style="background:#1e293b; border:1px solid rgba(251,191,36,0.25); border-radius:20px; width:100%; max-width:520px; padding:1.8rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1); max-height:85vh; display:flex; flex-direction:column;">
+            <div class="lm-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom:0.8rem; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <h3 style="color:#fbbf24; font-size:1.1rem; margin:0; display:flex; align-items:center; gap:8px;"><i class="fas fa-crown"></i> <span id="alm-title">Faaliyet Liderleri</span></h3>
+                <button class="close-modal" id="alm-close-btn">&times;</button>
+            </div>
+            <div style="overflow-y:auto; flex-grow:1;" class="custom-scrollbar">
+                <div id="alm-list"></div>
+            </div>
+            <div style="margin-top:1rem; display:flex; justify-content:flex-end;">
+                <button class="lm-close-btn" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; border-radius:10px; padding:0.5rem 1.2rem; font-size:0.85rem; cursor:pointer; flex:none;" id="alm-close-footer-btn">Kapat</button>
             </div>
         </div>
     </div>

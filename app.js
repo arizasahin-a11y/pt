@@ -23,11 +23,14 @@ db.enablePersistence().catch(err => {
 });
 let combinedData = null;
 let savedReportsCache = []; // Cache for filtering overdue list
+let activityLeadersCache = new Map(); // planId -> leaders[]
 let currentReportingPerson = null; 
 let lastSavedData = null; 
 let currentRecordId = null; 
 let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
+let _leaderModalPlanId = null; // Active planId in leader modal
+let _leaderModalProjectType = null; // Active project type in leader modal
 
 let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
@@ -149,6 +152,7 @@ function setCheckboxValues(name, csvValue, otherCheckId, otherTextId) {
 // Initial connection triggers the snapshot
 console.log('Firebase initialized successfully');
 syncSavedReportsCache();
+syncLeadersCache();
 
 async function syncSavedReportsCache() {
     if (!db) return;
@@ -583,6 +587,42 @@ window.addEventListener('DOMContentLoaded', () => {
         mainTitle.addEventListener('contextmenu', (e) => { if (e.shiftKey) e.preventDefault(); });
     }
 
+    // --- FAAALİYET LİDERİ KONTROLLERI ---
+    // Faaliyet Liderleri header butonu
+    const allLeadersBtn = document.getElementById('all-leaders-btn');
+    if (allLeadersBtn) allLeadersBtn.onclick = showAllLeadersModal;
+
+    // Tüm liderler modal kapatma
+    const almClose = document.getElementById('alm-close-btn');
+    const almCloseFooter = document.getElementById('alm-close-footer-btn');
+    if (almClose) almClose.onclick = () => { document.getElementById('all-leaders-modal').style.display = 'none'; };
+    if (almCloseFooter) almCloseFooter.onclick = () => { document.getElementById('all-leaders-modal').style.display = 'none'; };
+
+    // Leader mini modal kapatma
+    const lmCloseBtn = document.getElementById('lm-close-btn');
+    const lmCloseFooter = document.getElementById('lm-close-footer-btn');
+    if (lmCloseBtn) lmCloseBtn.onclick = () => { document.getElementById('leader-modal').style.display = 'none'; };
+    if (lmCloseFooter) lmCloseFooter.onclick = () => { document.getElementById('leader-modal').style.display = 'none'; };
+
+    // Leader mini modal — Ekle butonu
+    const lmAddBtn = document.getElementById('lm-add-btn');
+    if (lmAddBtn) lmAddBtn.onclick = () => _leaderAddAction();
+
+    // Lider ekleme inputu Enter ile gönder
+    const lmInput = document.getElementById('lm-name-input');
+    if (lmInput) lmInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') _leaderAddAction(); });
+
+    // Faaliyet Lideri dropdown change listener
+    const leaderSelect = document.getElementById('leader-filter-select');
+    if (leaderSelect) {
+        leaderSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val) checkActivitiesByLeader(val);
+            // Reset after triggering
+            setTimeout(() => { e.target.value = ''; }, 200);
+        });
+    }
+
     // Input Visual Feedback
     document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
         el.addEventListener('input', () => updateFilledState(el));
@@ -977,6 +1017,7 @@ function showOverdueModal(tasks) {
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
+        li.title = 'CTRL+Tık: Lider Ekle/Gör';
         
         const ignoreBtn = `
             <button class="btn-secondary btn-action-sm" style="background:#ef4444; color:white; border:none;" onclick="handleIgnoreTask(event, '${t.person}', '${t.id}')">
@@ -984,12 +1025,14 @@ function showOverdueModal(tasks) {
             </button>`;
 
         const statusBadge = t.isReported ? getReportStatusBadge(t.status) : '';
+        const leaderBadgeHtml = buildLeaderBadgeRow(t.id);
         li.innerHTML = `
             <span class="overdue-name">${t.name} ${statusBadge ? `<span style="vertical-align: middle; margin-left: 5px;">${statusBadge}</span>` : ''}</span>
             <div class="overdue-details">
                 <span class="overdue-date"><i class="far fa-calendar-alt"></i> ${t.start} — ${t.end}</span>
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
             </div>
+            ${leaderBadgeHtml}
 
             <div class="overdue-actions">
                 ${ignoreBtn}
@@ -998,6 +1041,8 @@ function showOverdueModal(tasks) {
         
         `;
         list.appendChild(li);
+        // Ctrl+tık ile lider yönetimi
+        attachLeaderEvents(li, t.id, document.querySelector('input[name="project-type"]:checked').value, t.name);
     });
 
     list.querySelectorAll('.btn-fill').forEach(btn => {
@@ -1686,12 +1731,14 @@ function showStatusModal(title, tasks) {
     tasks.forEach(t => {
         const li = document.createElement('li');
         li.className = t.isReported ? 'overdue-item reported-item' : 'overdue-item';
+        li.title = 'CTRL+Tık: Lider Ekle/Gör';
         
         let statusBadge = '';
         if (t.isReported) {
             const badge = getReportStatusBadge(t.status);
             statusBadge = `<div style="margin-top:4px;">${badge}</div>`;
         }
+        const leaderBadgeHtml = buildLeaderBadgeRow(t.id);
 
         li.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:8px;">
@@ -1706,16 +1753,20 @@ function showStatusModal(title, tasks) {
                 <span class="overdue-person"><i class="fas fa-user"></i> ${formatNameTR(t.person)}</span>
                 ${statusBadge}
             </div>
+            ${leaderBadgeHtml}
             <div class="task-actions" style="display:flex; gap:10px; margin-top:5px;">
                 <button class="btn-secondary btn-action-sm btn-delete" onclick="handleIgnoreTask(event, '${t.person.replace(/'/g, "\\'")}', '${t.id}')">
                     <i class="fas fa-trash-alt"></i> Listeden Kaldır
                 </button>
                 ${!t.isReported ? `
-                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}', '${t.person.replace(/'/g, "\\'")}', '${t.start}', '${t.end}', '${t.id}')">Rapor Doldur</button>
+                    <button class="btn-primary btn-action-sm btn-fill" onclick="fillFromModal('${t.name.replace(/'/g, "\\'")}','${t.person.replace(/'/g, "\\'")}','${t.start}','${t.end}','${t.id}')">Rapor Doldur</button>
                 ` : ''}
             </div>
         `;
         list.appendChild(li);
+        // Ctrl+tık ile lider yönetimi
+        const projType = document.querySelector('input[name="project-type"]:checked') ? document.querySelector('input[name="project-type"]:checked').value : 'OKUL GELİŞİM PROJESİ';
+        attachLeaderEvents(li, t.id, projType, t.name);
     });
     modal.style.display = 'flex';
     document.getElementById('modal-print-btn').style.display = 'block';
@@ -1863,3 +1914,295 @@ function _executeDelete(data) {
         alert("Silme işlemi başarısız oldu.");
     });
 }
+
+// =============================================
+// FAAALİYET LİDERİ — GLOBAL FONKSİYONLAR
+// =============================================
+
+const LEADER_STORE = 'activity_leaders';
+const LEADER_PASSWORD = '1234';
+
+// Firebase'den lider verisini dinle ve cache'e al
+function syncLeadersCache() {
+    if (!db) { setTimeout(syncLeadersCache, 500); return; }
+    db.collection(LEADER_STORE).onSnapshot((snapshot) => {
+        activityLeadersCache.clear();
+        snapshot.forEach((doc) => {
+            const d = doc.data();
+            activityLeadersCache.set(doc.id, d.leaders || []);
+        });
+        console.log(`Leader cache updated: ${activityLeadersCache.size} entries.`);
+        // Dropdown ve açık modal varsa yenile
+        updateLeaderDropdown();
+    });
+}
+
+// Lider badge satırını inşa et
+function buildLeaderBadgeRow(planId) {
+    const leaders = activityLeadersCache.get(planId) || [];
+    if (leaders.length === 0) return '';
+    const badges = leaders.map(l => `<span class="leader-badge"><i class="fas fa-crown"></i>${l}</span>`).join('');
+    return `<div class="leader-badge-row">${badges}</div>`;
+}
+
+// CTRL+Tık ile lider yönetimi event'lerini bağla
+function attachLeaderEvents(liEl, planId, projectType, taskName) {
+    liEl.addEventListener('contextmenu', (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLeaderModal(planId, projectType, taskName);
+        }
+    });
+    liEl.addEventListener('click', (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLeaderModal(planId, projectType, taskName);
+        }
+    });
+}
+
+// Lider mini modal aç (hem ekleme hem listeleme)
+function openLeaderModal(planId, projectType, taskName) {
+    _leaderModalPlanId = planId;
+    _leaderModalProjectType = projectType;
+
+    const modal = document.getElementById('leader-modal');
+    const title = document.getElementById('lm-title');
+    const taskNameEl = document.getElementById('lm-task-name');
+    const nameInput = document.getElementById('lm-name-input');
+
+    if (title) title.innerHTML = '<i class="fas fa-crown"></i> Faaliyet Lideri Yönetimi';
+    if (taskNameEl) taskNameEl.textContent = taskName;
+    if (nameInput) nameInput.value = '';
+
+    renderLeaderModalList(planId);
+
+    if (modal) modal.style.display = 'flex';
+    setTimeout(() => { if (nameInput) nameInput.focus(); }, 150);
+}
+
+// Lider listesini modal içinde yeniden çiz
+function renderLeaderModalList(planId) {
+    const ul = document.getElementById('lm-leaders-list');
+    if (!ul) return;
+    const leaders = activityLeadersCache.get(planId) || [];
+    ul.innerHTML = '';
+
+    if (leaders.length === 0) {
+        ul.innerHTML = '<div class="lm-empty"><i class="fas fa-user-slash" style="margin-right:6px;"></i>Henüz lider tanımlanmamış.</div>';
+        return;
+    }
+
+    leaders.forEach((leader, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span><i class="fas fa-crown" style="color:#fbbf24; margin-right:6px; font-size:0.75rem;"></i>${leader}</span>
+            <button class="lm-delete-btn" data-idx="${idx}"><i class="fas fa-trash-alt"></i> Sil</button>
+        `;
+        li.querySelector('.lm-delete-btn').onclick = () => deleteLeaderAction(planId, idx, leader);
+        ul.appendChild(li);
+    });
+}
+
+// Lider ekleme işlemi (şifre korumalı)
+function _leaderAddAction() {
+    const nameInput = document.getElementById('lm-name-input');
+    const rawName = nameInput ? nameInput.value.trim() : '';
+    if (!rawName) { alert('Lider adı boş olamaz!'); return; }
+
+    const pw = prompt('Lider eklemek için şifreyi girin:');
+    if (pw === null) return;
+    if (pw !== LEADER_PASSWORD) { alert('❌ Hatalı şifre!'); return; }
+
+    const planId = _leaderModalPlanId;
+    const projectType = _leaderModalProjectType;
+    if (!planId) return;
+
+    const currentLeaders = [...(activityLeadersCache.get(planId) || [])];
+    const formattedName = formatNameTR(rawName);
+
+    if (currentLeaders.some(l => l.toLowerCase() === formattedName.toLowerCase())) {
+        alert('Bu lider zaten eklenmiş!');
+        return;
+    }
+
+    currentLeaders.push(formattedName);
+
+    db.collection(LEADER_STORE).doc(planId).set({
+        planId,
+        projectType,
+        leaders: currentLeaders
+    }).then(() => {
+        if (nameInput) nameInput.value = '';
+        renderLeaderModalList(planId);
+        updateLeaderDropdown();
+    }).catch(e => alert('Kayıt hatası: ' + e.message));
+}
+
+// Lider silme işlemi (şifre korumalı)
+function deleteLeaderAction(planId, idx, leaderName) {
+    const pw = prompt(`"${leaderName}" liderini silmek için şifreyi girin:`);
+    if (pw === null) return;
+    if (pw !== LEADER_PASSWORD) { alert('❌ Hatalı şifre!'); return; }
+
+    const currentLeaders = [...(activityLeadersCache.get(planId) || [])];
+    currentLeaders.splice(idx, 1);
+
+    const docRef = db.collection(LEADER_STORE).doc(planId);
+    if (currentLeaders.length === 0) {
+        docRef.delete().then(() => {
+            renderLeaderModalList(planId);
+            updateLeaderDropdown();
+        }).catch(e => alert('Silme hatası: ' + e.message));
+    } else {
+        docRef.set({ planId, leaders: currentLeaders }, { merge: true }).then(() => {
+            renderLeaderModalList(planId);
+            updateLeaderDropdown();
+        }).catch(e => alert('Güncelleme hatası: ' + e.message));
+    }
+}
+
+// Faaliyet Lideri dropdown'unu güncelle (tüm benzersiz liderler)
+function updateLeaderDropdown() {
+    const sel = document.getElementById('leader-filter-select');
+    if (!sel) return;
+    const allLeaders = new Set();
+    activityLeadersCache.forEach((leaders) => {
+        leaders.forEach(l => allLeaders.add(l));
+    });
+    const sorted = Array.from(allLeaders).sort((a, b) => a.localeCompare(b, 'tr'));
+    sel.innerHTML = '<option value="">-- Lider seçin... --</option>';
+    sorted.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        sel.appendChild(opt);
+    });
+}
+
+// Seçilen liderin faaliyetlerini listele (mevcut proje türü + süresi dolan/devam eden filtresi)
+function checkActivitiesByLeader(leaderName) {
+    if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
+
+    const typeRadio = document.querySelector('input[name="project-type"]:checked');
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
+    const typeVal = typeRadio ? typeRadio.value : 'OKUL GELİŞİM PROJESİ';
+    const statusVal = statusRadio ? statusRadio.value : 'expired';
+    const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const yearIdx = getYearIndexForReport();
+
+    // Bu lidere ait planId'leri bul
+    const leaderPlanIds = new Set();
+    activityLeadersCache.forEach((leaders, planId) => {
+        if (leaders.some(l => l.toLowerCase() === leaderName.toLowerCase())) {
+            leaderPlanIds.add(planId);
+        }
+    });
+
+    if (leaderPlanIds.size === 0) {
+        alert(`"${leaderName}" adlı lidere atanmış faaliyet bulunamadı.`);
+        return;
+    }
+
+    const dbSource = isOG ? combinedData.og_db : combinedData.oo_db;
+    const results = [];
+    const eduYearVal = document.getElementById('edu-year').value;
+
+    dbSource.forEach(item => {
+        const itemId = isOG ? `og-${item.no}` : `oo-${item.sira}`;
+        if (!leaderPlanIds.has(itemId)) return;
+
+        const dStr = isOG
+            ? (item[`y${yearIdx}_bit`] || item[`y${yearIdx}_bas`])
+            : (item[`bitis_${yearIdx}`] || item[`baslangic_${yearIdx}`]);
+        const dt = parseDBDate(dStr);
+        if (!dt) return;
+
+        const d = new Date(dt);
+        const isMatch = statusVal === 'expired' ? d < today : d >= today;
+        if (!isMatch) return;
+
+        const nameText = isOG ? item.eylem_adi : item.eylem_gorev;
+        const normName = normalizeString(nameText);
+        const report = savedReportsCache.find(r => {
+            if (r.projectType !== typeVal) return false;
+            if (r.planId && r.planId === itemId) return true;
+            return normalizeString(r.activityName) === normName && r.eduYear === eduYearVal;
+        });
+
+        results.push({
+            id: itemId,
+            name: nameText,
+            eduYear: eduYearVal,
+            start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`],
+            end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`],
+            person: isOG ? item.sorumlu : item.sorumlu_verisi,
+            isReported: !!report,
+            status: report ? report.status : null,
+            filler: report ? report.fillerName : null
+        });
+    });
+
+    if (results.length === 0) {
+        alert(`"${leaderName}" liderine ait ${statusVal === 'expired' ? 'süresi dolan' : 'devam eden'} faaliyet bulunamadı.`);
+        return;
+    }
+
+    currentModalTasks = results;
+    currentModalTitle = `${leaderName} — Faaliyet Listesi`;
+    showStatusModal(currentModalTitle, results);
+}
+
+// Tüm faaliyet liderlerini özet modal'da göster
+function showAllLeadersModal() {
+    const typeRadio = document.querySelector('input[name="project-type"]:checked');
+    const statusRadio = document.querySelector('input[name="activity-status"]:checked');
+    const typeVal = typeRadio ? typeRadio.value : 'OKUL GELİŞİM PROJESİ';
+    const statusVal = statusRadio ? statusRadio.value : 'expired';
+    const statusLabel = statusVal === 'expired' ? 'Süresi Dolan' : 'Devam Eden';
+    const typeLabel = typeVal === 'OKUL GELİŞİM PROJESİ' ? 'Okul Gelişim' : 'Okul Özel';
+
+    const modal = document.getElementById('all-leaders-modal');
+    const almTitle = document.getElementById('alm-title');
+    const almList = document.getElementById('alm-list');
+    if (!modal || !almList) return;
+
+    if (almTitle) almTitle.textContent = `Faaliyet Liderleri — ${typeLabel} / ${statusLabel}`;
+
+    // Lider → faaliyet sayısı hesapla
+    const leaderCounts = new Map();
+    activityLeadersCache.forEach((leaders, planId) => {
+        // Proje türü filtresi
+        const prefix = typeVal === 'OKUL GELİŞİM PROJESİ' ? 'og-' : 'oo-';
+        if (!planId.startsWith(prefix)) return;
+        leaders.forEach(l => {
+            leaderCounts.set(l, (leaderCounts.get(l) || 0) + 1);
+        });
+    });
+
+    almList.innerHTML = '';
+    if (leaderCounts.size === 0) {
+        almList.innerHTML = '<div class="lm-empty" style="text-align:center; color:#64748b; padding:1.5rem;"><i class="fas fa-crown" style="margin-right:8px;"></i>Bu proje türünde lider tanımlanmamış.</div>';
+    } else {
+        const sorted = Array.from(leaderCounts.entries()).sort((a, b) => b[1] - a[1]);
+        sorted.forEach(([leader, count]) => {
+            const div = document.createElement('div');
+            div.className = 'leader-group-item';
+            div.innerHTML = `
+                <span class="leader-group-name"><i class="fas fa-crown"></i>${leader}</span>
+                <span class="leader-group-count">${count} faaliyet</span>
+            `;
+            div.onclick = () => {
+                modal.style.display = 'none';
+                checkActivitiesByLeader(leader);
+            };
+            almList.appendChild(div);
+        });
+    }
+
+    modal.style.display = 'flex';
+}
+
