@@ -1,5 +1,7 @@
 // Database Configuration
 const STORE_NAME = 'reports';
+const LEADER_STORE = 'activity_leaders'; // Faaliyet Liderleri koleksiyonu
+const LEADER_PASSWORD = '1234';          // Lider işlemleri şifre
 
 // Firebase Setup
 const firebaseConfig = {
@@ -1918,9 +1920,6 @@ function _executeDelete(data) {
 // =============================================
 // FAAALİYET LİDERİ — GLOBAL FONKSİYONLAR
 // =============================================
-
-const LEADER_STORE = 'activity_leaders';
-const LEADER_PASSWORD = '1234';
 
 // Firebase'den lider verisini dinle ve cache'e al
 function syncLeadersCache() {
