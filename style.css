@@ -1052,9 +1052,9 @@ input[type="checkbox"]:checked ~ .other-input {
 
 /* Faaliyet Liderleri Butonu (Header/Inline Eski Görünüm) */
 .btn-leader-header {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
-    border-radius: 10px;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    border-radius: 8px;
     background: rgba(251, 191, 36, 0.1);
     border: 1px solid rgba(251, 191, 36, 0.25);
     color: #fbbf24;
@@ -1064,7 +1064,7 @@ input[type="checkbox"]:checked ~ .other-input {
     font-family: var(--font);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 .btn-leader-header:hover {
     background: rgba(251, 191, 36, 0.2);
