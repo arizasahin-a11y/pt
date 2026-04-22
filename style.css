@@ -199,7 +199,7 @@ input[readonly].has-value {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 0;
 }
 
 .checkbox-item { flex-wrap: wrap;
