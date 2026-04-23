@@ -806,20 +806,25 @@ button {
 .other-input {
     display: none;
     margin-left: 10px;
-    width: 150px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    width: 160px;
+    border: 2px solid white;
     border-radius: 8px;
     padding: 0.3rem 0.6rem;
     font-size: 0.85rem;
-    background: var(--bg);
+    background: #000 !important;
     color: white;
     outline: none;
     transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.other-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .other-input:focus {
-    background: #000;
-    border-color: white;
+    border-color: #fbbf24;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 input[type="checkbox"]:checked ~ .other-input {
