@@ -33,6 +33,7 @@ let currentModalTasks = []; // Data for printing the current modal list
 let currentModalTitle = ""; // Title for the printed list
 let _leaderModalPlanId = null; // Active planId in leader modal
 let _leaderModalProjectType = null; // Active project type in leader modal
+let isArchiveView = false;
 
 let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
@@ -667,6 +668,39 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
     
+    // Archive Button
+    const openArchiveBtn = document.getElementById('open-archive-btn');
+    if (openArchiveBtn) {
+        openArchiveBtn.onclick = () => {
+            isArchiveView = true;
+            if (savedReportsSection) savedReportsSection.style.display = 'none';
+            const archiveSection = document.getElementById('archived-reports');
+            if (archiveSection) archiveSection.style.display = 'block';
+            loadReports();
+        };
+    }
+
+    const backFromArchiveBtn = document.getElementById('back-from-archive');
+    if (backFromArchiveBtn) {
+        backFromArchiveBtn.onclick = () => {
+            isArchiveView = false;
+            const archiveSection = document.getElementById('archived-reports');
+            if (archiveSection) archiveSection.style.display = 'none';
+            if (savedReportsSection) savedReportsSection.style.display = 'block';
+            loadReports();
+        };
+    }
+
+    const archiveSelectedBtn = document.getElementById('archive-selected-btn');
+    if (archiveSelectedBtn) {
+        archiveSelectedBtn.onclick = () => archiveSelectedReports(true);
+    }
+
+    const unarchiveSelectedBtn = document.getElementById('unarchive-selected-btn');
+    if (unarchiveSelectedBtn) {
+        unarchiveSelectedBtn.onclick = () => archiveSelectedReports(false);
+    }
+
     // Clear All Logic
     const clearAllBtn = document.getElementById('clear-all-btn');
     if (clearAllBtn) clearAllBtn.onclick = clearAllForm;
@@ -1405,17 +1439,21 @@ function loadReports() {
     const reports = [...savedReportsCache];
     
     const updateTitle = (count) => {
-        const titleEl = document.getElementById('saved-reports-title');
-        if (titleEl) titleEl.textContent = `Kayıtlı Raporlar (${count})`;
+        const titleId = isArchiveView ? 'archived-reports-title' : 'saved-reports-title';
+        const titleEl = document.getElementById(titleId);
+        if (titleEl) titleEl.textContent = `${isArchiveView ? 'Arşivlenmiş Raporlar' : 'Kayıtlı Raporlar'} (${count})`;
     };
+
+    const listContainer = isArchiveView ? document.getElementById('archived-list') : reportsList;
+    if (!listContainer) return;
 
     if (!reports || reports.length === 0) {
         updateTitle(0);
-        reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
+        listContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Henüz kaydedilmiş rapor bulunmuyor.</div>';
         return;
     }
         
-        reportsList.innerHTML = ''; // Clear loading message
+    listContainer.innerHTML = ''; // Clear loading message
 
         // ----------------------------------------------------
         // DEDUPLICATION (Aynı timestamp/isime sahip JSON kopyalarını ele)
@@ -1432,18 +1470,38 @@ function loadReports() {
 
         const filterRadio = document.querySelector('input[name="history-filter"]:checked');
         const filterVal = filterRadio ? filterRadio.value : 'TÜMÜ';
-        const finalReports = filterVal === 'TÜMÜ' ? uniqueReports : uniqueReports.filter(r => r.projectType === filterVal);
+        let finalReports = filterVal === 'TÜMÜ' ? uniqueReports : uniqueReports.filter(r => r.projectType === filterVal);
+
+        // Arşiv filtresi ekle
+        if (isArchiveView) {
+            finalReports = finalReports.filter(r => r.isArchived === true);
+        } else {
+            finalReports = finalReports.filter(r => r.isArchived !== true);
+        }
 
         updateTitle(finalReports.length);
 
         if (finalReports.length === 0) {
-            reportsList.innerHTML = '<div style="text-align:center; padding:2rem; color:#64748b;">Bu türe ait kaydedilmiş rapor bulunmuyor.</div>';
+            listContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:#64748b;">Bu türe ait ${isArchiveView ? 'arşivlenmiş' : 'kaydedilmiş'} rapor bulunmuyor.</div>`;
             return;
         }
 
         finalReports.forEach(r => {
             const card = document.createElement('div');
             card.className = 'report-card';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.gap = '15px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'report-checkbox';
+            checkbox.value = r.id;
+            checkbox.style.width = '20px';
+            checkbox.style.height = '20px';
+            checkbox.style.cursor = 'pointer';
+
+            card.appendChild(checkbox);
 
             const info = document.createElement('div');
             info.style.flexGrow = '1';
@@ -1517,8 +1575,36 @@ function loadReports() {
 
             card.appendChild(info);
             card.appendChild(actions);
-            reportsList.appendChild(card);
+            listContainer.appendChild(card);
         });
+}
+
+async function archiveSelectedReports(shouldArchive) {
+    const listId = isArchiveView ? 'archived-list' : 'reports-list';
+    const checkboxes = document.querySelectorAll(`#${listId} .report-checkbox:checked`);
+    if (checkboxes.length === 0) {
+        alert('Lütfen en az bir rapor seçin.');
+        return;
+    }
+
+    const msg = shouldArchive ? `${checkboxes.length} rapor arşivlenecek. Emin misiniz?` : `${checkboxes.length} rapor arşivden çıkarılacak. Emin misiniz?`;
+    if (!confirm(msg)) return;
+
+    let successCount = 0;
+    for (const cb of checkboxes) {
+        const id = cb.value;
+        try {
+            await db.collection(STORE_NAME).doc(id).update({
+                isArchived: shouldArchive
+            });
+            successCount++;
+        } catch (err) {
+            console.error(`Error ${shouldArchive ? 'archiving' : 'unarchiving'} report ${id}:`, err);
+        }
+    }
+
+    alert(`✅ ${successCount} rapor başarıyla ${shouldArchive ? 'arşivlendi' : 'arşivden çıkarıldı'}.`);
+    loadReports();
 }
 
 

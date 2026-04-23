@@ -329,6 +329,9 @@
                     <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
                         <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
                     </button>
+                    <button type="button" class="btn-secondary" id="open-archive-btn" style="background: #64748b; color: white; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem; border: none;">
+                        <i class="fas fa-archive"></i> Arşiv
+                    </button>
                 </div>
             </div>
             
@@ -346,7 +349,25 @@
                 </div>
             </div>
             <div id="reports-list"></div>
-            <button class="btn-secondary" id="back-to-form">Geri Dön</button>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="btn-secondary" id="back-to-form">Geri Dön</button>
+                <button class="btn-secondary" id="archive-selected-btn" style="background: #f59e0b; color: white; border: none;">
+                    <i class="fas fa-archive"></i> Seçilenleri Arşivle
+                </button>
+            </div>
+        </div>
+
+        <div id="archived-reports" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 id="archived-reports-title" style="margin: 0;">Arşivlenmiş Raporlar</h2>
+            </div>
+            <div id="archived-list"></div>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="btn-secondary" id="back-from-archive">Geri Dön</button>
+                <button class="btn-secondary" id="unarchive-selected-btn" style="background: #10b981; color: white; border: none;">
+                    <i class="fas fa-undo"></i> Seçilenleri Arşivden Çıkar
+                </button>
+            </div>
         </div>
     </div>
 
