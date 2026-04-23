@@ -37,6 +37,7 @@ let isArchiveView = false;
 
 let mainForm, saveBtn, directPrintBtn, historyBtn, backToFormBtn, savedReportsSection, reportsList;
 let respInput, activityInput, suggestionsPanel, activityPanel; // Global inputs for suggestion logic
+let _activeLeaderFilter = null; // Currently selected leader in filter
 
 // --- GLOBAL CORE FUNCTIONS (Defined early for reliable accessibility) ---
 
@@ -578,6 +579,7 @@ window.addEventListener('DOMContentLoaded', () => {
         backToFormBtn.onclick = () => { 
             if (savedReportsSection) savedReportsSection.style.display = 'none'; 
             if (mainForm) mainForm.style.display = 'block'; 
+            _activeLeaderFilter = null; // Clear leader filter when returning to form
         };
     }
 
@@ -1894,17 +1896,46 @@ window.handleIgnoreTask = (e, person, tid) => {
 };
 
 window.fillFromModal = (name, person, start, end, tid) => {
+    // Reset form first
+    if (typeof clearAllForm === 'function') {
+        // We don't want the confirm dialog here
+        const originalConfirm = window.confirm;
+        window.confirm = () => true;
+        clearAllForm();
+        window.confirm = originalConfirm;
+    }
+
     document.getElementById('activity-name').value = name;
-    document.getElementById('responsible-teacher').value = person + ', ';
+    document.getElementById('responsible-teacher').value = person ? person + ', ' : '';
     document.getElementById('activity-start').value = parseDBDate(start);
     document.getElementById('activity-end').value = parseDBDate(end);
-    if (tid) {
-        const planIdObj = document.getElementById('plan-id');
-        if (planIdObj) planIdObj.value = tid;
+    document.getElementById('plan-id').value = tid || '';
+    
+    // Auto-fill filler name if a leader is active in filter
+    if (_activeLeaderFilter) {
+        const fillerEl = document.getElementById('filler-name');
+        if (fillerEl) {
+            fillerEl.value = _activeLeaderFilter;
+            updateFilledState(fillerEl);
+        }
+    } else if (tid) {
+        // Alternatively, if there's exactly one leader for this activity, fill it anyway
+        const leaders = activityLeadersCache.get(tid) || [];
+        if (leaders.length === 1) {
+            const fillerEl = document.getElementById('filler-name');
+            if (fillerEl) {
+                fillerEl.value = leaders[0];
+                updateFilledState(fillerEl);
+            }
+        }
     }
+
     hideOverdueModal();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Update visual states
     document.querySelectorAll('input, textarea').forEach(updateFilledState);
+    if (typeof checkFormHasContent === 'function') checkFormHasContent();
 };
 
 function debounce(f, w) { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>f(...a), w); }; }
@@ -2220,6 +2251,7 @@ function updateFillerNamesList() {
 // Seçilen liderin faaliyetlerini listele (mevcut proje türü + süresi dolan/devam eden filtresi)
 function checkActivitiesByLeader(leaderName) {
     if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
+    _activeLeaderFilter = leaderName;
 
     const typeRadio = document.querySelector('input[name="project-type"]:checked');
     const statusRadio = document.querySelector('input[name="activity-status"]:checked');
