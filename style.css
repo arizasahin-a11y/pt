@@ -169,7 +169,7 @@ input:focus, textarea:focus {
 }
 
 /* Visual Feedback for Filled Inputs */
-input.has-value:not([type="radio"]):not([type="checkbox"]), 
+input.has-value:not([type="radio"]):not([type="checkbox"]):not(.other-input), 
 textarea.has-value,
 input[type="date"].has-value {
     border-color: var(--accent) !important;
