@@ -321,16 +321,16 @@
         </form>
 
         <div id="saved-reports">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="section-header">
                 <h2 id="saved-reports-title" style="margin: 0;">Kayıtlı Raporlar</h2>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
+                <div class="section-actions">
+                    <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
                         <i class="fas fa-file-download"></i> Güncel Master'ı İndir (.json)
                     </button>
-                    <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
+                    <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41;">
                         <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
                     </button>
-                    <button type="button" class="btn-secondary" id="open-archive-btn" style="background: #64748b; color: white; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem; border: none;">
+                    <button type="button" class="btn-secondary" id="open-archive-btn" style="background: #64748b; color: white; border: none;">
                         <i class="fas fa-archive"></i> Arşiv
                     </button>
                 </div>
@@ -359,7 +359,7 @@
         </div>
 
         <div id="archived-reports" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="section-header">
                 <h2 id="archived-reports-title" style="margin: 0;">Arşivlenmiş Raporlar</h2>
             </div>
             <div id="archived-list"></div>
