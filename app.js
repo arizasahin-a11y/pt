@@ -1587,6 +1587,13 @@ async function archiveSelectedReports(shouldArchive) {
         return;
     }
 
+    const pw = prompt(`${shouldArchive ? 'Arşivleme' : 'Arşivden çıkarma'} işlemi için şifreyi giriniz:`);
+    if (pw === null) return;
+    if (pw !== '1234') {
+        alert('Hatalı şifre!');
+        return;
+    }
+
     const msg = shouldArchive ? `${checkboxes.length} rapor arşivlenecek. Emin misiniz?` : `${checkboxes.length} rapor arşivden çıkarılacak. Emin misiniz?`;
     if (!confirm(msg)) return;
 
