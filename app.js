@@ -358,6 +358,17 @@ window.addEventListener('DOMContentLoaded', () => {
     mainForm = document.getElementById('activity-form');
     saveBtn = document.getElementById('save-btn');
     directPrintBtn = document.getElementById('direct-print-btn');
+    const mainTitle = document.getElementById('main-title');
+    if (mainTitle) {
+        mainTitle.onclick = () => {
+            if (savedReportsSection) savedReportsSection.style.display = 'none';
+            const archiveSection = document.getElementById('archived-reports');
+            if (archiveSection) archiveSection.style.display = 'none';
+            if (mainForm) mainForm.style.display = 'block';
+            window.scrollTo(0, 0);
+        };
+    }
+
     historyBtn = document.getElementById('history-btn');
     backToFormBtn = document.getElementById('back-to-form');
     savedReportsSection = document.getElementById('saved-reports');
