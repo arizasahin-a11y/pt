@@ -2039,8 +2039,9 @@ function syncLeadersCache() {
             activityLeadersCache.set(doc.id, d.leaders || []);
         });
         console.log(`Leader cache updated: ${activityLeadersCache.size} entries.`);
-        // Dropdown ve açık modal varsa yenile
+        // Dropdownlar ve açık modal varsa yenile
         updateLeaderDropdown();
+        updateFillerNamesList();
     });
 }
 
@@ -2194,6 +2195,25 @@ function updateLeaderDropdown() {
         opt.value = l;
         opt.textContent = l;
         sel.appendChild(opt);
+    });
+}
+
+// Formu dolduran kişi listesini tüm liderlerle güncelle
+function updateFillerNamesList() {
+    const list = document.getElementById('filler-names-list');
+    if (!list) return;
+
+    const allNames = new Set();
+    activityLeadersCache.forEach(names => {
+        names.forEach(n => allNames.add(n));
+    });
+
+    const sorted = Array.from(allNames).sort((a, b) => a.localeCompare(b, 'tr'));
+    list.innerHTML = '';
+    sorted.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        list.appendChild(opt);
     });
 }
 
