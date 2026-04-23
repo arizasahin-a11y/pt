@@ -360,6 +360,7 @@ window.addEventListener('DOMContentLoaded', () => {
     directPrintBtn = document.getElementById('direct-print-btn');
     const mainTitle = document.getElementById('main-title');
     if (mainTitle) {
+        // Left Click: Return Home
         mainTitle.onclick = () => {
             if (savedReportsSection) savedReportsSection.style.display = 'none';
             const archiveSection = document.getElementById('archived-reports');
@@ -367,6 +368,20 @@ window.addEventListener('DOMContentLoaded', () => {
             if (mainForm) mainForm.style.display = 'block';
             window.scrollTo(0, 0);
         };
+        
+        // Shift + Right Click: School Principal Control
+        mainTitle.addEventListener('mousedown', (e) => {
+            if (e.shiftKey && e.button === 2) {
+                e.preventDefault();
+                const current = localStorage.getItem('schoolPrincipal') || '';
+                const name = prompt('Okul Müdürü İsmini Giriniz:', current);
+                if (name !== null) {
+                    localStorage.setItem('schoolPrincipal', name.trim());
+                    alert('Okul Müdürü güncellendi: ' + name.trim());
+                }
+            }
+        });
+        mainTitle.addEventListener('contextmenu', (e) => { if (e.shiftKey) e.preventDefault(); });
     }
 
     historyBtn = document.getElementById('history-btn');
@@ -584,23 +599,6 @@ window.addEventListener('DOMContentLoaded', () => {
         printModalBtn.onclick = () => printModalList(currentModalTitle, currentModalTasks);
     }
     
-    // School Principal Control (Shift + Right Click on Title)
-    const mainTitle = document.getElementById('main-title');
-    if (mainTitle) {
-        mainTitle.addEventListener('mousedown', (e) => {
-            if (e.shiftKey && e.button === 2) {
-                e.preventDefault();
-                const current = localStorage.getItem('schoolPrincipal') || '';
-                const name = prompt('Okul Müdürü İsmini Giriniz:', current);
-                if (name !== null) {
-                    localStorage.setItem('schoolPrincipal', name.trim());
-                    alert('Okul Müdürü güncellendi: ' + name.trim());
-                }
-            }
-        });
-        mainTitle.addEventListener('contextmenu', (e) => { if (e.shiftKey) e.preventDefault(); });
-    }
-
     // --- FAAALİYET LİDERİ KONTROLLERI ---
     // Faaliyet Liderleri header butonu
     const allLeadersBtn = document.getElementById('all-leaders-btn');
