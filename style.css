@@ -1165,9 +1165,12 @@ input[type="checkbox"]:checked ~ .other-input {
 .section-actions .btn-secondary {
     flex: 0 1 auto;
     width: auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     .section-header {
         flex-direction: column;
         align-items: center;
