@@ -807,18 +807,18 @@ button {
     display: none;
     margin-left: 10px;
     width: 150px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 8px;
     padding: 0.3rem 0.6rem;
     font-size: 0.85rem;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--bg);
     color: white;
     outline: none;
     transition: all 0.2s;
 }
 
 .other-input:focus {
-    background: rgba(0, 0, 0, 0.3);
+    background: #000;
     border-color: white;
 }
 
