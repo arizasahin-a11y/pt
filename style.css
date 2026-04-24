@@ -1138,60 +1138,152 @@ input[type="checkbox"]:checked ~ .other-input {
     flex: 1;
     min-width: 0;
 }
-@media (max-width: 600px) {
-    .responsible-leader-row {
-        flex-direction: column;
+/* =============================================
+   RESPONSIVE DESIGN & TOUCH OPTIMIZATION
+   ============================================= */
+
+/* Global Touch Interface Enhancements (Interactive Boards / Mobile) */
+@media (pointer: coarse) {
+    :root {
+        --btn-padding: 1rem 1.5rem;
+    }
+    input, select, textarea, button {
+        min-height: 48px !important;
+    }
+    .field-clear-btn, .group-clear-btn {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1rem !important;
+    }
+    .checkbox-item {
+        padding: 0.75rem 1rem !important;
+    }
+    .suggestion-item {
+        padding: 12px 16px !important;
+        font-size: 1rem !important;
+    }
+    /* Scrollbar visibility improvement for touch */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
     }
 }
 
+/* Mobile & Small Screen Adjustments (Tablet/Phone) */
+@media (max-width: 850px) {
+    body {
+        padding: 1rem 0.5rem;
+    }
 
-/* Section Header and Actions (Responsive) */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
+    .container {
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+        margin: 0 auto;
+    }
 
-.section-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.section-actions .btn-primary,
-.section-actions .btn-secondary {
-    flex: 0 1 auto;
-    width: auto;
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-    white-space: nowrap;
-}
-
-@media (max-width: 600px) {
-    .section-header {
+    header {
         flex-direction: column;
         align-items: center;
         text-align: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
-    
-    .section-actions {
+
+    .header-actions {
+        width: 100%;
+        align-items: center !important;
+    }
+
+    .title-group h1 {
+        font-size: 1.6rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+
+    .full-width {
+        grid-column: span 1;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
         justify-content: center;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    /* Form specific adjustments */
+    .other-input {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 8px;
+    }
+
+    .checkbox-item {
+        white-space: normal; /* Allow text wrapping on narrow screens */
+    }
+
+    /* Modal Adjustments */
+    .modal-content {
+        width: 95% !important;
+        margin: 10px auto;
+        padding: 1.2rem;
+        max-height: 90vh;
+    }
+
+    /* Saved Reports & Archive Adjustments */
+    #saved-reports > div:first-child,
+    #archived-reports > div:first-child {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+    }
+
+    .header-actions-group {
+        flex-direction: column;
         width: 100%;
     }
-    
-    .section-actions button {
-        flex: 1 1 auto;
-        min-width: 120px;
-        justify-content: center;
+
+    .report-card {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .card-actions {
+        width: 100%;
+        justify-content: space-between;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+    }
+
+    /* Suggestions Panels */
+    .suggestions-panel {
+        position: fixed;
+        top: 10% !important;
+        left: 5% !important;
+        width: 90% !important;
+        max-height: 80vh !important;
+        z-index: 2000;
+        box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        border: 2px solid var(--primary);
     }
 }
 
-@media (max-width: 480px) {
-    .section-actions button {
-        width: 100%;
-        flex: 1 0 100%;
+/* Landscape/Tablet specific tweak */
+@media (min-width: 851px) and (max-width: 1100px) {
+    .container {
+        max-width: 95%;
     }
 }
+
