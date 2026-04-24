@@ -85,16 +85,18 @@
                     </div>
                     <div id="suggestions-panel" class="suggestions-panel"></div>
                 </div>
-                <div class="leader-filter-wrap">
+                <div class="leader-filter-wrap" style="position: relative;">
                     <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <span>FAAALİYET LİDERİ</span>
                         <button type="button" class="btn-leader-header" id="all-leaders-btn" title="Tüm Faaliyet Liderlerini listele">
                             <i class="fas fa-crown"></i> Faaliyet Liderleri
                         </button>
                     </label>
-                    <select id="leader-filter-select">
-                        <option value="">-- Lider seçin... --</option>
-                    </select>
+                    <div class="field-wrapper">
+                        <input type="text" id="leader-filter-input" placeholder="Lider seçin..." autocomplete="off">
+                        <button type="button" class="field-clear-btn" style="display: flex;" title="Temizle" onclick="document.getElementById('leader-filter-input').value=''; loadReports();">&#x2715;</button>
+                    </div>
+                    <div id="leader-filter-suggestions" class="suggestions-panel"></div>
                 </div>
             </div>
 
@@ -277,10 +279,10 @@
             <div class="grid" style="border: 1px solid var(--border); padding: 1.5rem; border-radius: 16px;">
                 <div class="field-group">
                     <label>Formu Dolduran Ad &amp; Soyad</label>
-                    <div class="field-wrapper">
-                        <input type="text" id="filler-name" list="filler-names-list" placeholder="Ad Soyad seçin veya giriniz...">
-                        <datalist id="filler-names-list"></datalist>
+                    <div class="field-wrapper" style="position: relative;">
+                        <input type="text" id="filler-name" placeholder="Ad Soyad seçin veya giriniz..." autocomplete="off">
                         <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('filler-name')">&#x2715;</button>
+                        <div id="filler-suggestions-panel" class="suggestions-panel"></div>
                     </div>
                 </div>
                 <div class="field-group">
@@ -321,16 +323,16 @@
         </form>
 
         <div id="saved-reports">
-            <div class="section-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2 id="saved-reports-title" style="margin: 0;">Kayıtlı Raporlar</h2>
-                <div class="section-actions">
-                    <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-primary" id="download-master-btn" style="background: #4f46e5; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;" title="Tüm güncellemelerin işlendiği ana veritabanı dosyasını indir">
                         <i class="fas fa-file-download"></i> Güncel Master'ı İndir (.json)
                     </button>
-                    <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41;">
+                    <button type="button" class="btn-primary" id="export-excel-btn" style="background: #107c41; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem;">
                         <i class="fas fa-file-excel"></i> Excel'e Aktar (.xlsx)
                     </button>
-                    <button type="button" class="btn-secondary" id="open-archive-btn" style="background: #64748b; color: white; border: none;">
+                    <button type="button" class="btn-secondary" id="open-archive-btn" style="background: #64748b; color: white; width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem; border: none;">
                         <i class="fas fa-archive"></i> Arşiv
                     </button>
                 </div>
@@ -359,7 +361,7 @@
         </div>
 
         <div id="archived-reports" style="display: none;">
-            <div class="section-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2 id="archived-reports-title" style="margin: 0;">Arşivlenmiş Raporlar</h2>
             </div>
             <div id="archived-list"></div>
