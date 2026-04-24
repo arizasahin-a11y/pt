@@ -2206,7 +2206,7 @@ function renderFillerSuggestions(fragment) {
     filtered.slice(0, 20).forEach(name => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
-        div.innerHTML = `<i class="fas fa-user"></i> ${name}`;
+        div.innerHTML = `<i class="fas fa-crown" style="color: #ffd700;"></i> ${name}`;
         div.onclick = () => {
             const input = document.getElementById('filler-name');
             input.value = name;
@@ -2244,7 +2244,7 @@ function renderLeaderFilterSuggestions(fragment) {
     filtered.slice(0, 20).forEach(name => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
-        div.innerHTML = `<i class="fas fa-filter"></i> ${name}`;
+        div.innerHTML = `<i class="fas fa-crown" style="color: #ffd700;"></i> ${name}`;
         div.onclick = () => {
             const input = document.getElementById('leader-filter-input');
             input.value = name;
