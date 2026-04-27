@@ -1221,12 +1221,12 @@ function printReport(data) {
     fill('#p-cost', data.cost); fill('#p-document-no', data.documentNo); fill('#p-purpose', data.purpose);
     fill('#p-status', data.status); // Populating activity status
     fill('#p-difficulties', data.difficulties); fill('#p-suggestions', data.suggestions);
-    fill('#p-realized-value', data.realizedValue); 
+    fill('#p-realized-value-pdf', data.realizedValue); 
     
-    const prRow = pc.querySelector('#p-realized-value-row');
-    if (prRow) {
-        if (data.projectType === 'OKUL ÖZEL PROJESİ') prRow.style.display = 'table-row';
-        else prRow.style.display = 'none';
+    const prWrap = pc.querySelector('#p-realized-value-pdf-wrap');
+    if (prWrap) {
+        if (data.projectType === 'OKUL ÖZEL PROJESİ') prWrap.style.display = 'block';
+        else prWrap.style.display = 'none';
     }
 
     fill('#p-collaborations', data.collaborations); fill('#p-evaluation', data.evaluation); fill('#p-docs', data.docs);
