@@ -1667,7 +1667,32 @@ function loadReports() {
 
             const title = document.createElement('h3');
             title.style.cssText = 'margin:0; font-size:1rem; display:flex; align-items:center; flex-wrap:wrap; gap:8px;';
-            title.innerHTML = `<span>${r.activityName || 'İsimsiz Rapor'}</span>`;
+            
+            let themeDisplay = "";
+            if (r.projectType === 'OKUL GELİŞİM PROJESİ') {
+                let t = r.activityTheme;
+                // Eğer kayıtlı tema yoksa plan verisinden bulmaya çalış
+                if (!t && r.planId && r.planId.startsWith('og-') && combinedData && combinedData.og_db) {
+                    const no = parseInt(r.planId.split('-')[1]);
+                    const item = combinedData.og_db.find(i => i.no === no);
+                    if (item && item.tema) t = item.tema;
+                }
+                
+                if (t) {
+                    const tStr = t.toString().toUpperCase();
+                    const themeText = tStr.includes("TEMA") ? tStr : `TEMA ${tStr}`;
+                    
+                    // Eğer faaliyet isminin içinde zaten bu tema bilgisi yoksa ekle
+                    const name = r.activityName || 'İsimsiz Rapor';
+                    const hasTheme = name.toUpperCase().includes(`(${themeText})`) || name.toUpperCase().includes(themeText);
+                    
+                    if (!hasTheme) {
+                        themeDisplay = ` (${themeText})`;
+                    }
+                }
+            }
+            
+            title.innerHTML = `<span>${r.activityName || 'İsimsiz Rapor'}${themeDisplay}</span>`;
             if (r.fillerName) {
                 title.innerHTML += `<span style="font-size:0.75rem; background:#ecfdf5; color:#10b981; padding:2px 8px; border-radius:12px; font-weight:600; border:1px solid #a7f3d0;"><i class="fas fa-pencil-alt" style="margin-right:4px;"></i>${formatNameTR(r.fillerName)}</span>`;
             }
