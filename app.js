@@ -685,10 +685,17 @@ window.addEventListener('DOMContentLoaded', () => {
             checkOverdueActivities();
             const selectedType = document.querySelector('input[name="project-type"]:checked').value;
             const rGroup = document.getElementById('realized-value-group');
+            const themeGroup = document.getElementById('theme-field-group');
+            const themeContainer = document.getElementById('theme-activity-container');
+
             if (selectedType === 'OKUL ÖZEL PROJESİ') {
                 if (rGroup) rGroup.style.display = 'block';
+                if (themeGroup) themeGroup.style.display = 'none';
+                if (themeContainer) themeContainer.style.gridTemplateColumns = '1fr';
             } else {
                 if (rGroup) rGroup.style.display = 'none';
+                if (themeGroup) themeGroup.style.display = 'block';
+                if (themeContainer) themeContainer.style.gridTemplateColumns = '140px 1fr';
                 clearField('realized-value');
             }
             // Proje türü değişince lider filtresini de sıfırla
