@@ -398,6 +398,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const downloadMasterBtn = document.getElementById('download-master-btn');
     if (downloadMasterBtn) downloadMasterBtn.addEventListener('click', downloadMasterJson);
 
+    // Uygulama açılışında verileri hemen hazırla (Firebase'den önce yerel veriyi yükle)
+    refreshCombinedData();
+
     const exportExcelBtn = document.getElementById('export-excel-btn');
     if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
 
