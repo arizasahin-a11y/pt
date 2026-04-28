@@ -1154,40 +1154,70 @@ function showOverdueModal(tasks) {
 
 function fillReportForm(taskId, selectedType) {
     if (!combinedData) return;
-    const dbSource = selectedType === 'OKUL GELİŞİM PROJESİ' ? combinedData.og_db : combinedData.oo_db;
-    const item = dbSource.find(i => (selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`) === taskId);
-    if (!item) return;
+    
+    // taskId prefix tells us the true type regardless of selectedType
+    const isOG = taskId.startsWith('og-');
+    const dbSource = isOG ? combinedData.og_db : combinedData.oo_db;
+    const item = dbSource.find(i => (isOG ? `og-${i.no}` : `oo-${i.sira}`) === taskId);
+    
+    if (!item) {
+        console.error("Task not found in DB:", taskId);
+        return;
+    }
 
-    const isOG = taskId.startsWith('og-') || selectedType === 'OKUL GELİŞİM PROJESİ';
-    
-    document.getElementById('activity-name').value = isOG ? (item.eylem_adi || '') : (item.eylem_gorev || '');
-    document.getElementById('responsible-teacher').value = (isOG ? item.sorumlu : item.sorumlu_verisi || '').trim() + ', ';
-    
-    // Yıl endeksine göre tarihleri al (daha doğru olur)
+    // Ensure we are in the correct project type view
+    const typeValue = isOG ? 'OKUL GELİŞİM PROJESİ' : 'OKUL ÖZEL PROJESİ';
+    const typeRadio = document.querySelector(`input[name="project-type"][value="${typeValue}"]`);
+    if (typeRadio) {
+        typeRadio.checked = true;
+        typeRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Fill basic fields
+    const nameInput = document.getElementById('activity-name');
+    const teacherInput = document.getElementById('responsible-teacher');
+    const startInput = document.getElementById('activity-start');
+    const endInput = document.getElementById('activity-end');
+    const planIdInput = document.getElementById('plan-id');
+    const themeSelect = document.getElementById('activity-theme');
+
+    if (nameInput) nameInput.value = isOG ? (item.eylem_adi || '') : (item.eylem_gorev || '');
+    if (teacherInput) teacherInput.value = (isOG ? item.sorumlu : item.sorumlu_verisi || '').trim() + ', ';
+    if (planIdInput) planIdInput.value = taskId;
+
+    // Dates
     const yearIdx = getYearIndexForReport();
     const startStr = isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`];
     const endStr = isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`];
     
-    const start = parseDBDate(startStr);
-    const end = parseDBDate(endStr);
-    if (start) document.getElementById('activity-start').value = start;
-    if (end) document.getElementById('activity-end').value = end;
-    
-    const planIdObj = document.getElementById('plan-id');
-    if (planIdObj) planIdObj.value = taskId;
+    if (startInput) startInput.value = parseDBDate(startStr) || '';
+    if (endInput) endInput.value = parseDBDate(endStr) || '';
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    const themeSelect = document.getElementById('activity-theme');
-    if (isOG && item.tema && themeSelect) {
-        themeSelect.value = `TEMA ${item.tema}`;
-    } else {
-        autoSelectTheme(); // Fallback to name-based selection
+    // Theme Selection
+    if (isOG && themeSelect) {
+        if (item.tema) {
+            const tVal = `TEMA ${item.tema}`;
+            themeSelect.value = tVal;
+        } else {
+            // No theme in DB? Try auto-selection by name
+            autoSelectTheme();
+        }
+    } else if (themeSelect) {
+        themeSelect.value = '';
     }
 
-    document.querySelectorAll('input, textarea, select').forEach(updateFilledState);
-    
-    // Reset save state for new fill
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Force UI updates
+    setTimeout(() => {
+        document.querySelectorAll('input, textarea, select').forEach(el => updateFilledState(el));
+        // One final check for theme after UI update
+        if (isOG && themeSelect && !themeSelect.value) {
+            autoSelectTheme();
+        }
+    }, 100);
+
+    // Reset save state
     lastSavedData = null;
     currentRecordId = null;
 }
