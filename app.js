@@ -308,6 +308,10 @@ function clearField(id) {
     el.value = '';
     updateFilledState(el);
     el.dispatchEvent(new Event('input'));
+    if (id === 'activity-name') {
+        const themeSelect = document.getElementById('activity-theme');
+        if (themeSelect) { themeSelect.value = ''; updateFilledState(themeSelect); }
+    }
 }
 
 function clearCheckboxGroup(name, otherCheckId, otherTextId) {
@@ -479,7 +483,15 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     if (activityInput) {
-        activityInput.addEventListener('input', (e) => renderActivitySuggestions(e.target.value));
+        activityInput.addEventListener('input', (e) => {
+            renderActivitySuggestions(e.target.value);
+            autoSelectTheme();
+        });
+    }
+
+    const themeSelect = document.getElementById('activity-theme');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', () => updateFilledState(themeSelect));
     }
 
     const lastStatus = localStorage.getItem('lastActivityStatus');
@@ -657,7 +669,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // Input Visual Feedback
-    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea').forEach(el => {
+    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea, select').forEach(el => {
         el.addEventListener('input', () => updateFilledState(el));
         el.addEventListener('change', () => updateFilledState(el));
         el.addEventListener('blur', () => updateFilledState(el));
@@ -775,6 +787,7 @@ async function refreshCombinedData() {
         if (report.status === 'Güncellendi') applyOverlayUpdate(combinedData, report);
     });
     console.log('Data synchronization complete.');
+    autoSelectTheme();
 }
 
 function applyOverlayUpdate(targetDb, report) {
@@ -2584,4 +2597,26 @@ tbody tr:hover{background:#fffbeb!important;}
     if (!win) { alert('Pop-up engelleyiciyi kapatın!'); return; }
     win.document.write(html);
     win.document.close();
+}
+
+function autoSelectTheme() {
+    const nameInput = document.getElementById('activity-name');
+    const themeSelect = document.getElementById('activity-theme');
+    const typeChecked = document.querySelector('input[name="project-type"]:checked');
+    const isOG = typeChecked && typeChecked.value === 'OKUL GELİŞİM PROJESİ';
+
+    if (!nameInput || !themeSelect || !isOG || !combinedData || !combinedData.og_db) return;
+
+    const normName = normalizeString(nameInput.value);
+    if (!normName) {
+        themeSelect.value = '';
+        updateFilledState(themeSelect);
+        return;
+    }
+
+    const item = combinedData.og_db.find(i => normalizeString(i.eylem_adi) === normName);
+    if (item && item.tema) {
+        themeSelect.value = `TEMA ${item.tema}`;
+    }
+    updateFilledState(themeSelect);
 }
