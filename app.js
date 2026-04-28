@@ -2159,7 +2159,6 @@ function _leaderAddAction() {
     }).then(() => {
         if (nameInput) nameInput.value = '';
         renderLeaderModalList(planId);
-        updateLeaderDropdown();
     }).catch(e => alert('Kayıt hatası: ' + e.message));
 }
 
@@ -2176,12 +2175,10 @@ function deleteLeaderAction(planId, idx, leaderName) {
     if (currentLeaders.length === 0) {
         docRef.delete().then(() => {
             renderLeaderModalList(planId);
-            updateLeaderDropdown();
         }).catch(e => alert('Silme hatası: ' + e.message));
     } else {
         docRef.set({ planId, leaders: currentLeaders }, { merge: true }).then(() => {
             renderLeaderModalList(planId);
-            updateLeaderDropdown();
         }).catch(e => alert('Güncelleme hatası: ' + e.message));
     }
 }
