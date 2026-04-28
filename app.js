@@ -1158,12 +1158,18 @@ function fillReportForm(taskId, selectedType) {
     const item = dbSource.find(i => (selectedType === 'OKUL GELİŞİM PROJESİ' ? `og-${i.no}` : `oo-${i.sira}`) === taskId);
     if (!item) return;
 
-    const isOG = selectedType === 'OKUL GELİŞİM PROJESİ';
-    document.getElementById('activity-name').value = isOG ? item.eylem_adi : item.eylem_gorev;
+    const isOG = taskId.startsWith('og-') || selectedType === 'OKUL GELİŞİM PROJESİ';
+    
+    document.getElementById('activity-name').value = isOG ? (item.eylem_adi || '') : (item.eylem_gorev || '');
     document.getElementById('responsible-teacher').value = (isOG ? item.sorumlu : item.sorumlu_verisi || '').trim() + ', ';
     
-    const start = parseDBDate(isOG ? item.y1_bas : item.baslangic_1);
-    const end = parseDBDate(isOG ? item.y1_bit : item.bitis_1);
+    // Yıl endeksine göre tarihleri al (daha doğru olur)
+    const yearIdx = getYearIndexForReport();
+    const startStr = isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`];
+    const endStr = isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`];
+    
+    const start = parseDBDate(startStr);
+    const end = parseDBDate(endStr);
     if (start) document.getElementById('activity-start').value = start;
     if (end) document.getElementById('activity-end').value = end;
     
@@ -1172,12 +1178,11 @@ function fillReportForm(taskId, selectedType) {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    if (isOG && item.tema) {
-        const themeSelect = document.getElementById('activity-theme');
-        if (themeSelect) {
-            themeSelect.value = `TEMA ${item.tema}`;
-            updateFilledState(themeSelect);
-        }
+    const themeSelect = document.getElementById('activity-theme');
+    if (isOG && item.tema && themeSelect) {
+        themeSelect.value = `TEMA ${item.tema}`;
+    } else {
+        autoSelectTheme(); // Fallback to name-based selection
     }
 
     document.querySelectorAll('input, textarea, select').forEach(updateFilledState);
