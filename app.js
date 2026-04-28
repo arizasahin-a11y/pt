@@ -950,8 +950,6 @@ function renderSuggestions(fragment) {
 function renderActivitySuggestions(fragment) {
     if (!combinedData) return;
     const panel = document.getElementById('activity-suggestions-panel');
-    const themeSelect = document.getElementById('activity-theme');
-    const selectedTheme = themeSelect ? themeSelect.value : "";
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
     const isOG = selectedType === 'OKUL GELİŞİM PROJESİ';
     const respValue = document.getElementById('responsible-teacher').value.trim();
@@ -959,7 +957,7 @@ function renderActivitySuggestions(fragment) {
     if (!panel) return;
 
     // Eğer her şey boşsa kapat
-    if (!fragment && !selectedTheme && !respValue) {
+    if (!fragment && !respValue) {
         panel.style.display = 'none';
         return;
     }
@@ -967,11 +965,8 @@ function renderActivitySuggestions(fragment) {
     const list = isOG ? (combinedData.og_db || []) : (combinedData.oo_db || []);
     let filtered = list;
 
-    // 1. TEMA filtresi (Okul Gelişim için)
-    if (isOG && selectedTheme) {
-        const themeNum = parseInt(selectedTheme.replace('TEMA ', '').trim());
-        filtered = filtered.filter(it => it.tema == themeNum);
-    }
+    // 1. TEMA filtresi kaldırıldı (Kutu yok)
+
 
     // 2. Sorumlu Öğretmen filtresi
     if (respValue) {
@@ -2716,35 +2711,6 @@ tbody tr:hover{background:#fffbeb!important;}
 }
 
 function autoSelectTheme() {
-    const nameInput = document.getElementById('activity-name');
-    const themeSelect = document.getElementById('activity-theme');
-    const typeChecked = document.querySelector('input[name="project-type"]:checked');
-    const isOG = typeChecked && typeChecked.value === 'OKUL GELİŞİM PROJESİ';
-
-    if (!nameInput || !themeSelect || !isOG || !combinedData || !combinedData.og_db) return;
-
-    const rawValue = nameInput.value.trim();
-    const normName = normalizeString(rawValue);
-    
-    if (!normName) {
-        themeSelect.value = '';
-        updateFilledState(themeSelect);
-        return;
-    }
-
-    // Tam eşleşme ara
-    let item = combinedData.og_db.find(i => normalizeString(i.eylem_adi) === normName);
-    
-    // Tam eşleşme yoksa, ismin içinde geçiyor mu diye bak (isteğe bağlı, ama riskli olabilir)
-    // Şimdilik sadece tam eşleşme veya baş harfleri çok yakınsa alalım.
-
-    if (item && item.tema) {
-        const themeVal = `TEMA ${item.tema}`;
-        // Değerin select içinde var olduğundan emin ol
-        const exists = Array.from(themeSelect.options).some(opt => opt.value === themeVal);
-        if (exists) {
-            themeSelect.value = themeVal;
-        }
-    }
-    updateFilledState(themeSelect);
+    // TEMA kutusu kaldırıldığı için bu fonksiyon artık işlevsizdir.
 }
+

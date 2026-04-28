@@ -100,34 +100,15 @@
                 </div>
             </div>
 
-            <div id="theme-activity-container" class="full-width" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: flex-end;">
-                <div id="theme-field-group" class="field-group">
-                    <label>TEMA</label>
-                    <div class="field-wrapper">
-                        <select id="activity-theme" style="width: 100%;">
-                            <option value="">Seçiniz...</option>
-                            <option value="TEMA 1">TEMA 1</option>
-                            <option value="TEMA 2">TEMA 2</option>
-                            <option value="TEMA 3">TEMA 3</option>
-                            <option value="TEMA 4">TEMA 4</option>
-                            <option value="TEMA 5">TEMA 5</option>
-                            <option value="TEMA 6">TEMA 6</option>
-                            <option value="TEMA 7">TEMA 7</option>
-                            <option value="TEMA 8">TEMA 8</option>
-                            <option value="TEMA 9">TEMA 9</option>
-                            <option value="TEMA 10">TEMA 10</option>
-                        </select>
-                    </div>
+            <div id="activity-name-container" class="full-width field-group" style="margin-bottom: 1.5rem; position: relative;">
+                <label>Faaliyet Adı</label>
+                <div class="field-wrapper">
+                    <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off">
+                    <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-name')">&#x2715;</button>
                 </div>
-                <div class="field-group" style="position: relative;">
-                    <label>Faaliyet Adı</label>
-                    <div class="field-wrapper">
-                        <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off">
-                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-name')">&#x2715;</button>
-                    </div>
-                    <div id="activity-suggestions-panel" class="suggestions-panel"></div>
-                </div>
+                <div id="activity-suggestions-panel" class="suggestions-panel"></div>
             </div>
+
 
             <!-- Faaliyet Türü -->
             <div class="checkbox-group full-width" style="margin-bottom: 1.5rem;">
@@ -594,11 +575,12 @@
         </div>
     </div>
 
-    <script src="db_data.js?v=2026.04.28.2"></script>
+    <script src="db_data.js?v=2026.04.28.3"></script>
     <!-- Firebase SDK (Compat Version for traditional non-module environments) -->
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=2026.04.28.2"></script>
+    <script src="app.js?v=2026.04.28.3"></script>
+
 </body>
 </html>
 
