@@ -483,9 +483,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     if (activityInput) {
-        activityInput.addEventListener('input', (e) => {
-            renderActivitySuggestions(e.target.value);
-            autoSelectTheme();
+        ['input', 'paste', 'blur'].forEach(evt => {
+            activityInput.addEventListener(evt, (e) => {
+                if (evt === 'input') renderActivitySuggestions(e.target.value);
+                autoSelectTheme();
+            });
         });
     }
 
@@ -2607,16 +2609,28 @@ function autoSelectTheme() {
 
     if (!nameInput || !themeSelect || !isOG || !combinedData || !combinedData.og_db) return;
 
-    const normName = normalizeString(nameInput.value);
+    const rawValue = nameInput.value.trim();
+    const normName = normalizeString(rawValue);
+    
     if (!normName) {
         themeSelect.value = '';
         updateFilledState(themeSelect);
         return;
     }
 
-    const item = combinedData.og_db.find(i => normalizeString(i.eylem_adi) === normName);
+    // Tam eşleşme ara
+    let item = combinedData.og_db.find(i => normalizeString(i.eylem_adi) === normName);
+    
+    // Tam eşleşme yoksa, ismin içinde geçiyor mu diye bak (isteğe bağlı, ama riskli olabilir)
+    // Şimdilik sadece tam eşleşme veya baş harfleri çok yakınsa alalım.
+
     if (item && item.tema) {
-        themeSelect.value = `TEMA ${item.tema}`;
+        const themeVal = `TEMA ${item.tema}`;
+        // Değerin select içinde var olduğundan emin ol
+        const exists = Array.from(themeSelect.options).some(opt => opt.value === themeVal);
+        if (exists) {
+            themeSelect.value = themeVal;
+        }
     }
     updateFilledState(themeSelect);
 }
