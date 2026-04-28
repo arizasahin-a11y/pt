@@ -1197,32 +1197,37 @@ function fillReportForm(taskId, selectedType) {
     const startStr = isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`];
     const endStr = isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`];
     
-    if (startInput) startInput.value = parseDBDate(startStr) || '';
-    if (endInput) endInput.value = parseDBDate(endStr) || '';
+    // Theme Selection - More robust derivation
+    let determinedTema = item.tema;
+    if (!determinedTema && item.kod && typeof item.kod === 'string') {
+        const parts = item.kod.split('.');
+        if (parts.length > 0 && !isNaN(parts[0])) {
+            determinedTema = parts[0];
+        }
+    }
 
-    // Theme Selection
     if (isOG && themeSelect) {
-        if (item.tema) {
-            const tVal = `TEMA ${item.tema}`;
-            themeSelect.value = tVal;
+        if (determinedTema) {
+            themeSelect.value = `TEMA ${determinedTema}`;
+            updateFilledState(themeSelect);
         } else {
-            // No theme in DB? Try auto-selection by name
             autoSelectTheme();
         }
     } else if (themeSelect) {
         themeSelect.value = '';
+        updateFilledState(themeSelect);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Force UI updates
+    // Force UI updates for everything
     setTimeout(() => {
         document.querySelectorAll('input, textarea, select').forEach(el => updateFilledState(el));
-        // One final check for theme after UI update
+        // Double check theme selection
         if (isOG && themeSelect && !themeSelect.value) {
             autoSelectTheme();
         }
-    }, 100);
+    }, 50);
 
     // Reset save state
     lastSavedData = null;
