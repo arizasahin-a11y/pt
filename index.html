@@ -100,13 +100,31 @@
                 </div>
             </div>
 
-            <div class="field-group full-width" style="margin-bottom: 1.5rem; position: relative;">
-                <label>Faaliyet Adı</label>
-                <div class="field-wrapper">
-                    <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off">
-                    <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-name')">&#x2715;</button>
+            <div class="full-width" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 180px 1fr; gap: 1rem; align-items: flex-end;">
+                <div class="field-group">
+                    <label>TEMA</label>
+                    <div class="field-wrapper">
+                        <select id="activity-theme" style="width: 100%;">
+                            <option value="">Seçiniz...</option>
+                            <option value="TEMA 1">TEMA 1</option>
+                            <option value="TEMA 2">TEMA 2</option>
+                            <option value="TEMA 3">TEMA 3</option>
+                            <option value="TEMA 4">TEMA 4</option>
+                            <option value="TEMA 5">TEMA 5</option>
+                            <option value="TEMA 6">TEMA 6</option>
+                            <option value="TEMA 7">TEMA 7</option>
+                            <option value="TEMA 8">TEMA 8</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="activity-suggestions-panel" class="suggestions-panel"></div>
+                <div class="field-group" style="position: relative;">
+                    <label>Faaliyet Adı</label>
+                    <div class="field-wrapper">
+                        <input type="text" id="activity-name" placeholder="Faaliyet adını veya kodunu giriniz..." autocomplete="off">
+                        <button type="button" class="field-clear-btn" title="Temizle" onclick="clearField('activity-name')">&#x2715;</button>
+                    </div>
+                    <div id="activity-suggestions-panel" class="suggestions-panel"></div>
+                </div>
             </div>
 
             <!-- Faaliyet Türü -->

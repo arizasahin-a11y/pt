@@ -66,7 +66,7 @@ window._doLoadRecord = function(data) {
 
         // Field mapping
         const map = {
-            'eduYear': 'edu-year', 'activityName': 'activity-name', 'teacher': 'responsible-teacher',
+            'eduYear': 'edu-year', 'activityName': 'activity-name', 'activityTheme': 'activity-theme', 'teacher': 'responsible-teacher',
             'totalParticipants': 'total-participants', 'location': 'activity-location',
             'startDate': 'activity-start', 'endDate': 'activity-end', 'duration': 'total-duration',
             'cost': 'cost', 'documentNo': 'document-no', 'purpose': 'purpose',
@@ -340,6 +340,8 @@ function clearAllForm() {
     clearCheckboxGroup('participant-profile', 'participant-other-check', 'participant-other-text');
     clearCheckboxGroup('docs', 'docs-other-check', 'docs-other-text');
     clearRadioGroup('project-type', 'OKUL GELİŞİM PROJESİ');
+    const themeSelect = document.getElementById('activity-theme');
+    if (themeSelect) { themeSelect.value = ''; updateFilledState(themeSelect); }
     clearRadioGroup('report-status', 'Tamamlandı');
     const sp = document.getElementById('suggestions-panel');
     if (sp) sp.style.display = 'none';
@@ -946,6 +948,11 @@ function renderActivitySuggestions(fragment) {
         div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${(isOG ? item.sorumlu : item.sorumlu_verisi) || ''}</div>`;
         div.onclick = () => {
             activityInput.value = nameText;
+            const themeSelect = document.getElementById('activity-theme');
+            if (themeSelect && isOG && item.tema) {
+                themeSelect.value = `TEMA ${item.tema}`;
+                updateFilledState(themeSelect);
+            }
             panel.style.display = 'none';
             activityInput.focus();
             updateFilledState(activityInput);
@@ -1149,7 +1156,16 @@ function fillReportForm(taskId, selectedType) {
     if (planIdObj) planIdObj.value = taskId;
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.querySelectorAll('input, textarea').forEach(updateFilledState);
+    
+    if (isOG && item.tema) {
+        const themeSelect = document.getElementById('activity-theme');
+        if (themeSelect) {
+            themeSelect.value = `TEMA ${item.tema}`;
+            updateFilledState(themeSelect);
+        }
+    }
+
+    document.querySelectorAll('input, textarea, select').forEach(updateFilledState);
     
     // Reset save state for new fill
     lastSavedData = null;
@@ -1182,6 +1198,7 @@ function getFormData() {
         eduYear: document.getElementById('edu-year').value,
         projectType: typeChecked ? typeChecked.value : 'OKUL GELİŞİM PROJESİ',
         activityName: document.getElementById('activity-name').value,
+        activityTheme: document.getElementById('activity-theme') ? document.getElementById('activity-theme').value : '',
         activityType: getCheckboxValues('activity-type', 'type-other-check', 'type-other-text'),
         teacher: document.getElementById('responsible-teacher').value,
         participantProfile: getCheckboxValues('participant-profile', 'participant-other-check', 'participant-other-text'),
@@ -1214,7 +1231,13 @@ function getFormData() {
 function printReport(data) {
     const pc = document.getElementById('print-content').cloneNode(true);
     const fill = (id, val) => { const el = pc.querySelector(id); if (el) el.textContent = val || ''; };
-    fill('#p-edu-year', data.eduYear); fill('#p-type-area', data.projectType); fill('#p-name', data.activityName);
+    fill('#p-edu-year', data.eduYear); fill('#p-type-area', data.projectType); 
+    
+    let displayName = data.activityName;
+    if (data.projectType === 'OKUL GELİŞİM PROJESİ' && data.activityTheme) {
+        displayName += ` (${data.activityTheme})`;
+    }
+    fill('#p-name', displayName);
     fill('#p-type', data.activityType); fill('#p-teacher', data.teacher); fill('#p-profile', data.participantProfile);
     fill('#p-count', data.totalParticipants); fill('#p-location', data.location); 
     fill('#p-dates', formatDateRange(data.startDate, data.endDate)); fill('#p-duration', data.duration);
