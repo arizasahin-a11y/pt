@@ -1,32 +1,33 @@
-const COMBINED_DB = {
+﻿const COMBINED_DB =  
+ï»¿{
   "og_db": [
     {
       "no": 1,
       "tema": 1,
       "sh": 1,
       "kod": "1.1.1",
-      "eylem_adi": "Yeni gelen velilerle kahvaltılı tanışma toplantısı",
+      "eylem_adi": "Yeni gelen velilerle kahvaltÄ±lÄ± tanÄ±ÅŸma toplantÄ±sÄ±",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "31.10.2025",
       "y1_bas": "01.10.2025",
       "y1_bit": "31.10.2025",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 10000,
-      "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
+      "sorumlu": "Okul YÃ¶netimi, Tema Lideri, Mezunlar VakfÄ±/DerneÄŸi, Okul Aile BirliÄŸi"
     },
     {
       "no": 2,
       "tema": 1,
       "sh": 1,
       "kod": "1.1.2",
-      "eylem_adi": "Geleneksel Pilav Günü ve Mezun Buluşması’nın düzenlenmesi",
+      "eylem_adi": "Geleneksel Pilav GÃ¼nÃ¼ ve Mezun BuluÅŸmasÄ±â€™nÄ±n dÃ¼zenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -40,14 +41,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 25000,
-      "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
+      "sorumlu": "Okul YÃ¶netimi, Tema Lideri, Mezunlar VakfÄ±/DerneÄŸi, Okul Aile BirliÄŸi"
     },
     {
       "no": 3,
       "tema": 1,
       "sh": 1,
       "kod": "1.1.3",
-      "eylem_adi": "Mezun Web Sitesinin Oluşturulması",
+      "eylem_adi": "Mezun Web Sitesinin OluÅŸturulmasÄ±",
       "tip": "C",
       "tekrar": 3,
       "genel_baslangic": "01.07.2026",
@@ -56,19 +57,19 @@ const COMBINED_DB = {
       "y1_bit": "20.06.2026",
       "y2_bas": "01.10.2026",
       "y2_bit": "31.01.2027",
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 50000,
-      "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
+      "sorumlu": "Okul YÃ¶netimi, Tema Lideri, Mezunlar VakfÄ±/DerneÄŸi, Okul Aile BirliÄŸi"
     },
     {
       "no": 4,
       "tema": 1,
       "sh": 2,
       "kod": "1.2.1",
-      "eylem_adi": "Geleneksel Okul İftar Programı",
+      "eylem_adi": "Geleneksel Okul Ä°ftar ProgramÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -82,14 +83,14 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 50000,
-      "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
+      "sorumlu": "Okul YÃ¶netimi, Tema Lideri, Mezunlar VakfÄ±/DerneÄŸi, Okul Aile BirliÄŸi"
     },
     {
       "no": 5,
       "tema": 1,
       "sh": 2,
       "kod": "1.2.2",
-      "eylem_adi": "Veli Kitap Okuma Kulübü (İnsan Olmak Temalı)",
+      "eylem_adi": "Veli Kitap Okuma KulÃ¼bÃ¼ (Ä°nsan Olmak TemalÄ±)",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.10.2025",
@@ -103,14 +104,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.12.2028",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
+      "sorumlu": "Okul YÃ¶netimi, Tema Lideri, Mezunlar VakfÄ±/DerneÄŸi, Okul Aile BirliÄŸi"
     },
     {
       "no": 6,
       "tema": 2,
       "sh": 1,
       "kod": "2.1.1",
-      "eylem_adi": "Deney Haftası (Kimya zümresi, Biyoloji Zümresi zümresi, fizik zümresi 9. sınıflar deneleri)",
+      "eylem_adi": "Deney HaftasÄ± (Kimya zÃ¼mresi, Biyoloji ZÃ¼mresi zÃ¼mresi, fizik zÃ¼mresi 9. sÄ±nÄ±flar deneleri)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -124,14 +125,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 5000,
-      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
+      "sorumlu": "Fen ZÃ¼mresi, Edebiyat ZÃ¼mresi,, Okul YÃ¶netimi, Rehberlik Servisi"
     },
     {
       "no": 7,
       "tema": 2,
       "sh": 1,
       "kod": "2.1.2",
-      "eylem_adi": "Kütüphane kullanım alanının güçlendirilmesi",
+      "eylem_adi": "KÃ¼tÃ¼phane kullanÄ±m alanÄ±nÄ±n gÃ¼Ã§lendirilmesi",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -145,7 +146,7 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
+      "sorumlu": "Fen ZÃ¼mresi, Edebiyat ZÃ¼mresi,, Okul YÃ¶netimi, Rehberlik Servisi"
     },
     {
       "no": 8,
@@ -166,14 +167,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
+      "sorumlu": "Fen ZÃ¼mresi, Edebiyat ZÃ¼mresi,, Okul YÃ¶netimi, Rehberlik Servisi"
     },
     {
       "no": 9,
       "tema": 2,
       "sh": 1,
       "kod": "2.1.2",
-      "eylem_adi": "9. Sınıf Velileriyle Kahvaltı",
+      "eylem_adi": "9. SÄ±nÄ±f Velileriyle KahvaltÄ±",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -187,14 +188,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
+      "sorumlu": "Fen ZÃ¼mresi, Edebiyat ZÃ¼mresi,, Okul YÃ¶netimi, Rehberlik Servisi"
     },
     {
       "no": 10,
       "tema": 2,
       "sh": 1,
       "kod": "2.1.1",
-      "eylem_adi": "Öğrencilerin Öğrenme Stillerinin Belirlenmesine Yönelik Çalışmalar (Öğrenme Stilleri Envanteri Uygulanması ve Sonuçlarına Göre Eğitimler Düzenlenmesi)",
+      "eylem_adi": "Ã–ÄŸrencilerin Ã–ÄŸrenme Stillerinin Belirlenmesine YÃ¶nelik Ã‡alÄ±ÅŸmalar (Ã–ÄŸrenme Stilleri Envanteri UygulanmasÄ± ve SonuÃ§larÄ±na GÃ¶re EÄŸitimler DÃ¼zenlenmesi)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -208,14 +209,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Fen Zümresi, Edebiyat Zümresi,, Okul Yönetimi, Rehberlik Servisi"
+      "sorumlu": "Fen ZÃ¼mresi, Edebiyat ZÃ¼mresi,, Okul YÃ¶netimi, Rehberlik Servisi"
     },
     {
       "no": 11,
       "tema": 3,
       "sh": 1,
       "kod": "3.1.1",
-      "eylem_adi": "Erasmus+ proje için uluslararası işbirliği çalışmaları",
+      "eylem_adi": "Erasmus+ proje iÃ§in uluslararasÄ± iÅŸbirliÄŸi Ã§alÄ±ÅŸmalarÄ±",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -229,35 +230,35 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul YÃ¶netimi, YabancÄ± Dil ZÃ¼mresi, Ã–ÄŸrenci Meclisi"
     },
     {
       "no": 12,
       "tema": 3,
       "sh": 1,
       "kod": "3.1.2",
-      "eylem_adi": "Kardeş Okul protokolü imzalanması",
+      "eylem_adi": "KardeÅŸ Okul protokolÃ¼ imzalanmasÄ±",
       "tip": "D",
       "tekrar": 1,
       "genel_baslangic": "01.12.2025",
       "genel_bitis": "31.12.2025",
       "y1_bas": "01.12.2025",
       "y1_bit": "31.12.2025",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul YÃ¶netimi, YabancÄ± Dil ZÃ¼mresi, Ã–ÄŸrenci Meclisi"
     },
     {
       "no": 13,
       "tema": 3,
       "sh": 1,
       "kod": "3.1.3",
-      "eylem_adi": "E-Twinning proje başvurusu ve yürütülmesi",
+      "eylem_adi": "E-Twinning proje baÅŸvurusu ve yÃ¼rÃ¼tÃ¼lmesi",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.09.2026",
@@ -266,19 +267,19 @@ const COMBINED_DB = {
       "y1_bit": "20.06.2026",
       "y2_bas": "01.10.2026",
       "y2_bit": "18.06.2027",
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul YÃ¶netimi, YabancÄ± Dil ZÃ¼mresi, Ã–ÄŸrenci Meclisi"
     },
     {
       "no": 14,
       "tema": 3,
       "sh": 2,
       "kod": "3.2.1",
-      "eylem_adi": "Öğrenci-Öğretmen-İdare Diyalog Günleri",
+      "eylem_adi": "Ã–ÄŸrenci-Ã–ÄŸretmen-Ä°dare Diyalog GÃ¼nleri",
       "tip": "C",
       "tekrar": 8,
       "genel_baslangic": "01.11.2025",
@@ -292,35 +293,35 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul YÃ¶netimi, YabancÄ± Dil ZÃ¼mresi, Ã–ÄŸrenci Meclisi"
     },
     {
       "no": 15,
       "tema": 3,
       "sh": 2,
       "kod": "3.2.2",
-      "eylem_adi": "İAAL Okul Gelişim Modeli broşürünün Basımı ve Geri Bildirim Raporu Sunumu",
+      "eylem_adi": "Ä°AAL Okul GeliÅŸim Modeli broÅŸÃ¼rÃ¼nÃ¼n BasÄ±mÄ± ve Geri Bildirim Raporu Sunumu",
       "tip": "D",
       "tekrar": 1,
       "genel_baslangic": "01.12.2025",
       "genel_bitis": "31.12.2025",
       "y1_bas": "01.12.2025",
       "y1_bit": "31.12.2025",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 3000,
-      "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
+      "sorumlu": "Okul YÃ¶netimi, YabancÄ± Dil ZÃ¼mresi, Ã–ÄŸrenci Meclisi"
     },
     {
       "no": 16,
       "tema": 4,
       "sh": 1,
       "kod": "4.1.1",
-      "eylem_adi": "İstanbul Öğretmen Akademileri veya ÖBA'dan Yılda 3 Eğitimin Tamamlanması",
+      "eylem_adi": "Ä°stanbul Ã–ÄŸretmen Akademileri veya Ã–BA'dan YÄ±lda 3 EÄŸitimin TamamlanmasÄ±",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -334,14 +335,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Öğretmenler, Zümreler, Müdür Yardımcısı"
+      "sorumlu": "Ã–ÄŸretmenler, ZÃ¼mreler, MÃ¼dÃ¼r YardÄ±mcÄ±sÄ±"
     },
     {
       "no": 17,
       "tema": 4,
       "sh": 1,
       "kod": "4.1.2",
-      "eylem_adi": "Her zümrenin dersindeki Örnek Uygulamalarının diğer branş öğretmenlerine aktarılması",
+      "eylem_adi": "Her zÃ¼mrenin dersindeki Ã–rnek UygulamalarÄ±nÄ±n diÄŸer branÅŸ Ã¶ÄŸretmenlerine aktarÄ±lmasÄ±",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -355,14 +356,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Öğretmenler, Zümreler, Müdür Yardımcısı"
+      "sorumlu": "Ã–ÄŸretmenler, ZÃ¼mreler, MÃ¼dÃ¼r YardÄ±mcÄ±sÄ±"
     },
     {
       "no": 18,
       "tema": 4,
       "sh": 2,
       "kod": "4.2.1",
-      "eylem_adi": "Farklı Okullardaki Aynı Branşlardan Öğretmenlerle Buluşma Etkinliği",
+      "eylem_adi": "FarklÄ± Okullardaki AynÄ± BranÅŸlardan Ã–ÄŸretmenlerle BuluÅŸma EtkinliÄŸi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.02.2026",
@@ -376,56 +377,56 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "Öğretmenler, Zümreler, Müdür Yardımcısı"
+      "sorumlu": "Ã–ÄŸretmenler, ZÃ¼mreler, MÃ¼dÃ¼r YardÄ±mcÄ±sÄ±"
     },
     {
       "no": 19,
       "tema": 4,
       "sh": 2,
       "kod": "4.2.2",
-      "eylem_adi": "Erasmus+ Öğretmen Hareketliliği İşbaşı Gözlem Proje başvurusu",
+      "eylem_adi": "Erasmus+ Ã–ÄŸretmen HareketliliÄŸi Ä°ÅŸbaÅŸÄ± GÃ¶zlem Proje baÅŸvurusu",
       "tip": "D",
       "tekrar": 1,
       "genel_baslangic": "01.10.2026",
       "genel_bitis": "31.10.2026",
-      "y1_bas": NaN,
-      "y1_bit": NaN,
+      "y1_bas": null,
+      "y1_bit": null,
       "y2_bas": "01.10.2026",
       "y2_bit": "31.10.2026",
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Öğretmenler, Zümreler, Müdür Yardımcısı"
+      "sorumlu": "Ã–ÄŸretmenler, ZÃ¼mreler, MÃ¼dÃ¼r YardÄ±mcÄ±sÄ±"
     },
     {
       "no": 20,
       "tema": 5,
       "sh": 1,
       "kod": "5.1.1",
-      "eylem_adi": "Veli Kitap Okuma Kulübü (Özel Gereksinimli Bireylerle Empati üzerine)",
+      "eylem_adi": "Veli Kitap Okuma KulÃ¼bÃ¼ (Ã–zel Gereksinimli Bireylerle Empati Ã¼zerine)",
       "tip": "D",
       "tekrar": 3,
       "genel_baslangic": "01.11.2028",
       "genel_bitis": "30.04.2029",
-      "y1_bas": NaN,
-      "y1_bit": NaN,
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
+      "y1_bas": null,
+      "y1_bit": null,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
       "y4_bas": "01.11.2028",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Onur Kurulu, Öğrenci Meclisi, Rehberlik Servisi"
+      "sorumlu": "Tema Lideri, Onur Kurulu, Ã–ÄŸrenci Meclisi, Rehberlik Servisi"
     },
     {
       "no": 21,
       "tema": 5,
       "sh": 2,
       "kod": "5.2.1",
-      "eylem_adi": "23 Nisan haftasında ilçemizdeki dezavantajlı bir ilkokula ziyaret ve hediye Götürülmesi",
+      "eylem_adi": "23 Nisan haftasÄ±nda ilÃ§emizdeki dezavantajlÄ± bir ilkokula ziyaret ve hediye GÃ¶tÃ¼rÃ¼lmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -439,14 +440,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 5000,
-      "sorumlu": "Tema Lideri, Onur Kurulu, Öğrenci Meclisi, Rehberlik Servisi"
+      "sorumlu": "Tema Lideri, Onur Kurulu, Ã–ÄŸrenci Meclisi, Rehberlik Servisi"
     },
     {
       "no": 22,
       "tema": 5,
       "sh": 2,
       "kod": "5.2.2",
-      "eylem_adi": "Özel Eğitim Uygulama Okulu'na Ziyaret ve Hediye Götürülmesi",
+      "eylem_adi": "Ã–zel EÄŸitim Uygulama Okulu'na Ziyaret ve Hediye GÃ¶tÃ¼rÃ¼lmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -460,14 +461,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 3000,
-      "sorumlu": "Tema Lideri, Onur Kurulu, Öğrenci Meclisi, Rehberlik Servisi"
+      "sorumlu": "Tema Lideri, Onur Kurulu, Ã–ÄŸrenci Meclisi, Rehberlik Servisi"
     },
     {
       "no": 23,
       "tema": 5,
       "sh": 3,
       "kod": "5.3.1",
-      "eylem_adi": "Okul Risk Analizi Hazırlanması",
+      "eylem_adi": "Okul Risk Analizi HazÄ±rlanmasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.10.2025",
@@ -481,35 +482,35 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Onur Kurulu, Öğrenci Meclisi, Rehberlik Servisi"
+      "sorumlu": "Tema Lideri, Onur Kurulu, Ã–ÄŸrenci Meclisi, Rehberlik Servisi"
     },
     {
       "no": 24,
       "tema": 6,
       "sh": 1,
       "kod": "6.1.1",
-      "eylem_adi": "Öğrenme eksikliklerine yönelik takviye dersler verilmesi",
+      "eylem_adi": "Ã–ÄŸrenme eksikliklerine yÃ¶nelik takviye dersler verilmesi",
       "tip": "D",
       "tekrar": 1,
       "genel_baslangic": "01.11.2025",
       "genel_bitis": "20.06.2026",
       "y1_bas": "01.11.2025",
       "y1_bit": "20.06.2026",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 25,
       "tema": 6,
       "sh": 2,
       "kod": "6.2.1",
-      "eylem_adi": "Müzede Dersim Var Etkinliği",
+      "eylem_adi": "MÃ¼zede Dersim Var EtkinliÄŸi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -523,14 +524,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 26,
       "tema": 6,
       "sh": 2,
       "kod": "6.2.2",
-      "eylem_adi": "Cafe'de İngilizce Konuşma Pratiği Dersi",
+      "eylem_adi": "Cafe'de Ä°ngilizce KonuÅŸma PratiÄŸi Dersi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -544,14 +545,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 27,
       "tema": 6,
       "sh": 2,
       "kod": "6.2.3",
-      "eylem_adi": "English Scrabble Turnuvası",
+      "eylem_adi": "English Scrabble TurnuvasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.01.2026",
@@ -565,14 +566,14 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 28,
       "tema": 6,
       "sh": 2,
       "kod": "6.2.4",
-      "eylem_adi": "Dış Mekanda Kitap Tahlili",
+      "eylem_adi": "DÄ±ÅŸ Mekanda Kitap Tahlili",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -586,14 +587,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 1000,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 29,
       "tema": 6,
       "sh": 2,
       "kod": "6.2.5",
-      "eylem_adi": "Almanca: Sprechstunde (Konuşma Saati) Kültür Sanat Mekanlarını Gezerek İngilizce ve Almanca Deneyim Aktarımı",
+      "eylem_adi": "Almanca: Sprechstunde (KonuÅŸma Saati) KÃ¼ltÃ¼r Sanat MekanlarÄ±nÄ± Gezerek Ä°ngilizce ve Almanca Deneyim AktarÄ±mÄ±",
       "tip": "C",
       "tekrar": 8,
       "genel_baslangic": "01.10.2025",
@@ -607,35 +608,35 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 30,
       "tema": 6,
       "sh": 3,
       "kod": "6.3.1",
-      "eylem_adi": "Kulüp Tanıtım Günleri ile Öğrencilerin İlgi ve Yeteneklerine Göre Kulüp Seçmeleri",
+      "eylem_adi": "KulÃ¼p TanÄ±tÄ±m GÃ¼nleri ile Ã–ÄŸrencilerin Ä°lgi ve Yeteneklerine GÃ¶re KulÃ¼p SeÃ§meleri",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "31.10.2025",
       "y1_bas": "01.10.2025",
       "y1_bit": "31.10.2025",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul YÃ¶netimi, Rehberlik Servisi, Tarih ZÃ¼mresi, Ä°ngilizce ZÃ¼mresi, TDE ZÃ¼mresi, Almanca ZÃ¼mresi"
     },
     {
       "no": 31,
       "tema": 7,
       "sh": 1,
       "kod": "7.1.1",
-      "eylem_adi": "Velilere “Aile İçi İletişim” Konulu Seminer",
+      "eylem_adi": "Velilere â€œAile Ä°Ã§i Ä°letiÅŸimâ€ Konulu Seminer",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.02.2026",
@@ -649,14 +650,14 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "Rehberlik Servisi, Girişimcilik Kulübü"
+      "sorumlu": "Rehberlik Servisi, GiriÅŸimcilik KulÃ¼bÃ¼"
     },
     {
       "no": 32,
       "tema": 7,
       "sh": 2,
       "kod": "7.2.1",
-      "eylem_adi": "Öğrencilere “Siber Zorbalık ve Akran Zorbalığı” Eğitimi",
+      "eylem_adi": "Ã–ÄŸrencilere â€œSiber ZorbalÄ±k ve Akran ZorbalÄ±ÄŸÄ±â€ EÄŸitimi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -670,14 +671,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Rehberlik Servisi, Girişimcilik Kulübü"
+      "sorumlu": "Rehberlik Servisi, GiriÅŸimcilik KulÃ¼bÃ¼"
     },
     {
       "no": 33,
       "tema": 7,
       "sh": 3,
       "kod": "7.3.1",
-      "eylem_adi": "“İhmal ve İstismar Farkındalığı” Konulu Broşür Hazırlanması (Veli, Öğrenci ve Öğretmen Broşürleri)",
+      "eylem_adi": "â€œÄ°hmal ve Ä°stismar FarkÄ±ndalÄ±ÄŸÄ±â€ Konulu BroÅŸÃ¼r HazÄ±rlanmasÄ± (Veli, Ã–ÄŸrenci ve Ã–ÄŸretmen BroÅŸÃ¼rleri)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -691,14 +692,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Rehberlik Servisi, Girişimcilik Kulübü"
+      "sorumlu": "Rehberlik Servisi, GiriÅŸimcilik KulÃ¼bÃ¼"
     },
     {
       "no": 34,
       "tema": 7,
       "sh": 4,
       "kod": "7.4.1",
-      "eylem_adi": "Üniversite Tanıtım Gezileri",
+      "eylem_adi": "Ãœniversite TanÄ±tÄ±m Gezileri",
       "tip": "C",
       "tekrar": 12,
       "genel_baslangic": "01.10.2025",
@@ -712,14 +713,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Rehberlik Servisi, Girişimcilik Kulübü"
+      "sorumlu": "Rehberlik Servisi, GiriÅŸimcilik KulÃ¼bÃ¼"
     },
     {
       "no": 35,
       "tema": 7,
       "sh": 4,
       "kod": "7.4.2",
-      "eylem_adi": "İAAL Girişimcilik Zirvesi (İstanbul liseler arası)",
+      "eylem_adi": "Ä°AAL GiriÅŸimcilik Zirvesi (Ä°stanbul liseler arasÄ±)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -733,7 +734,7 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Rehberlik Servisi, Girişimcilik Kulübü"
+      "sorumlu": "Rehberlik Servisi, GiriÅŸimcilik KulÃ¼bÃ¼"
     },
     {
       "no": 36,
@@ -754,14 +755,14 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 150000,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 37,
       "tema": 8,
       "sh": 1,
       "kod": "8.1.2",
-      "eylem_adi": "Kendini Değerlendirme Envanteri Uygulaması",
+      "eylem_adi": "Kendini DeÄŸerlendirme Envanteri UygulamasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.10.2025",
@@ -775,35 +776,35 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 38,
       "tema": 8,
       "sh": 1,
       "kod": "8.1.3",
-      "eylem_adi": "9. Sınıflara Mesleki Beceri Envanteri (MEB) Uygulanması",
+      "eylem_adi": "9. SÄ±nÄ±flara Mesleki Beceri Envanteri (MEB) UygulanmasÄ±",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "31.01.2026",
       "y1_bas": "01.01.2026",
       "y1_bit": "31.01.2026",
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 39,
       "tema": 8,
       "sh": 1,
       "kod": "8.1.4",
-      "eylem_adi": "Öğrencilere Mesleki İlgi Envanteri Uygulaması",
+      "eylem_adi": "Ã–ÄŸrencilere Mesleki Ä°lgi Envanteri UygulamasÄ±",
       "tip": "C",
       "tekrar": 5,
       "genel_baslangic": "01.10.2025",
@@ -817,14 +818,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 40,
       "tema": 8,
       "sh": 1,
       "kod": "8.1.5",
-      "eylem_adi": "Ders-Meslek İlişkisi Haritası Oluşturulması",
+      "eylem_adi": "Ders-Meslek Ä°liÅŸkisi HaritasÄ± OluÅŸturulmasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -838,14 +839,14 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.11.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 41,
       "tema": 8,
       "sh": 2,
       "kod": "8.2.1",
-      "eylem_adi": "Sınıf İçi Motivasyon Panosu Hazırlama (Sınıf Öğretmenleri)",
+      "eylem_adi": "SÄ±nÄ±f Ä°Ã§i Motivasyon Panosu HazÄ±rlama (SÄ±nÄ±f Ã–ÄŸretmenleri)",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -859,14 +860,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 42,
       "tema": 8,
       "sh": 3,
       "kod": "8.3.1",
-      "eylem_adi": "Veli Bilgilendirme Toplantıları ve Birebir Öğretmen Görüşmeleri",
+      "eylem_adi": "Veli Bilgilendirme ToplantÄ±larÄ± ve Birebir Ã–ÄŸretmen GÃ¶rÃ¼ÅŸmeleri",
       "tip": "C",
       "tekrar": 8,
       "genel_baslangic": "01.11.2025",
@@ -880,14 +881,14 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 43,
       "tema": 8,
       "sh": 4,
       "kod": "8.4.1",
-      "eylem_adi": "Teknoloji Desteğiyle Fizik Dersinin Desteklenmesi",
+      "eylem_adi": "Teknoloji DesteÄŸiyle Fizik Dersinin Desteklenmesi",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -901,14 +902,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 44,
       "tema": 8,
       "sh": 4,
       "kod": "8.4.2",
-      "eylem_adi": "Online Ödev ve Ders Etkinlikleri Takibi",
+      "eylem_adi": "Online Ã–dev ve Ders Etkinlikleri Takibi",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -922,14 +923,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik Servisi, SÄ±nÄ±f Rehber Ã–ÄŸretmenleri, Fizik ZÃ¼mresi"
     },
     {
       "no": 45,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.1",
-      "eylem_adi": "Ben Okuyorum İstanbul Okuyor Projesi",
+      "eylem_adi": "Ben Okuyorum Ä°stanbul Okuyor Projesi",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -943,14 +944,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 46,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.2",
-      "eylem_adi": "Roman Kahramanları Haftası",
+      "eylem_adi": "Roman KahramanlarÄ± HaftasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.12.2025",
@@ -964,14 +965,14 @@ const COMBINED_DB = {
       "y4_bas": "01.12.2028",
       "y4_bit": "31.12.2028",
       "butce": 10000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 47,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.3",
-      "eylem_adi": "Sene Sonu Tiyatro Kulübü Gösterisi",
+      "eylem_adi": "Sene Sonu Tiyatro KulÃ¼bÃ¼ GÃ¶sterisi",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -985,14 +986,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "15.06.2029",
       "butce": 20000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 48,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.4",
-      "eylem_adi": "İstanbul Geneli Münazara Kulübü Turnuvası",
+      "eylem_adi": "Ä°stanbul Geneli MÃ¼nazara KulÃ¼bÃ¼ TurnuvasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1006,14 +1007,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 150000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 49,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.5",
-      "eylem_adi": "Müzik Zümresi kulübünün Sene Sonu Gösterisi",
+      "eylem_adi": "MÃ¼zik ZÃ¼mresi kulÃ¼bÃ¼nÃ¼n Sene Sonu GÃ¶sterisi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1027,14 +1028,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 50,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.6",
-      "eylem_adi": "Resim Zümresi Kulübünün Sene Sonu Resim Zümresi Sergisi",
+      "eylem_adi": "Resim ZÃ¼mresi KulÃ¼bÃ¼nÃ¼n Sene Sonu Resim ZÃ¼mresi Sergisi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1048,14 +1049,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 51,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.7",
-      "eylem_adi": "8 Mart Kadınlar Günü ile ilgili görsel materyaller hazırlanması",
+      "eylem_adi": "8 Mart KadÄ±nlar GÃ¼nÃ¼ ile ilgili gÃ¶rsel materyaller hazÄ±rlanmasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -1069,14 +1070,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 15000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 52,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.8",
-      "eylem_adi": "Ulusal düzeyde gerçekleşen fotoğraf, kısa film, vb. yarışmalara öğrenci katılımın sağlanması",
+      "eylem_adi": "Ulusal dÃ¼zeyde gerÃ§ekleÅŸen fotoÄŸraf, kÄ±sa film, vb. yarÄ±ÅŸmalara Ã¶ÄŸrenci katÄ±lÄ±mÄ±n saÄŸlanmasÄ±",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -1090,14 +1091,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 5000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 53,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.9",
-      "eylem_adi": "Tirat Sahneleme Yarışması",
+      "eylem_adi": "Tirat Sahneleme YarÄ±ÅŸmasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1111,14 +1112,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 54,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.10",
-      "eylem_adi": "Şiir Okuma Yarışması",
+      "eylem_adi": "Åiir Okuma YarÄ±ÅŸmasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -1132,14 +1133,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 55,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.11",
-      "eylem_adi": "Şiir Dinletisi",
+      "eylem_adi": "Åiir Dinletisi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -1153,14 +1154,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 56,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.12",
-      "eylem_adi": "Eleştirel Film Okumaları",
+      "eylem_adi": "EleÅŸtirel Film OkumalarÄ±",
       "tip": "C",
       "tekrar": 8,
       "genel_baslangic": "01.11.2025",
@@ -1174,14 +1175,14 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 57,
       "tema": 9,
       "sh": 1,
       "kod": "9.1.13",
-      "eylem_adi": "Yazar Buluşmaları",
+      "eylem_adi": "Yazar BuluÅŸmalarÄ±",
       "tip": "C",
       "tekrar": 11,
       "genel_baslangic": "01.09.2026",
@@ -1195,14 +1196,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 58,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.1",
-      "eylem_adi": "TÜBİTAK 4006 Şenliği",
+      "eylem_adi": "TÃœBÄ°TAK 4006 ÅenliÄŸi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -1216,14 +1217,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 5000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 59,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.3",
-      "eylem_adi": "Cogito Sosyal Bilgiler Çalıştayı",
+      "eylem_adi": "Cogito Sosyal Bilgiler Ã‡alÄ±ÅŸtayÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1237,14 +1238,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 80000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 60,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.5",
-      "eylem_adi": "14 Mart Pi Günü etkinlikleri",
+      "eylem_adi": "14 Mart Pi GÃ¼nÃ¼ etkinlikleri",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -1258,14 +1259,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 2000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 61,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.6",
-      "eylem_adi": "Dijital Okul Biyoloji Zümresi Dergisi",
+      "eylem_adi": "Dijital Okul Biyoloji ZÃ¼mresi Dergisi",
       "tip": "C",
       "tekrar": 5,
       "genel_baslangic": "01.11.2025",
@@ -1279,14 +1280,14 @@ const COMBINED_DB = {
       "y4_bas": "01.11.2028",
       "y4_bit": "30.11.2028",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 62,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.8",
-      "eylem_adi": "TÜBİTAK Bilim Söyleşileri",
+      "eylem_adi": "TÃœBÄ°TAK Bilim SÃ¶yleÅŸileri",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.02.2026",
@@ -1300,14 +1301,14 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 63,
       "tema": 9,
       "sh": 2,
       "kod": "9.2.9",
-      "eylem_adi": "Bilim Olimpiyatları çalışmaları ve başvurusu",
+      "eylem_adi": "Bilim OlimpiyatlarÄ± Ã§alÄ±ÅŸmalarÄ± ve baÅŸvurusu",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -1321,14 +1322,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 64,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.1",
-      "eylem_adi": "Okul içi voleybol turnuvalarının düzenlenmesi",
+      "eylem_adi": "Okul iÃ§i voleybol turnuvalarÄ±nÄ±n dÃ¼zenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.05.2026",
@@ -1342,14 +1343,14 @@ const COMBINED_DB = {
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 65,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.2",
-      "eylem_adi": "Okul içi basketbol turnuvalarının düzenlenmesi",
+      "eylem_adi": "Okul iÃ§i basketbol turnuvalarÄ±nÄ±n dÃ¼zenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1363,14 +1364,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 66,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.3",
-      "eylem_adi": "Okul içi futbol turnuvalarının düzenlenmesi",
+      "eylem_adi": "Okul iÃ§i futbol turnuvalarÄ±nÄ±n dÃ¼zenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.10.2025",
@@ -1384,14 +1385,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 67,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.4",
-      "eylem_adi": "Geleneksel Ayhan Suskun Satranç Kulübü Turnuvasının düzenlenmesi",
+      "eylem_adi": "Geleneksel Ayhan Suskun SatranÃ§ KulÃ¼bÃ¼ TurnuvasÄ±nÄ±n dÃ¼zenlenmesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.06.2026",
@@ -1405,14 +1406,14 @@ const COMBINED_DB = {
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 68,
       "tema": 9,
       "sh": 3,
       "kod": "9.3.5",
-      "eylem_adi": "Oryantring Kulübü eğitimlerinin verilmesi ve yarışmalara katılım",
+      "eylem_adi": "Oryantring KulÃ¼bÃ¼ eÄŸitimlerinin verilmesi ve yarÄ±ÅŸmalara katÄ±lÄ±m",
       "tip": "C",
       "tekrar": 7,
       "genel_baslangic": "01.09.2026",
@@ -1426,14 +1427,14 @@ const COMBINED_DB = {
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 69,
       "tema": 9,
       "sh": 4,
       "kod": "9.4.1",
-      "eylem_adi": "Okul saksılarının çiçeklendirilmesi ve bakımı",
+      "eylem_adi": "Okul saksÄ±larÄ±nÄ±n Ã§iÃ§eklendirilmesi ve bakÄ±mÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -1447,14 +1448,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 2000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 70,
       "tema": 9,
       "sh": 4,
       "kod": "9.4.2",
-      "eylem_adi": "Çorbada Tuzun Olsun Sosyal Sorumluluk Projesi",
+      "eylem_adi": "Ã‡orbada Tuzun Olsun Sosyal Sorumluluk Projesi",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -1468,14 +1469,14 @@ const COMBINED_DB = {
       "y4_bas": "01.03.2029",
       "y4_bit": "31.03.2029",
       "butce": 5000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 71,
       "tema": 9,
       "sh": 4,
       "kod": "9.4.3",
-      "eylem_adi": "Çak Bi Pati Projesi ( Sokak hayvanları ve barınak hayvanları için destek etkinliği)",
+      "eylem_adi": "Ã‡ak Bi Pati Projesi ( Sokak hayvanlarÄ± ve barÄ±nak hayvanlarÄ± iÃ§in destek etkinliÄŸi)",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.04.2026",
@@ -1489,14 +1490,14 @@ const COMBINED_DB = {
       "y4_bas": "01.04.2029",
       "y4_bit": "30.04.2029",
       "butce": 5000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 72,
       "tema": 9,
       "sh": 4,
       "kod": "9.4.4",
-      "eylem_adi": "Ramazan Gıda Bağışı Kampanyası",
+      "eylem_adi": "Ramazan GÄ±da BaÄŸÄ±ÅŸÄ± KampanyasÄ±",
       "tip": "B",
       "tekrar": 4,
       "genel_baslangic": "01.03.2026",
@@ -1510,14 +1511,14 @@ const COMBINED_DB = {
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 50000,
-      "sorumlu": "TDE Zümresi, Müzik Zümresi, Resim Zümresi, Matematik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi, Beden Eğitimi Zümresi, Onur Kurulu,Tiyatro Kulübü, Münazara Kulübü, Satranç Kulübü, Oryantring Kulübü, Değerler Kulübü"
+      "sorumlu": "TDE ZÃ¼mresi, MÃ¼zik ZÃ¼mresi, Resim ZÃ¼mresi, Matematik ZÃ¼mresi, Biyoloji ZÃ¼mresi, Sosyal Bilimler ZÃ¼mresi, Beden EÄŸitimi ZÃ¼mresi, Onur Kurulu,Tiyatro KulÃ¼bÃ¼, MÃ¼nazara KulÃ¼bÃ¼, SatranÃ§ KulÃ¼bÃ¼, Oryantring KulÃ¼bÃ¼, DeÄŸerler KulÃ¼bÃ¼"
     },
     {
       "no": 73,
       "tema": 10,
       "sh": 1,
       "kod": "10.1.1",
-      "eylem_adi": "Veli Okuma Kulübü (Sağlıklı Yaşam ve Doğa temalı)",
+      "eylem_adi": "Veli Okuma KulÃ¼bÃ¼ (SaÄŸlÄ±klÄ± YaÅŸam ve DoÄŸa temalÄ±)",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.02.2026",
@@ -1531,35 +1532,35 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
+      "sorumlu": "Tema Lideri, Ä°ngilizce ZÃ¼mresi, CoÄŸrafya ZÃ¼mresi"
     },
     {
       "no": 74,
       "tema": 10,
       "sh": 2,
       "kod": "10.2.1",
-      "eylem_adi": "Dünya Temizlik Günü etkinliklerine öğrenci katılımı",
+      "eylem_adi": "DÃ¼nya Temizlik GÃ¼nÃ¼ etkinliklerine Ã¶ÄŸrenci katÄ±lÄ±mÄ±",
       "tip": "D",
       "tekrar": 1,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "30.09.2028",
-      "y1_bas": NaN,
-      "y1_bit": NaN,
-      "y2_bas": NaN,
-      "y2_bit": NaN,
-      "y3_bas": NaN,
-      "y3_bit": NaN,
-      "y4_bas": NaN,
-      "y4_bit": NaN,
+      "y1_bas": null,
+      "y1_bit": null,
+      "y2_bas": null,
+      "y2_bit": null,
+      "y3_bas": null,
+      "y3_bit": null,
+      "y4_bas": null,
+      "y4_bit": null,
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
+      "sorumlu": "Tema Lideri, Ä°ngilizce ZÃ¼mresi, CoÄŸrafya ZÃ¼mresi"
     },
     {
       "no": 75,
       "tema": 10,
       "sh": 3,
       "kod": "10.3.1",
-      "eylem_adi": "Doğada Bir Gün",
+      "eylem_adi": "DoÄŸada Bir GÃ¼n",
       "tip": "C",
       "tekrar": 4,
       "genel_baslangic": "01.02.2026",
@@ -1573,48 +1574,27 @@ const COMBINED_DB = {
       "y4_bas": "01.01.2029",
       "y4_bit": "31.03.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
-    },
-    {
-      "no": 76,
-      "tema": 9,
-      "sh": 2,
-      "kod": "9.2.2",
-      "eylem_adi": "TÜBİTAK 2204-A ve 2204-B Lise Öğrencileri Araştırma Projelerine katılım sağlanması",
-      "tip": "C",
-      "tekrar": 4,
-      "genel_baslangic": "01.10.2025",
-      "genel_bitis": "30.05.2029",
-      "y1_bas": "01.10.2025",
-      "y1_bit": "30.05.2026",
-      "y2_bas": "01.10.2026",
-      "y2_bit": "30.05.2027",
-      "y3_bas": "01.10.2027",
-      "y3_bit": "30.05.2028",
-      "y4_bas": "01.10.2028",
-      "y4_bit": "30.05.2029",
-      "butce": 5000,
-      "sorumlu": "Kimya Zümresi, Fen Zümresi, Okul idaresi, Fizik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi"
+      "sorumlu": "Tema Lideri, Ä°ngilizce ZÃ¼mresi, CoÄŸrafya ZÃ¼mresi"
     }
   ],
   "oo_db": [
     {
       "sira": 1,
-      "eylem_gorev": "Proje tanıtımı, öğretmen süpervizyonu ve planlama toplantısı",
+      "eylem_gorev": "Proje tanÄ±tÄ±mÄ±, Ã¶ÄŸretmen sÃ¼pervizyonu ve planlama toplantÄ±sÄ±",
       "tekrar": 2,
       "baslangic_1": "01.10.2025",
       "bitis_1": "31.10.2025",
       "baslangic_2": "01.11.2025",
       "bitis_2": "30.11.2025",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul YÃ¶netimi, Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu "
     },
     {
       "sira": 2,
-      "eylem_gorev": "Veli bilgilendirme toplantısı ve onay formları Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Veli bilgilendirme toplantÄ±sÄ± ve onay formlarÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 3,
       "baslangic_1": "01.11.2025",
       "bitis_1": "30.11.2025",
@@ -1622,41 +1602,41 @@ const COMBINED_DB = {
       "bitis_2": "30.11.2026",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Aile BirliÄŸi, Okul YÃ¶netimi "
     },
     {
       "sira": 3,
-      "eylem_gorev": "9.sınıflar için ilk Tanita ölçümü, ilk kan testi ve sağlık anketi uygulaması Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "9.sÄ±nÄ±flar iÃ§in ilk Tanita Ã¶lÃ§Ã¼mÃ¼, ilk kan testi ve saÄŸlÄ±k anketi uygulamasÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.11.2025",
       "bitis_1": "30.11.2025",
       "baslangic_2": "01.11.2026",
       "bitis_2": "30.11.2026",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Beyoğlu İlçe Sağlık Müdürlüğü "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "BeyoÄŸlu Ä°lÃ§e SaÄŸlÄ±k MÃ¼dÃ¼rlÃ¼ÄŸÃ¼ "
     },
     {
       "sira": 4,
-      "eylem_gorev": "İkinci Tanita ölçümü, kan tahlili ve anket uygulaması Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Ä°kinci Tanita Ã¶lÃ§Ã¼mÃ¼, kan tahlili ve anket uygulamasÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.05.2026",
       "bitis_1": "31.05.2026",
       "baslangic_2": "01.05.2027",
       "bitis_2": "31.05.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Beyoğlu İlçe Sağlık Müdürlüğü "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "BeyoÄŸlu Ä°lÃ§e SaÄŸlÄ±k MÃ¼dÃ¼rlÃ¼ÄŸÃ¼ "
     },
     {
       "sira": 5,
-      "eylem_gorev": "Proje verilerinin analizi, rapor hazırlanması, sonuç sunumu Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Proje verilerinin analizi, rapor hazÄ±rlanmasÄ±, sonuÃ§ sunumu Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 6,
       "baslangic_1": "01.06.2026",
       "bitis_1": "30.06.2026",
@@ -1666,25 +1646,25 @@ const COMBINED_DB = {
       "bitis_3": "30.06.2026",
       "baslangic_4": "01.06.2027",
       "bitis_4": "30.06.2027",
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu, Branş Öğretmenleri "
+      "sorumlu_verisi": "Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu Sorumlusu, BranÅŸ Ã–ÄŸretmenleri "
     },
     {
       "sira": 6,
-      "eylem_gorev": "Proje tanıtımı, öğretmen süpervizyonu ve planlama toplantısı",
+      "eylem_gorev": "Proje tanÄ±tÄ±mÄ±, Ã¶ÄŸretmen sÃ¼pervizyonu ve planlama toplantÄ±sÄ±",
       "tekrar": 0,
       "baslangic_1": "01.10.2025",
       "bitis_1": "31.10.2025",
       "baslangic_2": "01.11.2025",
       "bitis_2": "30.11.2025",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul YÃ¶netimi, Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu "
     },
     {
       "sira": 7,
-      "eylem_gorev": "Veli bilgilendirme toplantısı ve onay formları",
+      "eylem_gorev": "Veli bilgilendirme toplantÄ±sÄ± ve onay formlarÄ±",
       "tekrar": 0,
       "baslangic_1": "01.11.2025",
       "bitis_1": "30.11.2025",
@@ -1692,13 +1672,13 @@ const COMBINED_DB = {
       "bitis_2": "30.11.2026",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Aile BirliÄŸi, Okul YÃ¶netimi "
     },
     {
       "sira": 8,
-      "eylem_gorev": "Proje verilerinin analizi, rapor hazırlanması, sonuç sunumu Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Proje verilerinin analizi, rapor hazÄ±rlanmasÄ±, sonuÃ§ sunumu Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 0,
       "baslangic_1": "2026-06-01 00:00:00",
       "bitis_1": "2026-06-30 00:00:00",
@@ -1706,191 +1686,192 @@ const COMBINED_DB = {
       "bitis_2": "2027-06-30 00:00:00",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Aile BirliÄŸi, Okul YÃ¶netimi "
     },
     {
       "sira": 9,
-      "eylem_gorev": "Önleyici tıp semineri ve Longevity bilimi oturumu Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Ã–nleyici tÄ±p semineri ve Longevity bilimi oturumu Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.12.2025",
       "bitis_1": "31.12.2025",
       "baslangic_2": "01.12.2026",
       "bitis_2": "31.12.2026",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Rehberlik Servisi, Üniversite Paydaşları "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Rehberlik Servisi, Ãœniversite PaydaÅŸlarÄ± "
     },
     {
       "sira": 10,
-      "eylem_gorev": "Diyetisyen buluşması ve anti-inflamatuar beslenme atölyesi Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Diyetisyen buluÅŸmasÄ± ve anti-inflamatuar beslenme atÃ¶lyesi Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.12.2025",
       "bitis_1": "31.12.2025",
       "baslangic_2": "01.12.2026",
       "bitis_2": "31.12.2026",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Kent Üniversitesi Diyetetik, Biyoloji Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Kent Ãœniversitesi Diyetetik, Biyoloji Ã–ÄŸretmenleri "
     },
     {
       "sira": 11,
-      "eylem_gorev": "Egzersiz ve hareket farkındalığı çalışmaları Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Egzersiz ve hareket farkÄ±ndalÄ±ÄŸÄ± Ã§alÄ±ÅŸmalarÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.01.2026",
       "bitis_1": "31.01.2026",
       "baslangic_2": "01.01.2027",
       "bitis_2": "31.01.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Beden Eğitimi Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Beden EÄŸitimi Ã–ÄŸretmenleri "
     },
     {
       "sira": 12,
-      "eylem_gorev": "Sirkadiyen sistem, uyku hijyeni ve egzersiz etkinlikleri Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Sirkadiyen sistem, uyku hijyeni ve egzersiz etkinlikleri Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.01.2026",
       "bitis_1": "31.01.2026",
       "baslangic_2": "01.01.2027",
       "bitis_2": "31.01.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
       "sorumlu_verisi": "Okul Rehberlik Servisi "
     },
     {
       "sira": 13,
-      "eylem_gorev": "Stres yönetimi, detoks ve soğuğa maruz kalma etkinlikleri Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Stres yÃ¶netimi, detoks ve soÄŸuÄŸa maruz kalma etkinlikleri Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.02.2026",
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Rehberlik Servisi, Beyoğlu İlçe Sağlık Müdürlüğü "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Rehberlik Servisi, BeyoÄŸlu Ä°lÃ§e SaÄŸlÄ±k MÃ¼dÃ¼rlÃ¼ÄŸÃ¼ "
     },
     {
       "sira": 14,
-      "eylem_gorev": "Bağışıklık, mikrobiyota ve diş sağlığı taramaları Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "BaÄŸÄ±ÅŸÄ±klÄ±k, mikrobiyota ve diÅŸ saÄŸlÄ±ÄŸÄ± taramalarÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.02.2026",
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Kent Üniversitesi, Biyoloji Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Kent Ãœniversitesi, Biyoloji Ã–ÄŸretmenleri "
     },
     {
       "sira": 15,
-      "eylem_gorev": "Nadir Hastalıklar Günü sosyal medya çalışmaları Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Nadir HastalÄ±klar GÃ¼nÃ¼ sosyal medya Ã§alÄ±ÅŸmalarÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.02.2026",
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Öğrenci Kulüpleri, İngilizce Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Ã–ÄŸrenci KulÃ¼pleri, Ä°ngilizce Ã–ÄŸretmenleri "
     },
     {
       "sira": 16,
-      "eylem_gorev": "Güneş, topraklanma ve doğa temalı etkinlikler Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "GÃ¼neÅŸ, topraklanma ve doÄŸa temalÄ± etkinlikler Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.03.2026",
       "bitis_1": "31.03.2026",
       "baslangic_2": "01.03.2027",
       "bitis_2": "31.03.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Biyoloji Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Biyoloji Ã–ÄŸretmenleri "
     },
     {
       "sira": 17,
-      "eylem_gorev": "Mavi bölgeler, hormon dengesi sunumları Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Mavi bÃ¶lgeler, hormon dengesi sunumlarÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.03.2026",
       "bitis_1": "31.03.2026",
       "baslangic_2": "01.03.2027",
       "bitis_2": "31.03.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Galata Üniversitesi, Okul Rehberlik Servisi, Biyoloji Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Galata Ãœniversitesi, Okul Rehberlik Servisi, Biyoloji Ã–ÄŸretmenleri "
     },
     {
       "sira": 18,
-      "eylem_gorev": "9. sınıfların kısa film üretim çalışmalar Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "9. sÄ±nÄ±flarÄ±n kÄ±sa film Ã¼retim Ã§alÄ±ÅŸmalar Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.04.2026",
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.04.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Okul Öğrenci Kulüpleri,  İngilizce Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Okul Ã–ÄŸrenci KulÃ¼pleri,  Ä°ngilizce Ã–ÄŸretmenleri "
     },
     {
       "sira": 19,
-      "eylem_gorev": "“Lorenzo’nun Yağı” film gösterimi Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "â€œLorenzoâ€™nun YaÄŸÄ±â€ film gÃ¶sterimi Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.04.2026",
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.04.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu, Branş Öğretmenleri "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu Sorumlusu, BranÅŸ Ã–ÄŸretmenleri "
     },
     {
       "sira": 20,
-      "eylem_gorev": "Mezuniyet öncesi (12. sınıf) son Tanita ölçümü, son kan testi ve son sağlık anketi uygulaması Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Mezuniyet Ã¶ncesi (12. sÄ±nÄ±f) son Tanita Ã¶lÃ§Ã¼mÃ¼, son kan testi ve son saÄŸlÄ±k anketi uygulamasÄ± Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 2,
       "baslangic_1": "01.02.2026",
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu, Okul Yönetimi "
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu, Okul YÃ¶netimi "
     },
     {
       "sira": 21,
-      "eylem_gorev": "Proje verilerinin analizi, rapor hazırlanması, sonuç sunumu Tekrarlayan eylem (2 yıl)",
+      "eylem_gorev": "Proje verilerinin analizi, rapor hazÄ±rlanmasÄ±, sonuÃ§ sunumu Tekrarlayan eylem (2 yÄ±l)",
       "tekrar": 0,
-      "baslangic_1": NaN,
-      "bitis_1": NaN,
-      "baslangic_2": NaN,
-      "bitis_2": NaN,
-      "baslangic_3": NaN,
-      "bitis_3": NaN,
-      "baslangic_4": NaN,
-      "bitis_4": NaN,
-      "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu "
+      "baslangic_1": null,
+      "bitis_1": null,
+      "baslangic_2": null,
+      "bitis_2": null,
+      "baslangic_3": null,
+      "bitis_3": null,
+      "baslangic_4": null,
+      "bitis_4": null,
+      "sorumlu_verisi": "Proje Ä°zleme ve YÃ¼rÃ¼tme Komisyonu "
     }
   ]
-};
+}
+; 

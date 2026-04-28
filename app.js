@@ -447,7 +447,13 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     showSuggestionsOnFocus(respInput, suggestionsPanel, renderSuggestions);
+    if (respInput) {
+        respInput.addEventListener('change', (e) => {
+            if (e.target.value.trim()) checkUnreportedActivities();
+        });
+    }
     showSuggestionsOnFocus(activityInput, activityPanel, renderActivitySuggestions);
+
 
     // New Suggestion Panels
     const fillerInput = document.getElementById('filler-name');
@@ -930,8 +936,9 @@ function renderSuggestions(fragment) {
             panel.style.display = 'none';
             input.focus();
             updateFilledState(input);
-            checkOverdueActivities();
+            checkUnreportedActivities();
         };
+
         panel.appendChild(div);
     });
     panel.style.display = 'block';
@@ -940,18 +947,34 @@ function renderSuggestions(fragment) {
 function renderActivitySuggestions(fragment) {
     if (!combinedData) return;
     const panel = document.getElementById('activity-suggestions-panel');
+    const themeSelect = document.getElementById('activity-theme');
+    const selectedTheme = themeSelect ? themeSelect.value : "";
     const selectedType = document.querySelector('input[name="project-type"]:checked').value;
-    const isOG = selectedType === 'OKUL GELİŞİM PROJESİ'; // ← DÜZELTME: isOG tanımlandı
+    const isOG = selectedType === 'OKUL GELİŞİM PROJESİ';
     const respValue = document.getElementById('responsible-teacher').value.trim();
     
-    const list = isOG ? combinedData.og_db : combinedData.oo_db;
-    if (!list) return;
+    if (!panel) return;
 
+    // Eğer her şey boşsa kapat
+    if (!fragment && !selectedTheme && !respValue) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    const list = isOG ? (combinedData.og_db || []) : (combinedData.oo_db || []);
     let filtered = list;
+
+    // 1. TEMA filtresi (Okul Gelişim için)
+    if (isOG && selectedTheme) {
+        const themeNum = parseInt(selectedTheme.replace('TEMA ', '').trim());
+        filtered = filtered.filter(it => it.tema == themeNum);
+    }
+
+    // 2. Sorumlu Öğretmen filtresi
     if (respValue) {
         const teachers = respValue.split(',').map(s => s.trim().toLocaleLowerCase('tr')).filter(s => s.length > 0);
         if (teachers.length > 0) {
-            filtered = list.filter(item => {
+            filtered = filtered.filter(item => {
                 const itemSorumlu = (isOG ? item.sorumlu : item.sorumlu_verisi) || "";
                 const itemT = itemSorumlu.toLocaleLowerCase('tr');
                 return teachers.every(t => itemT.includes(t));
@@ -959,36 +982,45 @@ function renderActivitySuggestions(fragment) {
         }
     }
 
+    // 3. Arama Metni (Fragment) filtresi
     const final = filtered.filter(it => {
+        if (!fragment) return true;
         const name = (isOG ? it.eylem_adi : it.eylem_gorev) || "";
         const pool = (name + " " + (it.kod || "")).toLocaleLowerCase('tr');
         return pool.includes(fragment.toLocaleLowerCase('tr'));
     });
 
-    if (final.length === 0) { panel.style.display = 'none'; return; }
-
-    panel.innerHTML = '';
-    final.slice(0, 15).forEach(item => {
-        const nameText = isOG ? item.eylem_adi : item.eylem_gorev;
-        const div = document.createElement('div');
-        div.className = 'suggestion-item';
-        div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start';
-        div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${(isOG ? item.sorumlu : item.sorumlu_verisi) || ''}</div>`;
-        div.onclick = () => {
-            activityInput.value = nameText;
-            const themeSelect = document.getElementById('activity-theme');
-            if (themeSelect && isOG && item.tema) {
-                themeSelect.value = `TEMA ${item.tema}`;
-                updateFilledState(themeSelect);
-            }
-            panel.style.display = 'none';
-            activityInput.focus();
-            updateFilledState(activityInput);
-        };
-        panel.appendChild(div);
-    });
+    if (final.length === 0) { 
+        panel.innerHTML = '<div class="suggestion-item no-match">Eşleşen faaliyet bulunamadı...</div>';
+    } else {
+        panel.innerHTML = '';
+        final.slice(0, 50).forEach(item => {
+            const nameText = isOG ? item.eylem_adi : item.eylem_gorev;
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start';
+            div.innerHTML = `<div>${item.kod ? `<b>[${item.kod}]</b> ` : ''}${nameText}</div><div style="font-size: 0.7rem; color: #94a3b8;">${(isOG ? item.sorumlu : item.sorumlu_verisi) || ''}</div>`;
+            div.onclick = () => {
+                const activityInput = document.getElementById('activity-name');
+                activityInput.value = nameText;
+                if (themeSelect && isOG && item.tema) {
+                    themeSelect.value = `TEMA ${item.tema}`;
+                    updateFilledState(themeSelect);
+                }
+                const planIdInput = document.getElementById('plan-id');
+                if (planIdInput) planIdInput.value = isOG ? 'og-' + item.no : 'oo-' + item.sira;
+                
+                panel.style.display = 'none';
+                activityInput.focus();
+                updateFilledState(activityInput);
+                if (planIdInput) updateFilledState(planIdInput);
+            };
+            panel.appendChild(div);
+        });
+    }
     panel.style.display = 'block';
 }
+
 
 function checkOverdueActivities() {
     if (!combinedData) return;
@@ -1768,12 +1800,25 @@ function checkUnreportedActivities() {
     const today = new Date(); today.setHours(0,0,0,0);
     const yearIdx = getYearIndexForReport();
     
+    // Filtreleme için sorumlu öğretmen bilgisini al
+    const respInputVal = document.getElementById('responsible-teacher').value.trim();
+    const filterNames = respInputVal.split(',').map(n => n.trim().toLocaleLowerCase('tr')).filter(n => n.length >= 3);
+
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
 
     const eduYearVal = document.getElementById('edu-year').value;
     list.forEach(item => {
+        // Eğer filtre varsa, sorumlu bu isimlerden birini içeriyor mu kontrol et
+        if (filterNames.length > 0) {
+            const itemSorumlu = (isOG ? item.sorumlu : item.sorumlu_verisi) || "";
+            const itemT = itemSorumlu.toLocaleLowerCase('tr');
+            const match = filterNames.some(f => itemT.includes(f));
+            if (!match) return;
+        }
+
         const nameText = (isOG ? item.eylem_adi : item.eylem_gorev) || "";
+
         const normName = normalizeString(nameText);
         if (!normName) return;
         
@@ -1839,8 +1884,13 @@ function checkReportedActivities() {
     const today = new Date(); today.setHours(0,0,0,0);
     const yearIdx = getYearIndexForReport();
 
+    // Filtreleme için sorumlu öğretmen bilgisini al
+    const respInputVal = document.getElementById('responsible-teacher').value.trim();
+    const filterNames = respInputVal.split(',').map(n => n.trim().toLocaleLowerCase('tr')).filter(n => n.length >= 3);
+
     let planList = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
+
 
     // --- REPORT-CENTRIC LOGIC ---
     const uniqueReports = [];
@@ -1856,7 +1906,15 @@ function checkReportedActivities() {
     uniqueReports.forEach(report => {
         if (report.projectType !== typeVal) return;
 
+        // Öğretmen filtresi
+        if (filterNames.length > 0) {
+            const reportT = (report.teacher || "").toLocaleLowerCase('tr');
+            const match = filterNames.some(f => reportT.includes(f));
+            if (!match) return;
+        }
+
         const normReportName = normalizeString(report.activityName);
+
         const planItem = planList.find(p => {
             const itemId = isOG ? `og-${p.no}` : `oo-${p.sira}`;
             if (report.planId && report.planId === itemId) return true;
