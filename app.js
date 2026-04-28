@@ -428,37 +428,26 @@ window.addEventListener('DOMContentLoaded', () => {
     suggestionsPanel = document.getElementById('suggestions-panel');
     activityPanel = document.getElementById('activity-suggestions-panel');
 
-    // Show suggestions on Focus/Click
-    const showSuggestionsOnFocus = (input, panel, renderFn) => {
-        if (!input || !panel) return;
-        input.addEventListener('focus', () => {
-            const val = input.value;
-            const lastComma = val.lastIndexOf(',');
-            const frag = val.substring(lastComma + 1).trim();
-            renderFn(frag || "");
-        });
-        input.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const val = input.value;
-            const lastComma = val.lastIndexOf(',');
-            const frag = val.substring(lastComma + 1).trim();
-            renderFn(frag || "");
-        });
-    };
-
-    showSuggestionsOnFocus(respInput, suggestionsPanel, renderSuggestions);
-    showSuggestionsOnFocus(activityInput, activityPanel, renderActivitySuggestions);
+    // Remove automatic opening on focus/click to respect "only on change" requirement
+    // showSuggestionsOnFocus(respInput, suggestionsPanel, renderSuggestions);
+    // showSuggestionsOnFocus(activityInput, activityPanel, renderActivitySuggestions);
 
     // New Suggestion Panels
     const fillerInput = document.getElementById('filler-name');
     const fillerPanel = document.getElementById('filler-suggestions-panel');
-    showSuggestionsOnFocus(fillerInput, fillerPanel, renderFillerSuggestions);
+    // showSuggestionsOnFocus(fillerInput, fillerPanel, renderFillerSuggestions);
     if (fillerInput) fillerInput.addEventListener('input', (e) => renderFillerSuggestions(e.target.value));
 
     const leaderFilterInput = document.getElementById('leader-filter-input');
     const leaderFilterPanel = document.getElementById('leader-filter-suggestions');
-    showSuggestionsOnFocus(leaderFilterInput, leaderFilterPanel, renderLeaderFilterSuggestions);
-    if (leaderFilterInput) leaderFilterInput.addEventListener('input', (e) => renderLeaderFilterSuggestions(e.target.value));
+    // showSuggestionsOnFocus(leaderFilterInput, leaderFilterPanel, renderLeaderFilterSuggestions);
+    if (leaderFilterInput) {
+        leaderFilterInput.addEventListener('input', (e) => renderLeaderFilterSuggestions(e.target.value));
+        // Add a blur listener to check if we should show activities if something was typed/selected
+        leaderFilterInput.addEventListener('change', (e) => {
+            if (e.target.value.trim()) checkActivitiesByLeader(e.target.value.trim());
+        });
+    }
 
     // Hide suggestions when clicking outside
     document.addEventListener('click', () => {
