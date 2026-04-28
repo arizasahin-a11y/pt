@@ -1790,7 +1790,7 @@ function checkUnreportedActivities() {
             if (statusVal === 'expired' ? d < today : d >= today) {
                 results.push({ 
                     id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
-                    name: nameText.trim(), 
+                    name: (isOG && item.tema) ? `${nameText.trim()} (TEMA ${item.tema})` : nameText.trim(), 
                     eduYear: document.getElementById('edu-year').value,
                     start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`], 
                     end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`], 
@@ -1878,7 +1878,7 @@ function checkReportedActivities() {
         if (showItem) {
             results.push({ 
                 id: planItem ? (isOG ? `og-${planItem.no}` : `oo-${planItem.sira}`) : 'manual', 
-                name: report.activityName || 'İsimsiz Rapor', 
+                name: (isOG && planItem && planItem.tema) ? `${(report.activityName || 'İsimsiz Rapor')} (TEMA ${planItem.tema})` : (report.activityName || 'İsimsiz Rapor'), 
                 eduYear: report.eduYear || 'Bilinmiyor',
                 start: report.startDate || (planDates ? planDates.split('—')[0].trim() : ''), 
                 end: report.endDate || (planDates ? planDates.split('—')[1].trim() : ''), 
@@ -2391,7 +2391,7 @@ function checkActivitiesByLeader(leaderName) {
 
         results.push({
             id: itemId,
-            name: nameText,
+            name: (isOG && item.tema) ? `${nameText} (TEMA ${item.tema})` : nameText,
             eduYear: eduYearVal,
             start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`],
             end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`],
@@ -2507,7 +2507,7 @@ function printLeaderFullReport() {
         });
 
         const actInfo = {
-            name: nameText,
+            name: (isOG && item.tema) ? `${nameText} (TEMA ${item.tema})` : nameText,
             project: typeLabel,
             start: startStr || '—',
             end: endStr || '—',
