@@ -12,12 +12,12 @@
       "genel_bitis": "31.10.2025",
       "y1_bas": "01.10.2025",
       "y1_bit": "31.10.2025",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 10000,
       "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
     },
@@ -56,10 +56,10 @@
       "y1_bit": "20.06.2026",
       "y2_bas": "01.10.2026",
       "y2_bit": "31.01.2027",
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 50000,
       "sorumlu": "Okul Yönetimi, Tema Lideri, Mezunlar Vakfı/Derneği, Okul Aile Birliği"
     },
@@ -243,12 +243,12 @@
       "genel_bitis": "31.12.2025",
       "y1_bas": "01.12.2025",
       "y1_bit": "31.12.2025",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
       "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
@@ -266,10 +266,10 @@
       "y1_bit": "20.06.2026",
       "y2_bas": "01.10.2026",
       "y2_bit": "18.06.2027",
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
       "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
@@ -306,12 +306,12 @@
       "genel_bitis": "31.12.2025",
       "y1_bas": "01.12.2025",
       "y1_bit": "31.12.2025",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 3000,
       "sorumlu": "Okul Yönetimi, Yabancı Dil Zümresi, Öğrenci Meclisi"
     },
@@ -388,14 +388,14 @@
       "tekrar": 1,
       "genel_baslangic": "01.10.2026",
       "genel_bitis": "31.10.2026",
-      "y1_bas": null,
-      "y1_bit": null,
+      "y1_bas": NaN,
+      "y1_bit": NaN,
       "y2_bas": "01.10.2026",
       "y2_bit": "31.10.2026",
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
       "sorumlu": "Öğretmenler, Zümreler, Müdür Yardımcısı"
     },
@@ -409,12 +409,12 @@
       "tekrar": 3,
       "genel_baslangic": "01.11.2028",
       "genel_bitis": "30.04.2029",
-      "y1_bas": null,
-      "y1_bit": null,
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
+      "y1_bas": NaN,
+      "y1_bit": NaN,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
       "y4_bas": "01.11.2028",
       "y4_bit": "30.04.2029",
       "butce": 0,
@@ -495,14 +495,14 @@
       "genel_bitis": "20.06.2026",
       "y1_bas": "01.11.2025",
       "y1_bit": "20.06.2026",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 25,
@@ -523,7 +523,7 @@
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 26,
@@ -544,7 +544,7 @@
       "y4_bas": "01.05.2029",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 27,
@@ -565,7 +565,7 @@
       "y4_bas": "01.01.2029",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 28,
@@ -586,7 +586,7 @@
       "y4_bas": "01.06.2029",
       "y4_bit": "15.06.2029",
       "butce": 1000,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 29,
@@ -607,7 +607,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "31.05.2029",
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 30,
@@ -621,14 +621,14 @@
       "genel_bitis": "31.10.2025",
       "y1_bas": "01.10.2025",
       "y1_bit": "31.10.2025",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Okul Yönetimi, Rehberlik Servisi, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
+      "sorumlu": "Okul Yönetimi, Rehberlik, Tarih Zümresi, İngilizce Zümresi, TDE Zümresi, Almanca Zümresi"
     },
     {
       "no": 31,
@@ -754,7 +754,7 @@
       "y4_bas": "01.02.2029",
       "y4_bit": "28.02.2029",
       "butce": 150000,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 37,
@@ -775,7 +775,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 38,
@@ -789,14 +789,14 @@
       "genel_bitis": "31.01.2026",
       "y1_bas": "01.01.2026",
       "y1_bit": "31.01.2026",
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 39,
@@ -817,7 +817,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "31.10.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 40,
@@ -838,7 +838,7 @@
       "y4_bas": "01.11.2028",
       "y4_bit": "30.11.2028",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 41,
@@ -859,7 +859,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "31.01.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 42,
@@ -880,7 +880,7 @@
       "y4_bas": "01.11.2028",
       "y4_bit": "28.02.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 43,
@@ -901,7 +901,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 44,
@@ -922,7 +922,7 @@
       "y4_bas": "01.10.2028",
       "y4_bit": "15.06.2029",
       "butce": 0,
-      "sorumlu": "Tema Lideri, Rehberlik Servisi, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
+      "sorumlu": "Tema Lideri, Rehberlik, Sınıf Rehber Öğretmenleri, Fizik Zümresi"
     },
     {
       "no": 45,
@@ -1543,14 +1543,14 @@
       "tekrar": 1,
       "genel_baslangic": "01.09.2026",
       "genel_bitis": "30.09.2028",
-      "y1_bas": null,
-      "y1_bit": null,
-      "y2_bas": null,
-      "y2_bit": null,
-      "y3_bas": null,
-      "y3_bit": null,
-      "y4_bas": null,
-      "y4_bit": null,
+      "y1_bas": NaN,
+      "y1_bit": NaN,
+      "y2_bas": NaN,
+      "y2_bit": NaN,
+      "y3_bas": NaN,
+      "y3_bit": NaN,
+      "y4_bas": NaN,
+      "y4_bit": NaN,
       "butce": 0,
       "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
     },
@@ -1574,30 +1574,8 @@
       "y4_bit": "31.03.2029",
       "butce": 0,
       "sorumlu": "Tema Lideri, İngilizce Zümresi, Coğrafya Zümresi"
-    },
-    {
-      "no": 76,
-      "tema": 9,
-      "sh": 2,
-      "kod": "9.2.2",
-      "eylem_adi": "TÜBİTAK 2204-A ve 2204-B Lise Öğrencileri Araştırma Projelerine katılım sağlanması",
-      "tip": "C",
-      "tekrar": 4,
-      "genel_baslangic": "01.10.2025",
-      "genel_bitis": "30.05.2029",
-      "y1_bas": "01.10.2025",
-      "y1_bit": "30.05.2026",
-      "y2_bas": "01.10.2026",
-      "y2_bit": "30.05.2027",
-      "y3_bas": "01.10.2027",
-      "y3_bit": "30.05.2028",
-      "y4_bas": "01.10.2028",
-      "y4_bit": "30.05.2029",
-      "butce": 5000,
-      "sorumlu": "Kimya Zümresi, Fen Zümresi, Okul idaresi, Fizik Zümresi, Biyoloji Zümresi, Sosyal Bilimler Zümresi"
     }
   ],
-
   "oo_db": [
     {
       "sira": 1,
@@ -1607,10 +1585,10 @@
       "bitis_1": "31.10.2025",
       "baslangic_2": "01.11.2025",
       "bitis_2": "30.11.2025",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
     },
     {
@@ -1623,8 +1601,8 @@
       "bitis_2": "30.11.2026",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
@@ -1635,10 +1613,10 @@
       "bitis_1": "30.11.2025",
       "baslangic_2": "01.11.2026",
       "bitis_2": "30.11.2026",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Beyoğlu İlçe Sağlık Müdürlüğü "
     },
     {
@@ -1649,10 +1627,10 @@
       "bitis_1": "31.05.2026",
       "baslangic_2": "01.05.2027",
       "bitis_2": "31.05.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Beyoğlu İlçe Sağlık Müdürlüğü "
     },
     {
@@ -1677,10 +1655,10 @@
       "bitis_1": "31.10.2025",
       "baslangic_2": "01.11.2025",
       "bitis_2": "30.11.2025",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Yönetimi, Proje İzleme ve Yürütme Komisyonu "
     },
     {
@@ -1693,8 +1671,8 @@
       "bitis_2": "30.11.2026",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
@@ -1707,8 +1685,8 @@
       "bitis_2": "2027-06-30 00:00:00",
       "baslangic_3": "01.11.2025",
       "bitis_3": "30.11.2025",
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Aile Birliği, Okul Yönetimi "
     },
     {
@@ -1719,10 +1697,10 @@
       "bitis_1": "31.12.2025",
       "baslangic_2": "01.12.2026",
       "bitis_2": "31.12.2026",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Rehberlik Servisi, Üniversite Paydaşları "
     },
     {
@@ -1733,10 +1711,10 @@
       "bitis_1": "31.12.2025",
       "baslangic_2": "01.12.2026",
       "bitis_2": "31.12.2026",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Kent Üniversitesi Diyetetik, Biyoloji Öğretmenleri "
     },
     {
@@ -1747,10 +1725,10 @@
       "bitis_1": "31.01.2026",
       "baslangic_2": "01.01.2027",
       "bitis_2": "31.01.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Beden Eğitimi Öğretmenleri "
     },
     {
@@ -1761,10 +1739,10 @@
       "bitis_1": "31.01.2026",
       "baslangic_2": "01.01.2027",
       "bitis_2": "31.01.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Rehberlik Servisi "
     },
     {
@@ -1775,10 +1753,10 @@
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Rehberlik Servisi, Beyoğlu İlçe Sağlık Müdürlüğü "
     },
     {
@@ -1789,10 +1767,10 @@
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Kent Üniversitesi, Biyoloji Öğretmenleri "
     },
     {
@@ -1803,10 +1781,10 @@
       "bitis_1": "28.02.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "28.02.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Öğrenci Kulüpleri, İngilizce Öğretmenleri "
     },
     {
@@ -1817,10 +1795,10 @@
       "bitis_1": "31.03.2026",
       "baslangic_2": "01.03.2027",
       "bitis_2": "31.03.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Biyoloji Öğretmenleri "
     },
     {
@@ -1831,10 +1809,10 @@
       "bitis_1": "31.03.2026",
       "baslangic_2": "01.03.2027",
       "bitis_2": "31.03.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Galata Üniversitesi, Okul Rehberlik Servisi, Biyoloji Öğretmenleri "
     },
     {
@@ -1845,10 +1823,10 @@
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.04.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Okul Öğrenci Kulüpleri,  İngilizce Öğretmenleri "
     },
     {
@@ -1859,10 +1837,10 @@
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.04.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu Sorumlusu, Branş Öğretmenleri "
     },
     {
@@ -1873,24 +1851,24 @@
       "bitis_1": "30.04.2026",
       "baslangic_2": "01.02.2027",
       "bitis_2": "30.04.2027",
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu, Okul Yönetimi "
     },
     {
       "sira": 21,
       "eylem_gorev": "Proje verilerinin analizi, rapor hazırlanması, sonuç sunumu Tekrarlayan eylem (2 yıl)",
       "tekrar": 0,
-      "baslangic_1": null,
-      "bitis_1": null,
-      "baslangic_2": null,
-      "bitis_2": null,
-      "baslangic_3": null,
-      "bitis_3": null,
-      "baslangic_4": null,
-      "bitis_4": null,
+      "baslangic_1": NaN,
+      "bitis_1": NaN,
+      "baslangic_2": NaN,
+      "bitis_2": NaN,
+      "baslangic_3": NaN,
+      "bitis_3": NaN,
+      "baslangic_4": NaN,
+      "bitis_4": NaN,
       "sorumlu_verisi": "Proje İzleme ve Yürütme Komisyonu "
     }
   ]
