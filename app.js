@@ -1902,9 +1902,9 @@ function checkUnreportedActivities() {
 // Utility for extremely robust string comparison (ignoring case, spaces, and special Turkish differences)
 function normalizeString(s) {
     if (!s) return "";
-    return s.toString()
-        .trim()
-        .toLocaleLowerCase('tr-TR')
+    let str = s.toString().trim().toLocaleLowerCase('tr-TR');
+    str = str.replace(/tekrarlayan\s*eylem.*?$/g, ''); // Strip 'tekrarlayan eylem' and anything after it
+    return str
         .replace(/\s+/g, '') // Remove ALL spaces
         .replace(/[^a-z0-9ğüşıioöç]/g, ''); // Remove non-alphanumeric
 }
