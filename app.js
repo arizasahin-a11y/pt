@@ -2836,12 +2836,12 @@ function printNoLeaderReport() {
     });
 
     const now = new Date().toLocaleString('tr-TR');
-    const htmlContent = \`
+    const htmlContent = `
         <!DOCTYPE html>
         <html lang="tr">
         <head>
             <meta charset="UTF-8">
-            <title>Lidersiz Faaliyetler — \${typeLabel}</title>
+            <title>Lidersiz Faaliyetler — ${typeLabel}</title>
             <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
             <style>
                 *{box-sizing:border-box;margin:0;padding:0;}
@@ -2876,11 +2876,11 @@ function printNoLeaderReport() {
                 <div class="rh">
                     <div>
                         <h1>⚠️ Lider Atanmamış Faaliyetler Listesi</h1>
-                        <p>İstanbul Atatürk Anadolu Lisesi &nbsp;|&nbsp; \${eduYearVal} Eğitim Öğretim Yılı &nbsp;|&nbsp; \${now}</p>
+                        <p>İstanbul Atatürk Anadolu Lisesi &nbsp;|&nbsp; ${eduYearVal} Eğitim Öğretim Yılı &nbsp;|&nbsp; ${now}</p>
                     </div>
                     <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                        <span class="bdg">\${typeLabel}</span>
-                        <span class="bdg" style="background:rgba(239,68,68,0.3); border-color:#fca5a5;">\${noLeaderActivities.length} Kayıt</span>
+                        <span class="bdg">${typeLabel}</span>
+                        <span class="bdg" style="background:rgba(239,68,68,0.3); border-color:#fca5a5;">${noLeaderActivities.length} Kayıt</span>
                     </div>
                 </div>
                 <div class="abar">
@@ -2897,7 +2897,7 @@ function printNoLeaderReport() {
                             </tr>
                         </thead>
                         <tbody>
-                            \${tableRows}
+                            ${tableRows}
                         </tbody>
                     </table>
                 </div>
@@ -2905,7 +2905,7 @@ function printNoLeaderReport() {
             </div>
         </body>
         </html>
-    \`;
+    `;
 
     const win = window.open('', '_blank');
     if (!win) { alert('Pop-up engelleyiciyi kapatın!'); return; }
