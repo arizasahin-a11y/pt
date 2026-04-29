@@ -70,6 +70,50 @@
             .replace(/[^a-z0-9]/gi, '');
     }
 
+    function formatDateForInput(dateStr, isDateInput) {
+        if (!dateStr) return '';
+        dateStr = dateStr.toString().trim();
+        
+        let d = '', m = '', y = '';
+        const match = dateStr.match(/^(\d{1,2})[\.\/](\d{1,2})[\.\/](\d{4})/);
+        
+        if (match) {
+            let part1 = parseInt(match[1]);
+            let part2 = parseInt(match[2]);
+            if (part1 > 12) {
+                d = match[1].padStart(2, '0');
+                m = match[2].padStart(2, '0');
+            } else if (part2 > 12) {
+                m = match[1].padStart(2, '0');
+                d = match[2].padStart(2, '0');
+            } else {
+                d = match[1].padStart(2, '0');
+                m = match[2].padStart(2, '0');
+            }
+            y = match[3];
+        } else if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+             y = dateStr.substring(0, 4);
+             m = dateStr.substring(5, 7);
+             d = dateStr.substring(8, 10);
+        }
+
+        if (d && m && y) {
+            if (isDateInput) return `${y}-${m}-${d}`;
+            else return `${d}.${m}.${y}`;
+        }
+        
+        if (!isNaN(dateStr) && parseInt(dateStr) > 40000) {
+            const excelDate = new Date((dateStr - (25567 + 2)) * 86400 * 1000);
+            y = excelDate.getFullYear();
+            m = (excelDate.getMonth() + 1).toString().padStart(2, '0');
+            d = excelDate.getDate().toString().padStart(2, '0');
+            if (isDateInput) return `${y}-${m}-${d}`;
+            else return `${d}.${m}.${y}`;
+        }
+
+        return dateStr;
+    }
+
     // Modal Builder
     function showModal(message, eylemName, onYes, onSkip, onCancel) {
         const existing = document.getElementById('bot-overlay-modal');
@@ -121,10 +165,13 @@
         set type(v) { GM_setValue('proiz_type', v); },
         get activePhase() { return GM_getValue('proiz_phase') || 'IDLE'; },
         set activePhase(v) { GM_setValue('proiz_phase', v); },
+        get processed() { return JSON.parse(GM_getValue('proiz_processed') || '[]'); },
+        set processed(v) { GM_setValue('proiz_processed', JSON.stringify(v)); },
         clear() { 
             GM_deleteValue('proiz_data'); 
             GM_deleteValue('proiz_type'); 
             GM_deleteValue('proiz_phase'); 
+            GM_deleteValue('proiz_processed'); 
         }
     };
 
@@ -153,16 +200,30 @@
         } else if (STATE.activePhase === 'DETAIL_VIEW') {
             contentHTML = `
                 <h3>🔄 Bot: Veri Giriş Bekleniyor</h3>
-                <p style="font-size:12px; color:#555;">Faaliyet Durumu süzmesini yapayı unutmayın (Örn: Süresi Geçmiş).</p>
+                <p style="font-size:12px; color:#555;">Sayfadaki tüm eylemler taranacak. Sadece Excel'de <strong>Tamamlandı</strong> olanlara (Durum, Maliyet, Güncel Başlangıç/Bitiş ve Açıklama) girilip onayınıza sunulacak.</p>
                 <button id="bot-btn-process-form" class="bot-btn" style="background:#10b981;">Ekranda Tarama ve Giriş Yap</button>
                 <button id="bot-btn-reset" class="bot-btn btn-cancel" style="margin-top:5px;">İşlemi Sıfırla</button>
                 <div id="bot-log">Sistem listeyi okumaya hazır.</div>
+            `;
+        } else if (STATE.activePhase === 'PROCESSING') {
+            contentHTML = `
+                <h3>🔄 Bot: Otomatik İşlem Sürüyor</h3>
+                <p style="font-size:12px; color:#555;">Sayfa yenilendi. Kalan işlemler taranıyor, lütfen bekleyin...</p>
+                <button id="bot-btn-reset" class="bot-btn btn-cancel" style="margin-top:5px;">Otomatik İşlemi Durdur</button>
+                <div id="bot-log">Devam ediliyor...</div>
             `;
         }
         
         panel.innerHTML = contentHTML;
         document.body.appendChild(panel);
         bindUIEvents();
+
+        // Eğer sayfa yenilenmiş ve işlem sürüyorsa, formu bulması için 1.5 sn bekleyip devam et
+        if (STATE.activePhase === 'PROCESSING') {
+            setTimeout(() => {
+                processDetailForms();
+            }, 1500);
+        }
     }
 
     // Excel Parser
@@ -180,7 +241,7 @@
                     return;
                 }
                 const worksheet = workbook.Sheets[sheetName];
-                const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                const json = XLSX.utils.sheet_to_json(worksheet, {defval: "", raw: false});
                 callback(json);
             } catch (err) {
                 showNotice('Hata', 'Excel dosyası okunamadı: ' + err.message);
@@ -224,6 +285,7 @@
             if (foundButton) {
                 logMessage("Takibe Gir butonu bulundu. Tıklanıyor...");
                 STATE.activePhase = 'DETAIL_VIEW';
+                STATE.processed = [];
                 setTimeout(() => { foundButton.click(); }, 1000); // 1s delay
             } else {
                 showNotice("Bulunamadı", `Sayfada "${searchText}" projesine ait 'Takibe Gir' butonu bulunamadı. Doğru sayfada mısınız?`);
@@ -281,6 +343,11 @@
             domTitle = domTitle.replace(/Yıllık.*$/i, '').replace(/Süresi geçti/i, '').replace(/Süresi dolmadı/i, '').trim();
             const cleanDomTitle = cleanString(domTitle);
             
+            if (STATE.processed.includes(cleanDomTitle)) {
+                // Önceden kaydedilmiş veya atlanmış
+                continue;
+            }
+
             // Find in Excel Data
             const colName = pType === 'OG' ? 'Plana Göre Eylem Adı' : 'Plana Göre Görev Adı';
             const excItem = db.find(r => cleanString(r[colName] || r['Faaliyet Adı']) === cleanDomTitle || (r[colName] && cleanString(r[colName]).includes(cleanDomTitle)));
@@ -290,41 +357,69 @@
                 continue;
             }
 
-            const eylemDurum = excItem['DURUM'];
-            if (eylemDurum === 'EKSİK' || eylemDurum === 'PLAN HARİCİ') {
-                logMessage(`[Atlandı] Veri ${eylemDurum}: ${domTitle}`);
-                continue; // Automatically skip incomplete/unmatched reports or ask user? User said skip after prompt. Let's ask.
+            const durumRaw = (excItem['DURUM'] || excItem['Durum'] || Object.values(excItem)[6] || '').toString();
+            const eylemDurumClean = cleanString(durumRaw);
+
+            if (eylemDurumClean !== 'tamamlandi') {
+                logMessage(`[Atlandı] Durum '${durumRaw}' (Tamamlanmamış): ${domTitle}`);
+                continue; 
             }
             
-            // WE HAVE A MATCH with data!
-            // Wait for user interaction cycle via Promise
+            // WE HAVE A MATCH with data AND it is TAMAMLANDI!
+            let wasSaved = false;
             await new Promise((resolve) => {
-                if (eylemDurum === 'EKSİK') {
-                    showModal("Bu eylem için rapor eksik. Boş geçilecek.", domTitle, 
-                        () => resolve(), // yes -> just resolve
-                        () => resolve(), 
-                        () => resolve()
-                    );
-                    return;
-                }
-
+                logMessage(`[İşleniyor] Veriler giriliyor: ${domTitle}`);
                 // Fill Inputs
-                fillFormElements(block, excItem, eylemDurum);
+                fillFormElements(block, excItem, 'Tamamlandı', true);
                 
-                showModal(`Excel'den (${eylemDurum}) verisi aktarıldı. Sisteme KAYDET butonuna basılsın mı?`, domTitle,
+                showModal(`Excel'den (Tamamlandı) verileri form alanlarına dolduruldu. Ekranda doğruluğunu kontrol edin. KAYDET butonuna basılsın mı?`, domTitle,
                     () => {
                         logMessage(`Kaydediliyor: ${domTitle}`);
                         const btn = Array.from(block.querySelectorAll('button')).find(b => b.innerText.includes('Kaydet'));
+                        
+                        // İşlenenler listesine ekle
+                        const p = STATE.processed;
+                        p.push(cleanDomTitle);
+                        STATE.processed = p;
+                        
+                        wasSaved = true;
+
                         if (btn) btn.click();
-                        setTimeout(resolve, 800); // give it time to submit
+                        setTimeout(resolve, 800); 
                     },
-                    () => { logMessage("Atlandı."); resolve(); },
-                    () => { logMessage("İptal edildi."); resolve(); }
+                    () => { 
+                        logMessage("Atlandı."); 
+                        const p = STATE.processed;
+                        p.push(cleanDomTitle);
+                        STATE.processed = p;
+                        resolve(); 
+                    },
+                    () => { 
+                        logMessage("İptal edildi."); 
+                        STATE.activePhase = 'DETAIL_VIEW';
+                        resolve(); 
+                    }
                 );
             });
+
+            if (STATE.activePhase === 'DETAIL_VIEW') {
+                document.getElementById('proiz-bot-panel').remove();
+                renderMainUI();
+                return; // Kullanıcı iptal etti
+            }
+
+            if (wasSaved) {
+                // Sayfa yenilenecek, döngüyü kır
+                logMessage("Sayfanın yenilenmesi bekleniyor...");
+                return;
+            }
         }
         
-        showNotice("Tamamlandı", "Ekrandaki tüm eylemler tarandı.");
+        STATE.activePhase = 'DETAIL_VIEW';
+        STATE.processed = [];
+        document.getElementById('proiz-bot-panel').remove();
+        renderMainUI();
+        showNotice("İşlem Tamamlandı", "Ekranda işlenecek tüm eylemler bitti.");
     }
 
     function setSelectByText(selectElem, text) {
@@ -340,41 +435,78 @@
         }
     }
 
-    function fillFormElements(block, excItem, durum) {
+    function fillFormElements(block, excItem, durum, isTamamlandi) {
         // Durum Dropdown
         const selects = block.querySelectorAll('select');
         if (selects.length > 0) {
             setSelectByText(selects[0], durum);
         }
 
-        // Dates
-        const dateInputs = block.querySelectorAll('input[type="text"], input[type="date"]');
-        const start = excItem['Plana Göre Başlangıç'] || excItem['Rapor Başlangıç']; // In excel it is formatted as "01.10.2025" or similar. MEB might expect DD.MM.YYYY.
-        const end = excItem['Plana Göre Bitiş'] || excItem['Rapor Bitiş'];
-        const numInputs = block.querySelectorAll('input[type="number"], input[type="text"]');
-        // Let's rely on placeholder or name/id to find inputs
+        // P ve Q sütunlarını başlık isimlerinden yakalamayı dene, bulamazsa 16. ve 17. sütunları (index 15, 16) al
+        const keys = Object.keys(excItem);
+        let pKey = keys.find(k => /gerçekleşen baş|rapor baş|güncel baş/i.test(k));
+        let qKey = keys.find(k => /gerçekleşen bit|rapor bit|güncel bit/i.test(k));
         
-        block.querySelectorAll('input').forEach(inp => {
-            const htmlLower = inp.outerHTML.toLowerCase();
-            if (htmlLower.includes('başlan') || htmlLower.includes('start')) {
-                if(start && inp.value === '') { inp.value = start; inp.dispatchEvent(new Event('change')); }
+        let colP = (pKey ? excItem[pKey] : Object.values(excItem)[15]) || '';
+        let colQ = (qKey ? excItem[qKey] : Object.values(excItem)[16]) || '';
+
+        function triggerEvents(element) {
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            element.dispatchEvent(new Event('blur', { bubbles: true }));
+        }
+
+        // Sadece text ve date tipi inputları bul (gizli ve kilitli olanlarla uğraşma)
+        block.querySelectorAll('input[type="text"], input[type="date"]').forEach(inp => {
+            let parentTexts = '';
+            let current = inp;
+            for(let i=0; i<3 && current; i++) {
+                current = current.parentElement;
+                if(current) parentTexts += ' ' + current.innerText;
             }
-            if (htmlLower.includes('biti') || htmlLower.includes('end')) {
-                if(end && inp.value === '') { inp.value = end; inp.dispatchEvent(new Event('change')); }
+            
+            let labelText = '';
+            if (inp.id) {
+                const lbl = document.querySelector(`label[for="${inp.id}"]`);
+                if (lbl) labelText = lbl.innerText;
             }
-            if (htmlLower.includes('mal') || htmlLower.includes('cost')) {
-                if(inp.value === '') { 
-                    inp.value = excItem['Maliyet (TL)'] || '0'; 
-                    inp.dispatchEvent(new Event('change')); 
+            
+            const inpAttrs = (inp.id + ' ' + inp.name + ' ' + inp.placeholder + ' ' + inp.className).toLowerCase();
+            const rawContext = cleanString(inp.outerHTML + parentTexts + labelText + inpAttrs);
+            
+            // Eğer "plana göre" yazıyorsa bu alan MEB'in sabit alanıdır, dokunma!
+            if (rawContext.includes('planagore')) {
+                return;
+            }
+
+            const isDateInput = inp.type === 'date';
+            
+            // Başlangıç (basla, baslangic, start vs her şeyi kapsar)
+            if (/basla|start|ilk/.test(rawContext)) {
+                if (colP) {
+                    inp.value = formatDateForInput(colP, isDateInput);
+                    triggerEvents(inp);
                 }
+            }
+            // Bitiş (bitis, bitirme, end vs)
+            else if (/biti|end|son/.test(rawContext)) {
+                if (colQ) {
+                    inp.value = formatDateForInput(colQ, isDateInput);
+                    triggerEvents(inp);
+                }
+            }
+            // Maliyet
+            else if (/mal|cost|tutar/.test(rawContext)) {
+                inp.value = excItem['Maliyet (TL)'] || excItem['Maliyet'] || '0'; 
+                triggerEvents(inp);
             }
         });
 
-        const txt = block.querySelector('textarea');
-        if (txt && txt.value === '') {
-            txt.value = excItem['Faaliyet Değerlendirmesi'] || excItem['Çözüm Önerileri'] || '-';
-            txt.dispatchEvent(new Event('change'));
-        }
+        const textareas = block.querySelectorAll('textarea');
+        textareas.forEach(txt => {
+            txt.value = excItem['Faaliyet Değerlendirmesi'] || excItem['Çözüm Önerileri'] || excItem['Açıklama'] || Object.values(excItem)[14] || '-';
+            triggerEvents(txt);
+        });
     }
 
     function bindUIEvents() {
@@ -382,7 +514,11 @@
         if (startBtn) startBtn.addEventListener('click', handleStart);
 
         const processBtn = document.getElementById('bot-btn-process-form');
-        if (processBtn) processBtn.addEventListener('click', processDetailForms);
+        if (processBtn) processBtn.addEventListener('click', () => {
+            STATE.activePhase = 'PROCESSING';
+            STATE.processed = [];
+            processDetailForms();
+        });
 
         const resetBtn = document.getElementById('bot-btn-reset');
         if (resetBtn) resetBtn.addEventListener('click', () => {

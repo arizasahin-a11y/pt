@@ -1839,6 +1839,7 @@ function checkUnreportedActivities() {
 
     let list = isOG ? combinedData.og_db : combinedData.oo_db;
     let results = [];
+    const seenNames = new Set();
 
     const eduYearVal = document.getElementById('edu-year').value;
     list.forEach(item => {
@@ -1872,17 +1873,20 @@ function checkUnreportedActivities() {
         if (dt) {
             const d = new Date(dt);
             if (statusVal === 'expired' ? d < today : d >= today) {
-                results.push({ 
-                    id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
-                    name: (isOG && item.tema) ? `${nameText.trim()} (TEMA ${item.tema})` : nameText.trim(), 
-                    eduYear: document.getElementById('edu-year').value,
-                    start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`], 
-                    end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`], 
-                    person: isOG ? item.sorumlu : item.sorumlu_verisi, 
-                    type: typeVal, 
-                    isReported: false, 
-                    status: null 
-                });
+                if (!seenNames.has(normName)) {
+                    seenNames.add(normName);
+                    results.push({ 
+                        id: isOG ? `og-${item.no}` : `oo-${item.sira}`, 
+                        name: (isOG && item.tema) ? `${nameText.trim()} (TEMA ${item.tema})` : nameText.trim(), 
+                        eduYear: document.getElementById('edu-year').value,
+                        start: isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`], 
+                        end: isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`], 
+                        person: isOG ? item.sorumlu : item.sorumlu_verisi, 
+                        type: typeVal, 
+                        isReported: false, 
+                        status: null 
+                    });
+                }
             }
         }
     });
