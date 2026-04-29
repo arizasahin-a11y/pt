@@ -660,6 +660,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const almPrintBtn = document.getElementById('alm-print-btn');
     if (almPrintBtn) almPrintBtn.onclick = () => printLeaderFullReport();
 
+    // Tüm liderler modal — Lidersiz Faaliyetler butonu
+    const almNoLeaderPrintBtn = document.getElementById('alm-no-leader-print-btn');
+    if (almNoLeaderPrintBtn) almNoLeaderPrintBtn.onclick = () => printNoLeaderReport();
+
     // Leader mini modal kapatma
     const lmCloseBtn = document.getElementById('lm-close-btn');
     const lmCloseFooter = document.getElementById('lm-close-footer-btn');
@@ -2746,6 +2750,166 @@ tbody tr:hover{background:#fffbeb!important;}
     const win = window.open('', '_blank');
     if (!win) { alert('Pop-up engelleyiciyi kapatın!'); return; }
     win.document.write(html);
+    win.document.close();
+}
+
+// Seçili kategoride lider atanmamış faaliyetleri listele — yeni sekmede aç
+function printNoLeaderReport() {
+    if (!combinedData) { alert('Veri henüz yüklenmedi.'); return; }
+
+    const typeVal = _almCurrentTypeVal;
+    const isOG = typeVal === 'OKUL GELİŞİM PROJESİ';
+    const typeLabel = isOG ? 'Okul Gelişim Projesi' : 'Okul Özel Projesi';
+    const prefix = isOG ? 'og-' : 'oo-';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const yearIdx = getYearIndexForReport();
+    const eduYearVal = document.getElementById('edu-year') ? document.getElementById('edu-year').value : '';
+    const dbSource = isOG ? combinedData.og_db : combinedData.oo_db;
+
+    const noLeaderActivities = [];
+
+    dbSource.forEach(item => {
+        const planId = isOG ? `og-${item.no}` : `oo-${item.sira}`;
+        const leaders = activityLeadersCache.get(planId) || [];
+        
+        if (leaders.length === 0) {
+            const dStr = isOG
+                ? (item[`y${yearIdx}_bit`] || item[`y${yearIdx}_bas`])
+                : (item[`bitis_${yearIdx}`] || item[`baslangic_${yearIdx}`]);
+            const dt = parseDBDate(dStr);
+            const endDate = dt ? new Date(dt) : null;
+            const isExpired = endDate ? endDate < today : false;
+
+            const startStr = isOG ? item[`y${yearIdx}_bas`] : item[`baslangic_${yearIdx}`];
+            const endStr   = isOG ? item[`y${yearIdx}_bit`] : item[`bitis_${yearIdx}`];
+            const nameText = isOG ? item.eylem_adi : item.eylem_gorev;
+            const normName = normalizeString(nameText);
+            
+            const report = savedReportsCache.find(r => {
+                if (r.projectType !== typeVal) return false;
+                if (r.planId && r.planId === planId) return true;
+                return normalizeString(r.activityName) === normName && r.eduYear === eduYearVal;
+            });
+
+            noLeaderActivities.push({
+                planId: planId,
+                name: (isOG && item.tema) ? `${nameText} (TEMA ${item.tema})` : nameText,
+                start: startStr || '—',
+                end: endStr || '—',
+                person: isOG ? item.sorumlu : item.sorumlu_verisi,
+                isExpired,
+                isReported: !!report,
+                status: report ? report.status : null
+            });
+        }
+    });
+
+    if (noLeaderActivities.length === 0) {
+        alert('Bu kategoride lider atanmamış faaliyet bulunamadı. Harika!');
+        return;
+    }
+
+    let tableRows = '';
+    noLeaderActivities.forEach((act, idx) => {
+        const expColor = act.isExpired ? '#dc2626' : '#059669';
+        const expText  = act.isExpired ? 'Süresi Doldu' : 'Devam Ediyor';
+        const repColor = act.isReported ? (act.status === 'İptal' ? '#dc2626' : '#059669') : '#6b7280';
+        const repText  = act.isReported ? (act.status || 'Tamamlandı') : 'Rapor Yok';
+        
+        tableRows += `
+        <tr style="background:${idx%2===0?'#f9fafb':'#fff'};">
+            <td style="padding:10px; border:1px solid #e5e7eb; font-size:0.8rem; font-weight:600; color:#374151; white-space:nowrap; text-align:center;">
+                ${act.planId.split('-')[1]}
+            </td>
+            <td style="padding:10px; border:1px solid #e5e7eb; font-size:0.85rem; font-weight:600; color:#1e293b;">
+                ${act.name}
+                <div style="font-size:0.75rem; color:#64748b; font-weight:400; margin-top:4px;">Sorumlu: ${act.person || '—'}</div>
+            </td>
+            <td style="padding:10px; border:1px solid #e5e7eb; font-size:0.8rem; color:#4b5563; text-align:center; white-space:nowrap;">
+                ${act.start} — ${act.end}<br>
+                <span style="display:inline-block; margin-top:4px; font-size:0.7rem; color:${expColor}; font-weight:700; background:${act.isExpired?'#fee2e2':'#d1fae5'}; padding:2px 6px; border-radius:10px;">${expText}</span>
+            </td>
+            <td style="padding:10px; border:1px solid #e5e7eb; font-size:0.8rem; font-weight:700; color:${repColor}; text-align:center; white-space:nowrap;">
+                <span style="background:${repColor}18;color:${repColor};padding:3px 9px;border-radius:10px;border:1px solid ${repColor}33;">${repText}</span>
+            </td>
+        </tr>`;
+    });
+
+    const now = new Date().toLocaleString('tr-TR');
+    const htmlContent = \`
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="UTF-8">
+            <title>Lidersiz Faaliyetler — \${typeLabel}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+            <style>
+                *{box-sizing:border-box;margin:0;padding:0;}
+                body{font-family:'Outfit',sans-serif;background:#f1f5f9;color:#1e293b;padding:28px 18px;}
+                .wrap{max-width:1000px;margin:0 auto;}
+                .rh{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border-radius:16px;padding:22px 28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+                .rh h1{font-size:1.3rem;font-weight:700;margin-bottom:5px;}
+                .rh p{font-size:0.8rem;color:#fca5a5;}
+                .bdg{display:inline-block;padding:5px 13px;border-radius:18px;font-size:0.78rem;font-weight:700;margin-bottom:5px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;}
+                .abar{display:flex;gap:10px;margin-bottom:16px;}
+                .bprnt{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1e293b;border:none;border-radius:10px;padding:10px 22px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:8px;}
+                .bprnt:hover{transform:translateY(-2px);}
+                .tw{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.06);border:1px solid #e2e8f0;}
+                table{width:100%;border-collapse:collapse;}
+                thead th{background:#1e293b;color:#f8fafc;padding:12px 10px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-right:1px solid rgba(255,255,255,.1);}
+                thead th:nth-child(2){text-align:left;}
+                thead th:last-child{border-right:none;}
+                tbody tr:hover{background:#fffbeb!important;}
+                .foot{text-align:center;color:#94a3b8;font-size:0.76rem;margin-top:16px;}
+                @media print{
+                    body{background:#fff;padding:6px;}
+                    .abar{display:none!important;}
+                    .wrap{max-width:100%;}
+                    .rh,.tw{border-radius:0;}
+                    .tw{box-shadow:none;}
+                    @page{margin:8mm;size:A4 portrait;}
+                }
+            </style>
+        </head>
+        <body>
+            <div class="wrap">
+                <div class="rh">
+                    <div>
+                        <h1>⚠️ Lider Atanmamış Faaliyetler Listesi</h1>
+                        <p>İstanbul Atatürk Anadolu Lisesi &nbsp;|&nbsp; \${eduYearVal} Eğitim Öğretim Yılı &nbsp;|&nbsp; \${now}</p>
+                    </div>
+                    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+                        <span class="bdg">\${typeLabel}</span>
+                        <span class="bdg" style="background:rgba(239,68,68,0.3); border-color:#fca5a5;">\${noLeaderActivities.length} Kayıt</span>
+                    </div>
+                </div>
+                <div class="abar">
+                    <button class="bprnt" onclick="window.print()">🖨️ Yazdır / PDF</button>
+                </div>
+                <div class="tw">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">No</th>
+                                <th>Faaliyet Adı / Sorumlu Grubu</th>
+                                <th style="width:180px;">Tarih / Süreç</th>
+                                <th style="width:120px;">Rapor Durumu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            \${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="foot">PFDS — Proje Faaliyeti Değerlendirme ve Raporlama Sistemi</div>
+            </div>
+        </body>
+        </html>
+    \`;
+
+    const win = window.open('', '_blank');
+    if (!win) { alert('Pop-up engelleyiciyi kapatın!'); return; }
+    win.document.write(htmlContent);
     win.document.close();
 }
 
